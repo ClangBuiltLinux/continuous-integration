@@ -8,7 +8,7 @@ addons:
   apt:
     packages:
       - binutils-aarch64-linux-gnu
-      - qemu
+      - qemu-system-arm
       - expect-dev
 cache:
   directories:

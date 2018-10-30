@@ -3,6 +3,7 @@ set -ux
 check_dependencies() {
   set -e
 
+  test -x `which nproc`
   test -x `which gcc`
   test -x `which aarch64-linux-gnu-as`
   test -x `which aarch64-linux-gnu-ld`
@@ -14,16 +15,8 @@ check_dependencies() {
   set +e
 }
 
-build_clang() {
-  ln -sf ../../clang llvm/tools/clang
-  mkdir -p llvm/build
-  cd llvm/build
-
-  cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
-  ninja clang
-
-  cd -
-  rm llvm/tools/clang
+mako_reactor() {
+  make -j$(nproc) $@
 }
 
 build_linux() {
@@ -35,8 +28,8 @@ build_linux() {
   # TODO: do we really want to be building the kernel from scratch every time?
   # Rerunning ninja above will not rebuild unless source files change.
   #make CC=$clang mrproper
-  make CC=$clang defconfig
-  make CC=$clang -j`nproc`
+  mako_reactor CC=$clang defconfig
+  mako_reactor CC=$clang HOSTCC=$clang
   cd -
 }
 
@@ -55,7 +48,7 @@ build_root() {
 
     cd buildroot
     make defconfig BR2_DEFCONFIG=../buildroot.config
-    make -j`nproc`
+    mako_reactor
     cd -
   fi
 }

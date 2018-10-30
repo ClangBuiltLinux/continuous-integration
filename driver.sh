@@ -28,7 +28,8 @@ build_clang() {
 }
 
 build_linux() {
-  local clang=$(readlink -f ./llvm/build/bin/clang)
+  #local clang=$(readlink -f ./llvm/build/bin/clang)
+  local clang=clang-8
   set -e
   test -x $clang
   set +e
@@ -76,7 +77,7 @@ boot_qemu() {
 }
 
 check_dependencies
-build_clang
+#build_clang
 build_linux
 build_root
 boot_qemu

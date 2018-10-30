@@ -3,14 +3,14 @@ set -ux
 check_dependencies() {
   set -e
 
-  test -x `which nproc`
-  test -x `which gcc`
-  test -x `which aarch64-linux-gnu-as`
-  test -x `which aarch64-linux-gnu-ld`
-  test -x `which qemu-system-aarch64`
-  test -x `which timeout`
-  test -x `which unbuffer`
-  test -x `which clang-8`
+  which nproc
+  which gcc
+  which aarch64-linux-gnu-as
+  which aarch64-linux-gnu-ld
+  which qemu-system-aarch64
+  which timeout
+  which unbuffer
+  which clang-8
 
   set +e
 }

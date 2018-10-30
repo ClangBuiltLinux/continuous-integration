@@ -2,15 +2,3 @@
 	path = linux
 	url = git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 	shallow = true
-[submodule "llvm"]
-	path = llvm
-	url = https://git.llvm.org/git/llvm.git/
-	shallow = true
-[submodule "clang"]
-	path = clang
-	url = https://git.llvm.org/git/clang.git/
-	shallow = true
-[submodule "buildroot"]
-	path = buildroot
-	url = git://git.buildroot.net/buildroot
-	shallow = true

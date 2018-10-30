@@ -9,7 +9,10 @@ addons:
     packages:
       - binutils-aarch64-linux-gnu
       - qemu
-      - expect
+      - expect-dev
+cache:
+  directories:
+    buildroot/output/images
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 before_script:

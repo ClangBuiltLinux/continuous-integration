@@ -11,6 +11,7 @@ check_dependencies() {
   test -x `which qemu-system-aarch64`
   test -x `which timeout`
   test -x `which unbuffer`
+  test -x `which clang-8`
 
   set +e
 }
@@ -28,11 +29,7 @@ build_clang() {
 }
 
 build_linux() {
-  #local clang=$(readlink -f ./llvm/build/bin/clang)
-  local clang=clang-8
-  set -e
-  test -x $clang
-  set +e
+  local clang=$(which clang-8)
 
   cd linux
   export ARCH=arm64
@@ -46,16 +43,23 @@ build_linux() {
 }
 
 build_root() {
-  mkdir -p buildroot/overlays/etc/init.d/
-  cp -f inittab buildroot/overlays/etc/.
-  cp -f S50yolo buildroot/overlays/etc/init.d/.
+  if [[ ! -d buildroot ]]; then
+    wget https://buildroot.org/downloads/buildroot-2018.08.tar.gz
+    tar -xzf buildroot-2018.08.tar.gz
+    mv buildroot-2018.08 buildroot
+    rm -rf buildroot-2018.08.tar.gz
+  fi
 
-  cd buildroot
-  make defconfig BR2_DEFCONFIG=../buildroot.config
-  make
-  cd -
+  if [[ ! -e buildroot/output/images/rootfs.ext4 ]]; then
+    mkdir -p buildroot/overlays/etc/init.d/
+    cp -f inittab buildroot/overlays/etc/.
+    cp -f S50yolo buildroot/overlays/etc/init.d/.
 
-  rm -rf buildroot/overlays
+    cd buildroot
+    make defconfig BR2_DEFCONFIG=../buildroot.config
+    make -j`nproc`
+    cd -
+  fi
 }
 
 boot_qemu() {

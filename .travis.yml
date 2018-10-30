@@ -10,6 +10,8 @@ addons:
       - binutils-aarch64-linux-gnu
       - qemu
       - expect
+before_install:
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 before_script:
   - curl https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
   - echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty main" | sudo tee -a /etc/apt/sources.list

@@ -3,8 +3,6 @@ set -ux
 check_dependencies() {
   set -e
 
-  test -x `which cmake`
-  test -x `which ninja`
   test -x `which gcc`
   test -x `which aarch64-linux-gnu-as`
   test -x `which aarch64-linux-gnu-ld`

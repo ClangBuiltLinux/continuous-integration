@@ -13,8 +13,7 @@ check_dependencies() {
 }
 
 build_clang() {
-  rm -f llvm/tools/clang
-  ln -s ../../clang llvm/tools/clang
+  ln -sf ../../clang llvm/tools/clang
   mkdir -p llvm/build
   cd llvm/build
 
@@ -34,12 +33,28 @@ build_linux() {
   cd linux
   export ARCH=arm64
   export CROSS_COMPILE=aarch64-linux-gnu-
+  # TODO: do we really want to be building the kernel from scratch every time?
+  # Rerunning ninja above will not rebuild unless source files change.
   make CC=$clang mrproper
   make CC=$clang defconfig
   make CC=$clang -j`nproc`
   cd -
 }
 
+build_root() {
+  mkdir -p buildroot/overlays/etc/init.d/
+  cp -f inittab buildroot/overlays/etc/.
+  cp -f S50yolo buildroot/overlays/etc/init.d/.
+
+  cd buildroot
+  make defconfig BR2_DEFCONFIG=../buildroot.config
+  make
+  cd -
+
+  rm -rf buildroot/overlays
+}
+
 check_dependencies
 build_clang
 build_linux
+build_root

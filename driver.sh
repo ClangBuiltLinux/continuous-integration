@@ -72,7 +72,6 @@ boot_qemu() {
 }
 
 check_dependencies
-#build_clang
 build_linux
 build_root
 boot_qemu

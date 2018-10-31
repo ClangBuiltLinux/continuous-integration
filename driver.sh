@@ -5,14 +5,14 @@ set -ux
 check_dependencies() {
   set -e
 
-  which nproc
-  which gcc
-  which aarch64-linux-gnu-as
-  which aarch64-linux-gnu-ld
-  which qemu-system-aarch64
-  which timeout
-  which unbuffer
-  which clang-8
+  command -v nproc
+  command -v gcc
+  command -v aarch64-linux-gnu-as
+  command -v aarch64-linux-gnu-ld
+  command -v qemu-system-aarch64
+  command -v timeout
+  command -v unbuffer
+  command -v clang-8
 
   set +e
 }
@@ -22,7 +22,7 @@ mako_reactor() {
 }
 
 build_linux() {
-  local clang=$(which clang-8)
+  local clang=$(command -v clang-8)
 
   cd linux
   export ARCH=arm64

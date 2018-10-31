@@ -8,15 +8,15 @@ addons:
   apt:
     packages:
       - binutils-aarch64-linux-gnu
-      - qemu-system-arm
       - expect-dev
 cache:
   directories:
     buildroot/output/images
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo add-apt-repository ppa:pietro-monteiro/qemu-backport -y
 before_script:
   - curl https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
   - echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty main" | sudo tee -a /etc/apt/sources.list
   - sudo apt-get update -qq
-  - sudo apt-get install clang-8 -y
+  - sudo apt-get install clang-8 qemu-system-arm -y

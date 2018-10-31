@@ -28,7 +28,7 @@ parse_parameters() {
 }
 
 mako_reactor() {
-  make -j"$(nproc)" "$@"
+  make -j"$(nproc)" CC="$clang" HOSTCC="$clang" "$@"
 }
 
 build_linux() {
@@ -40,35 +40,15 @@ build_linux() {
   export CROSS_COMPILE=aarch64-linux-gnu-
   # Only clean up old artifacts if requested, the Linux build system
   # is good about figuring out what needs to be rebuilt
-  [[ -n "${cleanup:-}" ]] && make CC="$clang" mrproper
-  mako_reactor CC="$clang" defconfig
-  mako_reactor CC="$clang" HOSTCC="$clang" Image.gz
+  [[ -n "${cleanup:-}" ]] && mako_reactor mrproper
+  mako_reactor defconfig
+  mako_reactor Image.gz
   cd "$OLDPWD"
 }
 
-build_root() {
-  if [[ ! -d buildroot ]]; then
-    wget https://buildroot.org/downloads/buildroot-2018.08.tar.gz
-    tar -xzf buildroot-2018.08.tar.gz
-    mv buildroot-2018.08 buildroot
-    rm -rf buildroot-2018.08.tar.gz
-  fi
-
-  if [[ ! -e buildroot/output/images/rootfs.ext4 ]]; then
-    mkdir -p buildroot/overlays/etc/init.d/
-    cp -f inittab buildroot/overlays/etc/.
-    cp -f S50yolo buildroot/overlays/etc/init.d/.
-
-    cd buildroot
-    make defconfig BR2_DEFCONFIG=../buildroot.config
-    mako_reactor
-    cd "$OLDPWD"
-  fi
-}
-
 boot_qemu() {
-  local kernel_image=linux/arch/arm64/boot/Image.gz
-  local rootfs=buildroot/output/images/rootfs.ext4
+  local kernel_image=linux/arch/${ARCH}/boot/Image.gz
+  local rootfs=images/${ARCH}/rootfs.ext4
   # for the rest of the script, particularly qemu
   set -e
   test -e $kernel_image
@@ -80,12 +60,10 @@ boot_qemu() {
     -nographic \
     -kernel $kernel_image \
     -hda $rootfs \
-    -append "console=ttyAMA0 root=/dev/vda" \
-    -no-reboot
+    -append "console=ttyAMA0 root=/dev/vda"
 }
 
 check_dependencies
 parse_parameters "$@"
 build_linux
-build_root
 boot_qemu

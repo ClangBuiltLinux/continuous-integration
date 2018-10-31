@@ -42,7 +42,7 @@ build_linux() {
   # is good about figuring out what needs to be rebuilt
   [[ -n "${cleanup:-}" ]] && make CC="$clang" mrproper
   mako_reactor CC="$clang" defconfig
-  mako_reactor CC="$clang" HOSTCC="$clang"
+  mako_reactor CC="$clang" HOSTCC="$clang" Image.gz
   cd "$OLDPWD"
 }
 

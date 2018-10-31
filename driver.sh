@@ -22,7 +22,8 @@ mako_reactor() {
 }
 
 build_linux() {
-  local clang=$(command -v clang-8)
+  local clang
+  clang=$(command -v clang-8)
 
   cd linux
   export ARCH=arm64

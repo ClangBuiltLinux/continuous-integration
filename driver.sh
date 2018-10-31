@@ -28,11 +28,12 @@ parse_parameters() {
 }
 
 mako_reactor() {
-  make -j"$(nproc)" CC="$clang" HOSTCC="$clang" "$@"
+  make -j"$(nproc)" CC="$ccache $clang" HOSTCC="$ccache $clang" "$@"
 }
 
 build_linux() {
-  local clang
+  local ccache clang
+  ccache=$(command -v ccache)
   clang=$(command -v clang-8)
 
   cd linux

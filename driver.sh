@@ -32,7 +32,7 @@ build_linux() {
   #make CC=$clang mrproper
   mako_reactor CC="$clang" defconfig
   mako_reactor CC="$clang" HOSTCC="$clang"
-  cd -
+  cd "$OLDPWD"
 }
 
 build_root() {
@@ -51,7 +51,7 @@ build_root() {
     cd buildroot
     make defconfig BR2_DEFCONFIG=../buildroot.config
     mako_reactor
-    cd -
+    cd "$OLDPWD"
   fi
 }
 

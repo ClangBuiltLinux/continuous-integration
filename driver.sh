@@ -17,6 +17,16 @@ check_dependencies() {
   set +e
 }
 
+parse_parameters() {
+  while [[ $# -ge 1 ]]; do
+    case $1 in
+      "-c"|"--clean") cleanup=true ;;
+    esac
+
+    shift
+  done
+}
+
 mako_reactor() {
   make -j"$(nproc)" "$@"
 }
@@ -28,9 +38,9 @@ build_linux() {
   cd linux
   export ARCH=arm64
   export CROSS_COMPILE=aarch64-linux-gnu-
-  # TODO: do we really want to be building the kernel from scratch every time?
-  # Rerunning ninja above will not rebuild unless source files change.
-  #make CC=$clang mrproper
+  # Only clean up old artifacts if requested, the Linux build system
+  # is good about figuring out what needs to be rebuilt
+  [[ -n "${cleanup:-}" ]] && make CC="$clang" mrproper
   mako_reactor CC="$clang" defconfig
   mako_reactor CC="$clang" HOSTCC="$clang"
   cd "$OLDPWD"
@@ -75,6 +85,7 @@ boot_qemu() {
 }
 
 check_dependencies
+parse_parameters "$@"
 build_linux
 build_root
 boot_qemu

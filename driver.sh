@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 set -ux
 
 check_dependencies() {

@@ -18,7 +18,7 @@ check_dependencies() {
 }
 
 mako_reactor() {
-  make -j$(nproc) $@
+  make -j"$(nproc)" "$@"
 }
 
 build_linux() {
@@ -30,8 +30,8 @@ build_linux() {
   # TODO: do we really want to be building the kernel from scratch every time?
   # Rerunning ninja above will not rebuild unless source files change.
   #make CC=$clang mrproper
-  mako_reactor CC=$clang defconfig
-  mako_reactor CC=$clang HOSTCC=$clang
+  mako_reactor CC="$clang" defconfig
+  mako_reactor CC="$clang" HOSTCC="$clang"
   cd -
 }
 

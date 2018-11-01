@@ -36,7 +36,14 @@ build_linux() {
   ccache=$(command -v ccache)
   clang=$(command -v clang-8)
 
-  cd linux
+  if [[ ! -d linux ]]; then
+    git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+    cd linux
+  else
+    cd linux
+    git fetch --depth=1 origin master
+    git reset --hard origin/master
+  fi
   export ARCH=arm64
   export CROSS_COMPILE=aarch64-linux-gnu-
   # Only clean up old artifacts if requested, the Linux build system

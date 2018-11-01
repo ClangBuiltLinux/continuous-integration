@@ -8,6 +8,7 @@ addons:
   apt:
     packages:
       - binutils-aarch64-linux-gnu
+      - binutils-arm-linux-gnueabi
       - expect-dev
       - ccache
 cache: ccache

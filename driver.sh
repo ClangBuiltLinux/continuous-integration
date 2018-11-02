@@ -17,7 +17,7 @@ setup_variables() {
         echo "   They can be invoked either via 'export VAR=<value>; ./driver.sh' OR 'VAR=value ./driver.sh'"
         echo
         echo "   ARCH:"
-        echo "       If no ARCH value is specified, arm64 is the default. Currently, arm and arm64 are supported."
+        echo "       If no ARCH value is specified, arm64 is the default. Currently, arm, arm64, and x86_64 are supported."
         echo
         echo " Optional parameters:"
         echo "   -c | --clean:"
@@ -39,7 +39,8 @@ setup_variables() {
       config=multi_v7_defconfig
       image_name=zImage
       qemu="qemu-system-arm"
-      qemu_cmdline=( -drive "file=images/arm/rootfs.ext4,format=raw,id=rootfs,if=none"
+      qemu_cmdline=( -machine virt
+                     -drive "file=images/arm/rootfs.ext4,format=raw,id=rootfs,if=none"
                      -device "virtio-blk-device,drive=rootfs"
                      -append "console=ttyAMA0 root=/dev/vda" )
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
@@ -48,10 +49,18 @@ setup_variables() {
       config=defconfig
       image_name=Image.gz
       qemu="qemu-system-aarch64"
-      qemu_cmdline=( -cpu cortex-a57
+      qemu_cmdline=( -machine virt
+                     -cpu cortex-a57
                      -drive "file=images/arm64/rootfs.ext4,format=raw"
                      -append "console=ttyAMA0 root=/dev/vda" )
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
+
+    "x86_64")
+      config=defconfig
+      image_name=bzImage
+      qemu="qemu-system-x86_64"
+      qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
+                     -append "console=ttyS0 root=/dev/sda" ) ;;
 
     # Unknown arch, error out
     *)
@@ -93,6 +102,8 @@ build_linux() {
     git fetch --depth=1 origin master
     git reset --hard origin/master
   fi
+  patches_folder=../patches/${ARCH}
+  [[ -d ${patches_folder} ]] && git apply -3 "${patches_folder}"/*.patch
   # Only clean up old artifacts if requested, the Linux build system
   # is good about figuring out what needs to be rebuilt
   [[ -n "${cleanup:-}" ]] && mako_reactor mrproper
@@ -107,7 +118,6 @@ boot_qemu() {
   set -e
   test -e ${kernel_image}
   timeout 1m unbuffer ${qemu} \
-    -machine virt \
     "${qemu_cmdline[@]}" \
     -m 512 \
     -nographic \

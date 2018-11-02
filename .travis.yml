@@ -5,6 +5,8 @@ matrix:
       env: ARCH=arm
     - name: "ARCH=arm64"
       env: ARCH=arm64
+    - name: "ARCH=x86_64"
+      env: ARCH=x86_64
 compiler: gcc
 script: ./driver.sh
 os: linux
@@ -13,6 +15,7 @@ sudo: required
 addons:
   apt:
     packages:
+      - binutils
       - binutils-aarch64-linux-gnu
       - binutils-arm-linux-gnueabi
       - expect-dev
@@ -25,7 +28,9 @@ before_script:
   - curl https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
   - echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty main" | sudo tee -a /etc/apt/sources.list
   - sudo apt-get update -qq
-  - sudo apt-get install clang-8 qemu-system-arm -y
+  - curl -LO http://mirrors.kernel.org/ubuntu/pool/main/s/seabios/seabios_1.8.2-1ubuntu1_all.deb
+  - sudo dpkg -i seabios_1.8.2-1ubuntu1_all.deb
+  - sudo apt-get install clang-8 qemu-system-arm qemu-system-x86 -y
   - mkdir -p ccache
   - curl https://www.samba.org/ftp/ccache/ccache-3.5.tar.gz | tar -xzf - -C ccache --strip-components=1
   - cd ccache

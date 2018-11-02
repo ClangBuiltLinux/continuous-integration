@@ -1,0 +1,70 @@
+From 8ae711c1c41d16d700aa421427bc1dbf2035b68a Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <natechancellor@gmail.com>
+Date: Tue, 23 Oct 2018 15:55:04 -0700
+Subject: [PATCH 1/2] x86: Remove -pipe from KBUILD_CFLAGS
+
+Commit 77b0bf55bc67 ("kbuild/Makefile: Prepare for using macros in
+inline assembly code to work around asm() related GCC inlining bugs")
+added -Wa,- to KBUILD_CFLAGS, which breaks compiling with Clang (hangs
+indefinitely at compiling init/main.o). This happens because while Clang
+accepts -pipe (and has it documented in its list of supported flags), it
+silently ignores it after this 2010 commit (thanks to Nick Desaulniers
+for tracking this down), meaning that gas just infinitely waits for
+stdin and never receives it.
+
+https://github.com/llvm-mirror/clang/commit/c19a12dc3d441bec62eed55e312b76c12d6d9022
+
+Initially, I had suggested just add -Wa,- to KBUILD_CFLAGS when GCC was
+being used but that was before realizing it is because Clang doesn't do
+anything with -pipe. H. Peter Anvin suggested checking to see if -pipe
+gives us any gains out of GCC. Turns out it might actually be hurting:
+
+With -pipe:
+
+real    3m40.813s
+real    3m44.449s
+real    3m39.648s
+
+Without -pipe:
+
+real    3m38.492s
+real    3m38.335s
+real    3m38.975s
+
+The issue of -Wa,- being passed along to gas without -pipe being
+supported should still probably be fixed on the LLVM side (open issue:
+https://bugs.llvm.org/show_bug.cgi?id=39410) but this is not as much of
+a workaround anymore since it helps both GCC and Clang.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/213
+Suggested-by: H. Peter Anvin <hpa@zytor.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/x86/Makefile | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 5b562e464009..88398fdf8129 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -213,8 +213,6 @@ ifdef CONFIG_X86_64
+ KBUILD_LDFLAGS += $(call ld-option, -z max-page-size=0x200000)
+ endif
+ 
+-# Speed up the build
+-KBUILD_CFLAGS += -pipe
+ # Workaround for a gcc prelease that unfortunately was shipped in a suse release
+ KBUILD_CFLAGS += -Wno-sign-compare
+ #
+@@ -239,7 +237,7 @@ archheaders:
+ archmacros:
+ 	$(Q)$(MAKE) $(build)=arch/x86/kernel arch/x86/kernel/macros.s
+ 
+-ASM_MACRO_FLAGS = -Wa,arch/x86/kernel/macros.s -Wa,-
++ASM_MACRO_FLAGS = -Wa,arch/x86/kernel/macros.s
+ export ASM_MACRO_FLAGS
+ KBUILD_CFLAGS += $(ASM_MACRO_FLAGS)
+ 
+-- 
+2.19.1
+

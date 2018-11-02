@@ -22,6 +22,8 @@ setup_variables() {
         echo "       If no ARCH value is specified, arm64 is the default. Currently, arm, arm64, and x86_64 are supported."
         echo "   LD:"
         echo "       If no LD value is specified, \${CROSS_COMPILE}-ld is used. arm64 only."
+        echo "   REPO:"
+        echo "       linux (default) or linux-next, to specify which tree to clone and build."
         echo
         echo " Optional parameters:"
         echo "   -c | --clean:"
@@ -73,6 +75,12 @@ setup_variables() {
       echo "Unknown ARCH specified!"
       exit 1 ;;
   esac
+
+  # torvalds/linux is the default repo if nothing is specified
+  case ${REPO:=linux} in
+    "linux") owner=torvalds ;;
+    "linux-next") owner=next ;;
+  esac
 }
 
 check_dependencies() {
@@ -103,11 +111,11 @@ mako_reactor() {
 build_linux() {
   CC="$(command -v ccache) $(command -v clang-8)"
 
-  if [[ ! -d linux ]]; then
-    git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-    cd linux
+  if [[ ! -d ${REPO} ]]; then
+    git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${REPO}.git
+    cd ${REPO}
   else
-    cd linux
+    cd ${REPO}
     git fetch --depth=1 origin master
     git reset --hard origin/master
   fi
@@ -127,7 +135,7 @@ build_linux() {
 }
 
 boot_qemu() {
-  local kernel_image=linux/arch/${ARCH}/boot/${image_name}
+  local kernel_image=${REPO}/arch/${ARCH}/boot/${image_name}
   # for the rest of the script, particularly qemu
   set -e
   test -e ${kernel_image}

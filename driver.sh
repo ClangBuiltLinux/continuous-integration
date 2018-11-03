@@ -1,33 +1,37 @@
 #!/usr/bin/env bash
 
-set -ux
-
-check_dependencies() {
-  set -e
-
-  command -v nproc
-  command -v gcc
-  command -v aarch64-linux-gnu-as
-  command -v aarch64-linux-gnu-ld
-  command -v arm-linux-gnueabi-as
-  command -v arm-linux-gnueabi-ld
-  command -v qemu-system-aarch64
-  command -v qemu-system-arm
-  command -v timeout
-  command -v unbuffer
-  command -v clang-8
-
-  set +e
-}
+set -u
 
 setup_variables() {
   while [[ $# -ge 1 ]]; do
     case $1 in
       "-c"|"--clean") cleanup=true ;;
+      "-h"|"--help")
+        echo
+        echo " Usage: ./driver.sh <options>"
+        echo
+        echo " Script description: Build a Linux kernel image with Clang and boot it"
+        echo
+        echo " Environment variables:"
+        echo "   The script can take into account specific environment variables, mostly used with Travis."
+        echo "   They can be invoked either via 'export VAR=<value>; ./driver.sh' OR 'VAR=value ./driver.sh'"
+        echo
+        echo "   ARCH:"
+        echo "       If no ARCH value is specified, arm64 is the default. Currently, arm and arm64 are supported."
+        echo
+        echo " Optional parameters:"
+        echo "   -c | --clean:"
+        echo "       Run 'make mrproper' before building the kernel. Normally, the build system is smart enought to figure out"
+        echo "       what needs to be rebuilt but sometimes it might be necessary to clean it manually."
+        echo
+        exit 0 ;;
     esac
 
     shift
   done
+
+  # Turn on debug mode after parameters in case -h was specified
+  set -x
 
   # arm64 is the current default if nothing is specified
   [[ -z "${ARCH:-}" ]] && ARCH=arm64
@@ -56,6 +60,24 @@ setup_variables() {
       echo "Unknown ARCH specified!"
       exit 1 ;;
   esac
+}
+
+check_dependencies() {
+  set -e
+
+  command -v nproc
+  command -v gcc
+  command -v aarch64-linux-gnu-as
+  command -v aarch64-linux-gnu-ld
+  command -v arm-linux-gnueabi-as
+  command -v arm-linux-gnueabi-ld
+  command -v qemu-system-aarch64
+  command -v qemu-system-arm
+  command -v timeout
+  command -v unbuffer
+  command -v clang-8
+
+  set +e
 }
 
 mako_reactor() {
@@ -96,7 +118,7 @@ boot_qemu() {
     -kernel $kernel_image
 }
 
-check_dependencies
 setup_variables "$@"
+check_dependencies
 build_linux
 boot_qemu

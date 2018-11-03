@@ -18,6 +18,8 @@ setup_variables() {
         echo
         echo "   ARCH:"
         echo "       If no ARCH value is specified, arm64 is the default. Currently, arm, arm64, and x86_64 are supported."
+        echo "   LD:"
+        echo "       If no LD value is specified, \${CROSS_COMPILE}-ld is used. arm64 only."
         echo
         echo " Optional parameters:"
         echo "   -c | --clean:"
@@ -67,7 +69,6 @@ setup_variables() {
       echo "Unknown ARCH specified!"
       exit 1 ;;
   esac
-  export ARCH
 }
 
 check_dependencies() {
@@ -81,12 +82,13 @@ check_dependencies() {
   command -v timeout
   command -v unbuffer
   command -v clang-8
+  command -v "${LD:="${CROSS_COMPILE:-}"ld}"
 
   set +e
 }
 
 mako_reactor() {
-  make -j"$(nproc)" CC="${ccache} ${clang}" HOSTCC="${ccache} ${clang}" "${@}"
+  make -j"$(nproc)" CC="${ccache} ${clang}" HOSTCC="${ccache} ${clang}" LD="${LD}" "${@}"
 }
 
 build_linux() {

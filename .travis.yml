@@ -1,4 +1,10 @@
 language: cpp
+matrix:
+  include:
+    - name: "ARCH=arm"
+      env: ARCH=arm
+    - name: "ARCH=arm64"
+      env: ARCH=arm64
 compiler: gcc
 script: ./driver.sh
 os: linux
@@ -8,6 +14,7 @@ addons:
   apt:
     packages:
       - binutils-aarch64-linux-gnu
+      - binutils-arm-linux-gnueabi
       - expect-dev
       - ccache
 cache: ccache
@@ -26,3 +33,5 @@ before_script:
   - make -j$(nproc)
   - export PATH=${PWD}:${PATH}
   - cd "${OLDPWD}"
+after_script:
+  - sleep 1

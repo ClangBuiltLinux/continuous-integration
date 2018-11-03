@@ -67,12 +67,9 @@ check_dependencies() {
 
   command -v nproc
   command -v gcc
-  command -v aarch64-linux-gnu-as
-  command -v aarch64-linux-gnu-ld
-  command -v arm-linux-gnueabi-as
-  command -v arm-linux-gnueabi-ld
-  command -v qemu-system-aarch64
-  command -v qemu-system-arm
+  command -v "${CROSS_COMPILE:-}"as
+  command -v "${CROSS_COMPILE:-}"ld
+  command -v $qemu
   command -v timeout
   command -v unbuffer
   command -v clang-8

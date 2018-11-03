@@ -92,6 +92,10 @@ check_dependencies() {
 }
 
 mako_reactor() {
+  # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/kbuild/kbuild.txt
+  KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
+  KBUILD_BUILD_USER=driver \
+  KBUILD_BUILD_HOST=clangbuiltlinux \
   make -j"${jobs:-$(nproc)}" CC="${ccache} ${clang}" HOSTCC="${ccache} ${clang}" LD="${LD}" "${@}"
 }
 

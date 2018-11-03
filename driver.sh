@@ -34,9 +34,7 @@ setup_variables() {
   set -x
 
   # arm64 is the current default if nothing is specified
-  [[ -z "${ARCH:-}" ]] && ARCH=arm64
-  export ARCH
-  case ${ARCH} in
+  case ${ARCH:=arm64} in
     "arm")
       config=multi_v7_defconfig
       image_name=zImage
@@ -60,6 +58,7 @@ setup_variables() {
       echo "Unknown ARCH specified!"
       exit 1 ;;
   esac
+  export ARCH
 }
 
 check_dependencies() {

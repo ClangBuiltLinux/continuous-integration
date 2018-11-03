@@ -3,8 +3,8 @@
 set -u
 
 setup_variables() {
-  while [[ $# -ge 1 ]]; do
-    case $1 in
+  while [[ ${#} -ge 1 ]]; do
+    case ${1} in
       "-c"|"--clean") cleanup=true ;;
       "-h"|"--help")
         echo
@@ -36,7 +36,7 @@ setup_variables() {
   # arm64 is the current default if nothing is specified
   [[ -z "${ARCH:-}" ]] && ARCH=arm64
   export ARCH
-  case $ARCH in
+  case ${ARCH} in
     "arm")
       config=multi_v7_defconfig
       image_name=zImage
@@ -69,7 +69,7 @@ check_dependencies() {
   command -v gcc
   command -v "${CROSS_COMPILE:-}"as
   command -v "${CROSS_COMPILE:-}"ld
-  command -v $qemu
+  command -v ${qemu}
   command -v timeout
   command -v unbuffer
   command -v clang-8
@@ -78,7 +78,7 @@ check_dependencies() {
 }
 
 mako_reactor() {
-  make -j"$(nproc)" CC="$ccache $clang" HOSTCC="$ccache $clang" "$@"
+  make -j"$(nproc)" CC="${ccache} ${clang}" HOSTCC="${ccache} ${clang}" "${@}"
 }
 
 build_linux() {
@@ -97,25 +97,25 @@ build_linux() {
   # Only clean up old artifacts if requested, the Linux build system
   # is good about figuring out what needs to be rebuilt
   [[ -n "${cleanup:-}" ]] && mako_reactor mrproper
-  mako_reactor $config
-  mako_reactor $image_name
-  cd "$OLDPWD"
+  mako_reactor ${config}
+  mako_reactor ${image_name}
+  cd "${OLDPWD}"
 }
 
 boot_qemu() {
-  local kernel_image=linux/arch/$ARCH/boot/$image_name
+  local kernel_image=linux/arch/${ARCH}/boot/${image_name}
   # for the rest of the script, particularly qemu
   set -e
-  test -e $kernel_image
-  timeout 1m unbuffer $qemu \
+  test -e ${kernel_image}
+  timeout 1m unbuffer ${qemu} \
     -machine virt \
     "${qemu_cmdline[@]}" \
     -m 512 \
     -nographic \
-    -kernel $kernel_image
+    -kernel ${kernel_image}
 }
 
-setup_variables "$@"
+setup_variables "${@}"
 check_dependencies
 build_linux
 boot_qemu

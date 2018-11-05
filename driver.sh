@@ -51,6 +51,19 @@ setup_variables() {
       qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
                      -append "console=ttyS0 root=/dev/sda" ) ;;
 
+    "ppc64le")
+      config=powernv_defconfig
+      image_name=zImage.epapr
+      qemu="qemu-system-ppc64"
+      qemu_ram=2G
+      qemu_cmdline=( -machine powernv
+                     -device ipmi-bmc-sim,id=bmc0
+                     -device isa-ipmi-bt,bmc=bmc0,irq=10
+                     -L /usr/share/skiboot -bios skiboot.lid
+                     -initrd images/ppc64le/rootfs.cpio)
+      export ARCH=powerpc
+      export CROSS_COMPILE=powerpc64le-linux-gnu- ;;
+
     # Unknown arch, error out
     *)
       echo "Unknown ARCH specified!"

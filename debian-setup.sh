@@ -15,6 +15,7 @@ apt-get install -y -qq \
     binutils \
     binutils-aarch64-linux-gnu \
     binutils-arm-linux-gnueabi \
+    binutils-powerpc64le-linux-gnu \
     bison \
     ccache \
     curl \
@@ -28,13 +29,15 @@ apt-get install -y -qq \
     >/dev/null
 
 # Install Qemu 3.0 from shenki's ppa. Debian nor Ubuntu package 3.0 yet, which
-# is required for ppc64le powernv support
+# is required for ppc64le powernv support. Skiboot is also required for this machine
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E007EC6A
 echo "deb http://ppa.launchpad.net/shenki/ppa/ubuntu bionic main" | tee -a /etc/apt/sources.list
 apt-get update -qq
 apt-get install -y -qq \
     qemu-system-arm \
+    qemu-system-ppc \
     qemu-system-x86 \
+    skiboot \
     >/dev/null
 
 # Install nightly verisons of Clang and lld (apt.llvm.org)

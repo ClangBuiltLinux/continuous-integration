@@ -6,6 +6,8 @@ setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
       "-c"|"--clean") cleanup=true ;;
+      "-j"|"--jobs") shift; jobs=$1 ;;
+      "-j"*) jobs=${1/-j} ;;
       "-h"|"--help")
         echo
         echo " Usage: ./driver.sh <options>"
@@ -25,6 +27,8 @@ setup_variables() {
         echo "   -c | --clean:"
         echo "       Run 'make mrproper' before building the kernel. Normally, the build system is smart enought to figure out"
         echo "       what needs to be rebuilt but sometimes it might be necessary to clean it manually."
+        echo "   -j | --jobs"
+        echo "       Pass this value to make. The script will use all cores by default but this isn't always the best value."
         echo
         exit 0 ;;
     esac
@@ -88,7 +92,11 @@ check_dependencies() {
 }
 
 mako_reactor() {
-  make -j"$(nproc)" CC="${ccache} ${clang}" HOSTCC="${ccache} ${clang}" LD="${LD}" "${@}"
+  # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/kbuild/kbuild.txt
+  KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
+  KBUILD_BUILD_USER=driver \
+  KBUILD_BUILD_HOST=clangbuiltlinux \
+  make -j"${jobs:-$(nproc)}" CC="${ccache} ${clang}" HOSTCC="${ccache} ${clang}" LD="${LD}" "${@}"
 }
 
 build_linux() {

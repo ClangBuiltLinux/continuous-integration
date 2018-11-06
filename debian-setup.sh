@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Installs all of the necessary packages in a Docker container
-# MUST BE RUN WITH ROOT
 
 # Show all commands and exit upon failure
 set -eux

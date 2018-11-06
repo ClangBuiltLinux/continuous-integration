@@ -14,22 +14,23 @@ apt-get upgrade -y
 # is separate from the Clang/lld installation below
 # because we would need to at least install curl to
 # get LLVM's apt key
-apt-get install -y bc \
-                   binutils \
-                   binutils-aarch64-linux-gnu \
-                   binutils-arm-linux-gnueabi \
-                   bison \
-                   ccache \
-                   curl \
-                   flex \
-                   expect \
-                   git \
-                   gnupg \
-                   libssl-dev \
-                   openssl \
-                   make \
-                   qemu-system-arm \
-                   qemu-system-x86
+apt-get install -y \
+    bc \
+    binutils \
+    binutils-aarch64-linux-gnu \
+    binutils-arm-linux-gnueabi \
+    bison \
+    ccache \
+    curl \
+    expect \
+    flex \
+    git \
+    gnupg \
+    libssl-dev \
+    make \
+    openssl \
+    qemu-system-arm \
+    qemu-system-x86
 
 # Install nightly verisons of Clang and lld (apt.llvm.org)
 curl https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -

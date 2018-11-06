@@ -10,35 +10,16 @@ matrix:
     - name: "ARCH=x86_64"
       env: ARCH=x86_64
 compiler: gcc
-script: ./driver.sh
 os: linux
 dist: trusty
 sudo: required
-addons:
-  apt:
-    packages:
-      - binutils
-      - binutils-aarch64-linux-gnu
-      - binutils-arm-linux-gnueabi
-      - expect-dev
-      - ccache
-cache: ccache
-before_install:
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo add-apt-repository ppa:pietro-monteiro/qemu-backport -y
-before_script:
-  - curl https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-  - echo "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty main" | sudo tee -a /etc/apt/sources.list
-  - sudo apt-get update -qq
-  - curl -LO http://mirrors.kernel.org/ubuntu/pool/main/s/seabios/seabios_1.8.2-1ubuntu1_all.deb
-  - sudo dpkg -i seabios_1.8.2-1ubuntu1_all.deb
-  - sudo apt-get install clang-8 lld-8 qemu-system-arm qemu-system-x86 -y
-  - mkdir -p ccache
-  - curl https://www.samba.org/ftp/ccache/ccache-3.5.tar.gz | tar -xzf - -C ccache --strip-components=1
-  - cd ccache
-  - ./configure
-  - make -j$(nproc)
-  - export PATH=${PWD}:${PATH}
-  - cd "${OLDPWD}"
+cache:
+  directories:
+    - .ccache
+services:
+  - docker
+script:
+  - docker create -v ${TRAVIS_BUILD_DIR}:/travis --name travis debian
+  - docker run --env ARCH=${ARCH} --env LD=${LD} --env CCACHE_DIR=/travis/.ccache --env CCACHE_COMPRESS=true --env CCACHE_COMPRESSLEVEL=9 --rm --volumes-from travis debian /bin/bash -c 'cd /travis && ./debian-setup.sh && ./driver.sh && ccache -s'
 after_script:
   - sleep 1

@@ -96,14 +96,11 @@ mako_reactor() {
   KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
-  make -j"${jobs:-$(nproc)}" CC="${ccache} ${clang}" HOSTCC="${ccache} ${clang}" LD="${LD}" "${@}"
+  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" "${@}"
 }
 
 build_linux() {
-  local ccache clang
-  ccache=$(command -v ccache)
-  clang=$(command -v clang-8)
-
+  CC="$(command -v ccache) $(command -v clang-8)"
   if [[ ! -d linux ]]; then
     git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
     cd linux

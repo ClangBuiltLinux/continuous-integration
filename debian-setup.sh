@@ -36,3 +36,9 @@ curl https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 echo "deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch main" | tee -a /etc/apt/sources.list
 apt-get update -qq
 apt-get install -y clang-8 lld-8
+
+# By default, Travis's ccache size is around 500MB. We'll
+# start with 2GB just to see how it plays out. Print out
+# the stats as well, it's helpful to see the cache grow.
+ccache -M 2G
+ccache -s

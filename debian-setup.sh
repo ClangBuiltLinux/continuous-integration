@@ -5,15 +5,12 @@
 # Show all commands and exit upon failure
 set -eux
 
-# Make sure that all packages are up to date
-apt-get update
-apt-get upgrade -y
-
 # Install the official Debian packages that we need
 # curl and wget are not installed by default so this
 # is separate from the Clang/lld installation below
 # because we would need to at least install curl to
 # get LLVM's apt key
+apt-get update
 apt-get install -y \
     bc \
     binutils \

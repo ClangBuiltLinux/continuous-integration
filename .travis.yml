@@ -1,6 +1,7 @@
 language: cpp
 matrix:
   include:
+    # linux
     - name: "ARCH=arm"
       env: ARCH=arm
     - name: "ARCH=arm64"
@@ -9,6 +10,19 @@ matrix:
       env: ARCH=arm64 LD=ld.lld-8
     - name: "ARCH=x86_64"
       env: ARCH=x86_64
+    # linux-next
+    - name: "ARCH=arm REPO=linux-next"
+      env: ARCH=arm REPO=linux-next
+      if: type = cron
+    - name: "ARCH=arm64 REPO=linux-next"
+      env: ARCH=arm64 REPO=linux-next
+      if: type = cron
+    - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
+      env: ARCH=arm64 LD=ld.lld-8 REPO=linux-next
+      if: type = cron
+    - name: "ARCH=x86_64 REPO=linux-next"
+      env: ARCH=x86_64 REPO=linux-next
+      if: type = cron
 compiler: gcc
 os: linux
 dist: trusty

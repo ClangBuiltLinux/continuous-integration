@@ -93,6 +93,7 @@ check_dependencies() {
 
 mako_reactor() {
   # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/kbuild/kbuild.txt
+  time \
   KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
@@ -101,6 +102,7 @@ mako_reactor() {
 
 build_linux() {
   CC="$(command -v ccache) $(command -v clang-8)"
+
   if [[ ! -d linux ]]; then
     git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
     cd linux
@@ -109,13 +111,18 @@ build_linux() {
     git fetch --depth=1 origin master
     git reset --hard origin/master
   fi
+
+  git show -s | cat
+
   patches_folder=../patches/${ARCH}
   [[ -d ${patches_folder} ]] && git apply -3 "${patches_folder}"/*.patch
+
   # Only clean up old artifacts if requested, the Linux build system
   # is good about figuring out what needs to be rebuilt
   [[ -n "${cleanup:-}" ]] && mako_reactor mrproper
   mako_reactor ${config}
   mako_reactor ${image_name}
+
   cd "${OLDPWD}"
 }
 

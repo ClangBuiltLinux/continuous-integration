@@ -4,13 +4,15 @@ matrix:
     # linux
     - name: "ARCH=arm"
       env: ARCH=arm
-    - name: "ARCH=arm64"
-      env: ARCH=arm64
     - name: "ARCH=arm64 LD=ld.lld"
       env: ARCH=arm64 LD=ld.lld-8
     - name: "ARCH=x86_64"
       env: ARCH=x86_64
-    # linux-next
+    # linux (cron only)
+    - name: "ARCH=arm64"
+      env: ARCH=arm64
+      if: type = cron
+    # linux-next (cron only)
     - name: "ARCH=arm REPO=linux-next"
       env: ARCH=arm REPO=linux-next
       if: type = cron

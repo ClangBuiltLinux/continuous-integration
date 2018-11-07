@@ -9,8 +9,8 @@ set -eux
 # is separate from the Clang/lld installation below
 # because we would need to at least install curl to
 # get LLVM's apt key
-apt-get update
-apt-get install -y \
+apt-get update -qq
+apt-get install -y -qq \
     bc \
     binutils \
     binutils-aarch64-linux-gnu \
@@ -26,13 +26,15 @@ apt-get install -y \
     make \
     openssl \
     qemu-system-arm \
-    qemu-system-x86
+    qemu-system-x86 \
 
 # Install nightly verisons of Clang and lld (apt.llvm.org)
 curl https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 echo "deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch main" | tee -a /etc/apt/sources.list
 apt-get update -qq
-apt-get install -y clang-8 lld-8
+apt-get install -y -qq \
+  clang-8 \
+  lld-8 \
 
 # By default, Travis's ccache size is around 500MB. We'll
 # start with 2GB just to see how it plays out.
@@ -48,5 +50,5 @@ ccache --set-config=compression_level=9
 # this cached across builds
 ccache --set-config=cache_dir=/travis/.ccache
 
-# Print out the stats so we actually know the cache grows
-ccache -s
+# Clear out the stats so we actually know the cache stats
+ccache -z

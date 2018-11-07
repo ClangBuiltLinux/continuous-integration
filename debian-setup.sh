@@ -27,7 +27,7 @@ apt-get install -y -qq \
     openssl \
     qemu-system-arm \
     qemu-system-x86 \
-    &>/dev/null
+    >/dev/null
 
 # Install nightly verisons of Clang and lld (apt.llvm.org)
 curl https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
@@ -36,7 +36,7 @@ apt-get update -qq
 apt-get install -y -qq \
   clang-8 \
   lld-8 \
-  &>/dev/null
+  >/dev/null
 
 # By default, Travis's ccache size is around 500MB. We'll
 # start with 2GB just to see how it plays out.

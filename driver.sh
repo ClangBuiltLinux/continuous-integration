@@ -129,6 +129,14 @@ build_linux() {
   # is good about figuring out what needs to be rebuilt
   [[ -n "${cleanup:-}" ]] && mako_reactor mrproper
   mako_reactor ${config}
+  # If we're using a defconfig, enable some more common config options
+  # like debugging, selftests, and common drivers
+  if [[ ${config} =~ defconfig ]]; then
+    cat ../configs/common.config >> .config
+    # Some torture test configs cause issues on x86_64
+    [[ $ARCH != "x86_64" ]] && cat ../configs/tt.config >> .config
+    mako_reactor olddefconfig &>/dev/null
+  fi
   mako_reactor ${image_name}
 
   cd "${OLDPWD}"

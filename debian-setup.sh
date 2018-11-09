@@ -25,6 +25,14 @@ apt-get install -y -qq \
     libssl-dev \
     make \
     openssl \
+    >/dev/null
+
+# Install Qemu 3.0 from shenki's ppa. Debian nor Ubuntu package 3.0 yet, which
+# is required for ppc64le powernv support
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E007EC6A
+echo "deb http://ppa.launchpad.net/shenki/ppa/ubuntu bionic main" | tee -a /etc/apt/sources.list
+apt-get update -qq
+apt-get install -y -qq \
     qemu-system-arm \
     qemu-system-x86 \
     >/dev/null

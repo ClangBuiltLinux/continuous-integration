@@ -35,7 +35,7 @@ cache:
 services:
   - docker
 script:
-  - docker create -v ${TRAVIS_BUILD_DIR}:/travis --name travis debian
-  - docker run --env ARCH=${ARCH} --env LD=${LD} --rm --volumes-from travis debian /bin/bash -c 'cd /travis && ./debian-setup.sh && ./driver.sh && ccache -s'
+  - docker create -v ${TRAVIS_BUILD_DIR}:/travis --name travis debian:sid
+  - docker run --env ARCH=${ARCH} --env LD=${LD} --rm --volumes-from travis debian:sid /bin/bash -c 'cd /travis && ./debian-setup.sh && ./driver.sh && ccache -s'
 after_script:
   - sleep 1

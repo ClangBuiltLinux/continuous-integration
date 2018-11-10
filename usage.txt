@@ -9,7 +9,7 @@ Environment variables:
 
   ARCH:
       If no ARCH value is specified, arm64 is the default. Currently, arm,
-      arm64, and x86_64 are supported.
+      arm64, ppc64le and x86_64 are supported.
   LD:
       If no LD value is specified, ${CROSS_COMPILE}-ld is used. arm64 only.
   REPO:

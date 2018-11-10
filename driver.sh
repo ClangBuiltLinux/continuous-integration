@@ -25,6 +25,7 @@ setup_variables() {
       config=multi_v7_defconfig
       image_name=zImage
       qemu="qemu-system-arm"
+      qemu_ram=512m
       qemu_cmdline=( -machine virt
                      -drive "file=images/arm/rootfs.ext4,format=raw,id=rootfs,if=none"
                      -device "virtio-blk-device,drive=rootfs"
@@ -35,6 +36,7 @@ setup_variables() {
       config=defconfig
       image_name=Image.gz
       qemu="qemu-system-aarch64"
+      qemu_ram=512m
       qemu_cmdline=( -machine virt
                      -cpu cortex-a57
                      -drive "file=images/arm64/rootfs.ext4,format=raw"
@@ -45,8 +47,22 @@ setup_variables() {
       config=defconfig
       image_name=bzImage
       qemu="qemu-system-x86_64"
+      qemu_ram=512m
       qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
                      -append "console=ttyS0 root=/dev/sda" ) ;;
+
+    "ppc64le")
+      config=powernv_defconfig
+      image_name=zImage.epapr
+      qemu="qemu-system-ppc64"
+      qemu_ram=2G
+      qemu_cmdline=( -machine powernv
+                     -device ipmi-bmc-sim,id=bmc0
+                     -device isa-ipmi-bt,bmc=bmc0,irq=10
+                     -L /usr/share/skiboot -bios skiboot.lid
+                     -initrd images/ppc64le/rootfs.cpio)
+      export ARCH=powerpc
+      export CROSS_COMPILE=powerpc64le-linux-gnu- ;;
 
     # Unknown arch, error out
     *)
@@ -126,8 +142,8 @@ boot_qemu() {
   set -e
   test -e ${kernel_image}
   timeout 1m unbuffer ${qemu} \
+    -m ${qemu_ram} \
     "${qemu_cmdline[@]}" \
-    -m 512 \
     -nographic \
     -kernel ${kernel_image}
 }

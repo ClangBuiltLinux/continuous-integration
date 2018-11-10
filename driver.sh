@@ -9,29 +9,7 @@ setup_variables() {
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
       "-h"|"--help")
-        echo
-        echo " Usage: ./driver.sh <options>"
-        echo
-        echo " Script description: Build a Linux kernel image with Clang and boot it"
-        echo
-        echo " Environment variables:"
-        echo "   The script can take into account specific environment variables, mostly used with Travis."
-        echo "   They can be invoked either via 'export VAR=<value>; ./driver.sh' OR 'VAR=value ./driver.sh'"
-        echo
-        echo "   ARCH:"
-        echo "       If no ARCH value is specified, arm64 is the default. Currently, arm, arm64, and x86_64 are supported."
-        echo "   LD:"
-        echo "       If no LD value is specified, \${CROSS_COMPILE}-ld is used. arm64 only."
-        echo "   REPO:"
-        echo "       linux (default) or linux-next, to specify which tree to clone and build."
-        echo
-        echo " Optional parameters:"
-        echo "   -c | --clean:"
-        echo "       Run 'make mrproper' before building the kernel. Normally, the build system is smart enought to figure out"
-        echo "       what needs to be rebuilt but sometimes it might be necessary to clean it manually."
-        echo "   -j | --jobs"
-        echo "       Pass this value to make. The script will use all cores by default but this isn't always the best value."
-        echo
+        cat usage.txt
         exit 0 ;;
     esac
 

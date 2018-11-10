@@ -69,6 +69,7 @@ setup_variables() {
       echo "Unknown ARCH specified!"
       exit 1 ;;
   esac
+  export ARCH=${ARCH}
 
   # torvalds/linux is the default repo if nothing is specified
   case ${REPO:=linux} in

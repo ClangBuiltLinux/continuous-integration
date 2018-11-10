@@ -1,0 +1,25 @@
+Usage: ./driver.sh <options>
+
+Script description: Build a Linux kernel image with Clang and boot it
+
+Environment variables:
+  The script can take into account specific environment variables, mostly used
+  with Travis.  They can be invoked either via 'export VAR=<value>;
+  ./driver.sh' OR 'VAR=value ./driver.sh'
+
+  ARCH:
+      If no ARCH value is specified, arm64 is the default. Currently, arm,
+      arm64, and x86_64 are supported.
+  LD:
+      If no LD value is specified, ${CROSS_COMPILE}-ld is used. arm64 only.
+  REPO:
+      linux (default) or linux-next, to specify which tree to clone and build.
+
+Optional parameters:
+  -c | --clean:
+      Run 'make mrproper' before building the kernel. Normally, the build
+      system is smart enought to figure out what needs to be rebuilt but
+      sometimes it might be necessary to clean it manually.
+  -j | --jobs
+      Pass this value to make. The script will use all cores by default but
+      this isn't always the best value.

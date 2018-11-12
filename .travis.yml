@@ -41,16 +41,12 @@ services:
   - docker
 script:
   - |
-    docker create \
-        --volume ${TRAVIS_BUILD_DIR}:/travis \
-        --name travis \
-        debian:sid
-  - |
     docker run \
         --env ARCH=${ARCH} \
         --env LD=${LD} \
         --env REPO=${REPO} \
-        --rm --volumes-from travis \
+        --rm \
+        --volume ${TRAVIS_BUILD_DIR}:/travis \
         debian:sid /bin/bash -c 'cd /travis && ./debian-setup.sh && ./driver.sh && ccache -s'
 after_script:
   - sleep 1

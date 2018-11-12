@@ -42,7 +42,7 @@ services:
 script:
   - |
     docker create \
-        -v ${TRAVIS_BUILD_DIR}:/travis \
+        --volume ${TRAVIS_BUILD_DIR}:/travis \
         --name travis \
         debian:sid
   - |

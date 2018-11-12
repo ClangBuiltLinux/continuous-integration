@@ -151,6 +151,7 @@ build_linux() {
   ./scripts/config -e DEBUG_SECTION_MISMATCH
   mako_reactor olddefconfig &>/dev/null
   mako_reactor ${image_name}
+  [[ $ARCH != "x86_64" ]] && mako_reactor dtbs
 
   cd "${OLDPWD}"
 }

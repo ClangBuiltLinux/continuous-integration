@@ -1,8 +1,8 @@
-From fb15e8fa1c0b4c66617f86ae90b3bfc25286b9c6 Mon Sep 17 00:00:00 2001
+From 936769529b8a6bcd51226aa8262431c9f67968e2 Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Tue, 25 Sep 2018 13:32:33 -0700
-Subject: [PATCH 2/2] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack
- of asm goto
+Subject: [PATCH] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack of
+ asm goto
 
 This isn't strictly required right now and it prevents us from building
 with Clang. It's supposedly in the works though, progress can be tracked
@@ -18,7 +18,7 @@ Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
  4 files changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 9aa352b38815..7845466da1d4 100644
+index 2f36db897895..0cfa7d8b7f98 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -962,11 +962,6 @@ ifdef CONFIG_STACK_VALIDATION

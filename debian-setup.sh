@@ -23,6 +23,7 @@ apt-get install -y -qq \
     flex \
     git \
     gnupg \
+    libelf-dev \
     libssl-dev \
     make \
     openssl \

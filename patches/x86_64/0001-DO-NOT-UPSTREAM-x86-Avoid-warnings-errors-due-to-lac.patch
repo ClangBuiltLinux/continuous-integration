@@ -1,4 +1,4 @@
-From 936769529b8a6bcd51226aa8262431c9f67968e2 Mon Sep 17 00:00:00 2001
+From 2efd683b3dc094138f14f53866a20c414a1e80c1 Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Tue, 25 Sep 2018 13:32:33 -0700
 Subject: [PATCH] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack of
@@ -11,28 +11,11 @@ below.
 Link: https://github.com/ClangBuiltLinux/linux/issues/6
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 ---
- Makefile                              | 5 -----
  arch/x86/Makefile                     | 3 +--
  arch/x86/boot/compressed/Makefile     | 3 +++
  drivers/firmware/efi/libstub/Makefile | 4 ++++
- 4 files changed, 8 insertions(+), 7 deletions(-)
+ 3 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 2f36db897895..0cfa7d8b7f98 100644
---- a/Makefile
-+++ b/Makefile
-@@ -962,11 +962,6 @@ ifdef CONFIG_STACK_VALIDATION
-   ifeq ($(has_libelf),1)
-     objtool_target := tools/objtool FORCE
-   else
--    ifdef CONFIG_UNWINDER_ORC
--      $(error "Cannot generate ORC metadata for CONFIG_UNWINDER_ORC=y, please install libelf-dev, libelf-devel or elfutils-libelf-devel")
--    else
--      $(warning "Cannot use CONFIG_STACK_VALIDATION=y, please install libelf-dev, libelf-devel or elfutils-libelf-devel")
--    endif
-     SKIP_STACK_VALIDATION := 1
-     export SKIP_STACK_VALIDATION
-   endif
 diff --git a/arch/x86/Makefile b/arch/x86/Makefile
 index 88398fdf8129..672c689c1faa 100644
 --- a/arch/x86/Makefile

@@ -105,13 +105,13 @@ mako_reactor() {
 build_linux() {
   CC="$(command -v ccache) $(command -v clang-8)"
 
-  if [[ ! -d ${REPO} ]]; then
-    git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${REPO}.git
-    cd ${REPO}
-  else
+  if [[ -d ${REPO} ]]; then
     cd ${REPO}
     git fetch --depth=1 origin master
     git reset --hard origin/master
+  else
+    git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${REPO}.git
+    cd ${REPO}
   fi
 
   git show -s | cat

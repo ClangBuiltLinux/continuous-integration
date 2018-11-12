@@ -21,6 +21,17 @@ setup_variables() {
 
   # arm64 is the current default if nothing is specified
   case ${ARCH:=arm64} in
+    "arm32_v6")
+      config=aspeed_g5_defconfig
+      image_name=zImage
+      qemu="qemu-system-arm"
+      qemu_ram=512m
+      qemu_cmdline=( -machine romulus-bmc
+                     -dtb "linux/arch/arm/boot/dts/aspeed-bmc-opp-romulus.dtb"
+                     -initrd "images/arm/rootfs.cpio" )
+      export ARCH=arm
+      export CROSS_COMPILE=arm-linux-gnueabi- ;;
+
     "arm32_v7")
       config=multi_v7_defconfig
       image_name=zImage

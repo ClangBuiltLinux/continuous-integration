@@ -46,7 +46,8 @@ script:
         --env LD=${LD} \
         --env REPO=${REPO} \
         --rm \
+        --workdir /travis \
         --volume ${TRAVIS_BUILD_DIR}:/travis \
-        debian:sid /bin/bash -c 'cd /travis && ./debian-setup.sh && ./driver.sh && ccache -s'
+        debian:sid /bin/bash -c './debian-setup.sh && ./driver.sh && ccache -s'
 after_script:
   - sleep 1

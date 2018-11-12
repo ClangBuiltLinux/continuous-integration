@@ -21,7 +21,7 @@ setup_variables() {
 
   # arm64 is the current default if nothing is specified
   case ${ARCH:=arm64} in
-    "arm")
+    "arm32_v7")
       config=multi_v7_defconfig
       image_name=zImage
       qemu="qemu-system-arm"
@@ -30,6 +30,7 @@ setup_variables() {
                      -drive "file=images/arm/rootfs.ext4,format=raw,id=rootfs,if=none"
                      -device "virtio-blk-device,drive=rootfs"
                      -append "console=ttyAMA0 root=/dev/vda" )
+      export ARCH=arm
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
 
     "arm64")

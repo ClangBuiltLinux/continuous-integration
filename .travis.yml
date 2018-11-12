@@ -2,8 +2,8 @@ language: cpp
 matrix:
   include:
     # linux
-    - name: "ARCH=arm"
-      env: ARCH=arm
+    - name: "ARCH=arm32_v7"
+      env: ARCH=arm32_v7
     - name: "ARCH=arm64 LD=ld.lld"
       env: ARCH=arm64 LD=ld.lld-8
     - name: "ARCH=ppc32"
@@ -17,8 +17,8 @@ matrix:
       env: ARCH=arm64
       if: type = cron
     # linux-next (cron only)
-    - name: "ARCH=arm REPO=linux-next"
-      env: ARCH=arm REPO=linux-next
+    - name: "ARCH=arm32_v7 REPO=linux-next"
+      env: ARCH=arm32_v7 REPO=linux-next
       if: type = cron
     - name: "ARCH=arm64 REPO=linux-next"
       env: ARCH=arm64 REPO=linux-next

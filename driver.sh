@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -u
+set -eu
 
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
@@ -86,8 +86,6 @@ setup_variables() {
 }
 
 check_dependencies() {
-  set -e
-
   command -v nproc
   command -v gcc
   command -v "${CROSS_COMPILE:-}"as
@@ -97,8 +95,6 @@ check_dependencies() {
   command -v unbuffer
   command -v clang-8
   command -v "${LD:="${CROSS_COMPILE:-}"ld}"
-
-  set +e
 }
 
 mako_reactor() {
@@ -146,8 +142,6 @@ build_linux() {
 
 boot_qemu() {
   local kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
-  # for the rest of the script, particularly qemu
-  set -e
   test -e ${kernel_image}
   timeout 1m unbuffer ${qemu} \
     -m ${qemu_ram} \

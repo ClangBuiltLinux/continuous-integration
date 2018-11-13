@@ -30,6 +30,20 @@ matrix:
     - name: "ARCH=x86_64 REPO=linux-next"
       env: ARCH=x86_64 REPO=linux-next
       if: type = cron
+    # stable
+    # TODO: re-enable once green
+    #- name: "ARCH=arm64 REPO=4.19"
+      #env: ARCH=arm64 REPO=4.19
+      #if: type = cron
+    - name: "ARCH=arm64 REPO=4.14"
+      env: ARCH=arm64 REPO=4.14
+      if: type = cron
+    #- name: "ARCH=arm64 REPO=4.9"
+      #env: ARCH=arm64 REPO=4.9
+      #if: type = cron
+    #- name: "ARCH=arm64 REPO=4.4"
+      #env: ARCH=arm64 REPO=4.4
+      #if: type = cron
 compiler: gcc
 os: linux
 dist: trusty

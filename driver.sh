@@ -69,12 +69,20 @@ setup_variables() {
       echo "Unknown ARCH specified!"
       exit 1 ;;
   esac
+  export ARCH=${ARCH}
 
   # torvalds/linux is the default repo if nothing is specified
   case ${REPO:=linux} in
-    "linux") owner=torvalds ;;
-    "linux-next") owner=next ;;
+    "linux")
+      owner=torvalds ;;
+    "linux-next")
+      owner=next
+      tree=linux-next ;;
+    "4.4"|"4.9"|"4.14"|"4.19")
+      owner=stable
+      branch=linux-${REPO}.y ;;
   esac
+  url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree:=linux}.git
 }
 
 check_dependencies() {
@@ -105,13 +113,13 @@ mako_reactor() {
 build_linux() {
   CC="$(command -v ccache) $(command -v clang-8)"
 
-  if [[ -d ${REPO} ]]; then
-    cd ${REPO}
-    git fetch --depth=1 origin master
-    git reset --hard origin/master
+  if [[ -d ${tree} ]]; then
+    cd ${tree}
+    git fetch --depth=1 ${url} ${branch:=master}
+    git reset --hard FETCH_HEAD
   else
-    git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${REPO}.git
-    cd ${REPO}
+    git clone --depth=1 -b ${branch:=master} --single-branch ${url}
+    cd ${tree}
   fi
 
   git show -s | cat
@@ -137,7 +145,7 @@ build_linux() {
 }
 
 boot_qemu() {
-  local kernel_image=${REPO}/arch/${ARCH}/boot/${image_name}
+  local kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
   # for the rest of the script, particularly qemu
   set -e
   test -e ${kernel_image}

@@ -13,7 +13,13 @@ Environment variables:
   LD:
       If no LD value is specified, ${CROSS_COMPILE}-ld is used. arm64 only.
   REPO:
-      linux (default) or linux-next, to specify which tree to clone and build.
+      Nicknames for trees:
+        linux (default)
+        linux-next
+        4.19
+        4.14
+        4.9
+        4.4
 
 Optional parameters:
   -c | --clean:

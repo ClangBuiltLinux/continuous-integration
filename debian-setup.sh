@@ -43,7 +43,7 @@ apt-get install -y -qq \
 
 # Install nightly verisons of Clang and lld (apt.llvm.org)
 curl https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-echo "deb http://apt.llvm.org/stretch/ llvm-toolchain-stretch main" | tee -a /etc/apt/sources.list
+echo "deb http://apt.llvm.org/unstable/ llvm-toolchain main" | tee -a /etc/apt/sources.list
 apt-get update -qq
 apt-get install -y -qq \
   clang-8 \

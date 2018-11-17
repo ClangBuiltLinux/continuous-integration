@@ -20,6 +20,10 @@ if [[ ! -f ${CONFIG} ]]; then
     exit 1
 fi
 BR2_DEFCONFIG=${CONFIG} make defconfig
+if [[ -n ${EDITCONFIG:-} ]]; then
+    make menuconfig
+    make savedefconfig
+fi
 
 # Init files
 mkdir -p overlays/etc/init.d

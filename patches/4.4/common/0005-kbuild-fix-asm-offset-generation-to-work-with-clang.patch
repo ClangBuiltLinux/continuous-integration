@@ -1,0 +1,73 @@
+From 1a0abaef28451122f8bbb3bd9b43cecd522515ac Mon Sep 17 00:00:00 2001
+From: Jeroen Hofstee <jeroen@myspectrum.nl>
+Date: Fri, 21 Apr 2017 15:21:11 +0900
+Subject: [PATCH 05/32] kbuild: fix asm-offset generation to work with clang
+
+commit cf0c3e68aa81f992b0301f62e341b710d385bf68 upstream.
+
+KBuild abuses the asm statement to write to a file and
+clang chokes about these invalid asm statements. Hack it
+even more by fooling this is actual valid asm code.
+
+[masahiro:
+ Import Jeroen's work for U-Boot:
+ http://patchwork.ozlabs.org/patch/375026/
+ Tweak sed script a little to avoid garbage '#' for GCC case, like
+ #define NR_PAGEFLAGS 23 /* __NR_PAGEFLAGS       # */ ]
+
+Signed-off-by: Jeroen Hofstee <jeroen@myspectrum.nl>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ include/linux/kbuild.h | 6 +++---
+ scripts/Makefile.lib   | 8 ++++++--
+ 2 files changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/include/linux/kbuild.h b/include/linux/kbuild.h
+index 22a72198c14b..4e80f3a9ad58 100644
+--- a/include/linux/kbuild.h
++++ b/include/linux/kbuild.h
+@@ -2,14 +2,14 @@
+ #define __LINUX_KBUILD_H
+ 
+ #define DEFINE(sym, val) \
+-        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
++	asm volatile("\n.ascii \"->" #sym " %0 " #val "\"" : : "i" (val))
+ 
+-#define BLANK() asm volatile("\n->" : : )
++#define BLANK() asm volatile("\n.ascii \"->\"" : : )
+ 
+ #define OFFSET(sym, str, mem) \
+ 	DEFINE(sym, offsetof(struct str, mem))
+ 
+ #define COMMENT(x) \
+-	asm volatile("\n->#" x)
++	asm volatile("\n.ascii \"->#" x "\"")
+ 
+ #endif
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index f2f46d055f20..27c56b5874f8 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -393,10 +393,14 @@ cmd_xzmisc = (cat $(filter-out FORCE,$^) | \
+ # ---------------------------------------------------------------------------
+ 
+ # Default sed regexp - multiline due to syntax constraints
++#
++# Use [:space:] because LLVM's integrated assembler inserts <tab> around
++# the .ascii directive whereas GCC keeps the <space> as-is.
+ define sed-offsets
+-	"/^->/{s:->#\(.*\):/* \1 */:; \
++	's:^[[:space:]]*\.ascii[[:space:]]*"\(.*\)".*:\1:; \
++	/^->/{s:->#\(.*\):/* \1 */:; \
+ 	s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; \
+-	s:->::; p;}"
++	s:->::; p;}'
+ endef
+ 
+ # Use filechk to avoid rebuilds when a header changes, but the resulting file
+-- 
+2.20.0.rc0
+

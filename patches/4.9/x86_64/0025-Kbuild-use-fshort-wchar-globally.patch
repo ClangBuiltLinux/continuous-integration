@@ -1,0 +1,66 @@
+From 3d0987aea0fdfebbd22d2cb5f05c6101dc4bd348 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 26 Jul 2017 15:36:23 +0200
+Subject: [PATCH 25/25] Kbuild: use -fshort-wchar globally
+
+commit 8c97023cf0518f172b8cb7a9fffc28b89401abbf upstream.
+
+Commit 971a69db7dc0 ("Xen: don't warn about 2-byte wchar_t in efi")
+added the --no-wchar-size-warning to the Makefile to avoid this
+harmless warning:
+
+arm-linux-gnueabi-ld: warning: drivers/xen/efi.o uses 2-byte wchar_t yet the output is to use 4-byte wchar_t; use of wchar_t values across objects may fail
+
+Changing kbuild to use thin archives instead of recursive linking
+unfortunately brings the same warning back during the final link.
+
+The kernel does not use wchar_t string literals at this point, and
+xen does not use wchar_t at all (only efi_char16_t), so the flag
+has no effect, but as pointed out by Jan Beulich, adding a wchar_t
+string literal would be bad here.
+
+Since wchar_t is always defined as u16, independent of the toolchain
+default, always passing -fshort-wchar is correct and lets us
+remove the Xen specific hack along with fixing the warning.
+
+Link: https://patchwork.kernel.org/patch/9275217/
+Fixes: 971a69db7dc0 ("Xen: don't warn about 2-byte wchar_t in efi")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: David Vrabel <david.vrabel@citrix.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ Makefile             | 2 +-
+ drivers/xen/Makefile | 3 ---
+ 2 files changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 26e461fbf370..34dcd39f3582 100644
+--- a/Makefile
++++ b/Makefile
+@@ -394,7 +394,7 @@ LINUXINCLUDE	+= $(filter-out $(LINUXINCLUDE),$(USERINCLUDE))
+ 
+ KBUILD_AFLAGS   := -D__ASSEMBLY__
+ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+-		   -fno-strict-aliasing -fno-common \
++		   -fno-strict-aliasing -fno-common -fshort-wchar \
+ 		   -Werror-implicit-function-declaration \
+ 		   -Wno-format-security \
+ 		   -std=gnu89
+diff --git a/drivers/xen/Makefile b/drivers/xen/Makefile
+index 8feab810aed9..7f188b8d0c67 100644
+--- a/drivers/xen/Makefile
++++ b/drivers/xen/Makefile
+@@ -7,9 +7,6 @@ obj-y	+= xenbus/
+ nostackp := $(call cc-option, -fno-stack-protector)
+ CFLAGS_features.o			:= $(nostackp)
+ 
+-CFLAGS_efi.o				+= -fshort-wchar
+-LDFLAGS					+= $(call ld-option, --no-wchar-size-warning)
+-
+ dom0-$(CONFIG_ARM64) += arm-device.o
+ dom0-$(CONFIG_PCI) += pci.o
+ dom0-$(CONFIG_USB_SUPPORT) += dbgp.o
+-- 
+2.19.1.1215.g8438c0b245-goog
+

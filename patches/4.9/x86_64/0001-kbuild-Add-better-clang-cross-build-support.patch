@@ -1,0 +1,53 @@
+From 8e8704b203d2a3f6b282e9860e156faf9d43ad03 Mon Sep 17 00:00:00 2001
+From: Behan Webster <behanw@converseincode.com>
+Date: Fri, 21 Apr 2017 11:20:01 -0700
+Subject: [PATCH 01/25] kbuild: Add better clang cross build support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+commit 785f11aa595bc3d4e74096cbd598ada54ecc0d81 upstream.
+
+Add cross target to CC if using clang. Also add custom gcc toolchain
+path for fallback gcc tools.
+
+Clang will fallback to using things like ld, as, and libgcc if
+(respectively) one of the llvm linkers isn't available, the integrated
+assembler is turned off, or an appropriately cross-compiled version of
+compiler-rt isn't available. To this end, you can specify the path to
+this fallback gcc toolchain with GCC_TOOLCHAIN.
+
+Signed-off-by: Behan Webster <behanw@converseincode.com>
+Reviewed-by: Jan-Simon Möller <dl9pf@gmx.de>
+Reviewed-by: Mark Charlebois <charlebm@gmail.com>
+Signed-off-by: Greg Hackmann <ghackmann@google.com>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ Makefile | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index 41fe3014b712..8ab836547dce 100644
+--- a/Makefile
++++ b/Makefile
+@@ -704,6 +704,15 @@ endif
+ KBUILD_CFLAGS += $(stackp-flag)
+ 
+ ifeq ($(cc-name),clang)
++ifneq ($(CROSS_COMPILE),)
++CLANG_TARGET	:= -target $(notdir $(CROSS_COMPILE:%-=%))
++GCC_TOOLCHAIN	:= $(realpath $(dir $(shell which $(LD)))/..)
++endif
++ifneq ($(GCC_TOOLCHAIN),)
++CLANG_GCC_TC	:= -gcc-toolchain $(GCC_TOOLCHAIN)
++endif
++KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
++KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
+ KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
+ KBUILD_CPPFLAGS += $(call cc-option,-Wno-unknown-warning-option,)
+ KBUILD_CFLAGS += $(call cc-disable-warning, unused-variable)
+-- 
+2.19.1.1215.g8438c0b245-goog
+

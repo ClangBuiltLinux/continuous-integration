@@ -1,0 +1,34 @@
+From 37f9f7dc326bee727e91718e842e2487c8d307bd Mon Sep 17 00:00:00 2001
+From: Behan Webster <behanw@converseincode.com>
+Date: Mon, 27 Mar 2017 18:19:09 -0700
+Subject: [PATCH 08/25] kbuild: use -Oz instead of -Os when using clang
+
+commit 6748cb3c299de1ffbe56733647b01dbcc398c419 upstream.
+
+This generates smaller resulting object code when compiled with clang.
+
+Signed-off-by: Behan Webster <behanw@converseincode.com>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 815c87424120..4dd8070f3571 100644
+--- a/Makefile
++++ b/Makefile
+@@ -644,7 +644,8 @@ KBUILD_CFLAGS	+= $(call cc-option,-fdata-sections,)
+ endif
+ 
+ ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+-KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
++KBUILD_CFLAGS	+= $(call cc-option,-Oz,-Os)
++KBUILD_CFLAGS	+= $(call cc-disable-warning,maybe-uninitialized,)
+ else
+ ifdef CONFIG_PROFILE_ALL_BRANCHES
+ KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
+-- 
+2.19.1.1215.g8438c0b245-goog
+

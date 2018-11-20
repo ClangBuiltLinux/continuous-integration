@@ -1,0 +1,76 @@
+From dc090a371bc2a8d25773821dfcbfe0f202de0b7f Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Mon, 6 Nov 2017 10:47:54 -0800
+Subject: [PATCH 15/32] kbuild: fix linker feature test macros when cross
+ compiling with Clang
+
+commit 86a9df597cdd564d2d29c65897bcad42519e3678 upstream.
+
+I was not seeing my linker flags getting added when using ld-option when
+cross compiling with Clang. Upon investigation, this seems to be due to
+a difference in how GCC vs Clang handle cross compilation.
+
+GCC is configured at build time to support one backend, that is implicit
+when compiling.  Clang is explicit via the use of `-target <triple>` and
+ships with all supported backends by default.
+
+GNU Make feature test macros that compile then link will always fail
+when cross compiling with Clang unless Clang's triple is passed along to
+the compiler. For example:
+
+$ clang -x c /dev/null -c -o temp.o
+$ aarch64-linux-android/bin/ld -E temp.o
+aarch64-linux-android/bin/ld:
+unknown architecture of input file `temp.o' is incompatible with
+aarch64 output
+aarch64-linux-android/bin/ld:
+warning: cannot find entry symbol _start; defaulting to
+0000000000400078
+$ echo $?
+1
+
+$ clang -target aarch64-linux-android- -x c /dev/null -c -o temp.o
+$ aarch64-linux-android/bin/ld -E temp.o
+aarch64-linux-android/bin/ld:
+warning: cannot find entry symbol _start; defaulting to 00000000004002e4
+$ echo $?
+0
+
+This causes conditional checks that invoke $(CC) without the target
+triple, then $(LD) on the result, to always fail.
+
+Suggested-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+[nc: Fix conflicts due to lack of commit 3298b690b21cd in linux-4.4.y
+     Use KBUILD_CFLAGS instead of CC_OPTION_FLAGS because commit
+     d26e94149276f that introduced that variable isn't in 4.4 either]
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ scripts/Kbuild.include | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 87ee353b8254..9f634b50e57b 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -147,12 +147,13 @@ cc-ifversion = $(shell [ $(cc-version) $(1) $(2) ] && echo $(3) || echo $(4))
+ # cc-ldoption
+ # Usage: ldflags += $(call cc-ldoption, -Wl$(comma)--hash-style=both)
+ cc-ldoption = $(call try-run,\
+-	$(CC) $(1) -nostdlib -x c /dev/null -o "$$TMP",$(1),$(2))
++	$(CC) $(1) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) -nostdlib -x c /dev/null -o "$$TMP",$(1),$(2))
+ 
+ # ld-option
+ # Usage: LDFLAGS += $(call ld-option, -X)
+ ld-option = $(call try-run,\
+-	$(CC) -x c /dev/null -c -o "$$TMPO" ; $(LD) $(1) "$$TMPO" -o "$$TMP",$(1),$(2))
++	$(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) -x c /dev/null -c -o "$$TMPO"; \
++	$(LD) $(LDFLAGS) $(1) "$$TMPO" -o "$$TMP",$(1),$(2))
+ 
+ # ar-option
+ # Usage: KBUILD_ARFLAGS := $(call ar-option,D)
+-- 
+2.20.0.rc0
+

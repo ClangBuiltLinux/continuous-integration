@@ -1,0 +1,40 @@
+From 5b20676d6a16dc4141212043955931f2d2adff6c Mon Sep 17 00:00:00 2001
+From: Michael Davidson <md@google.com>
+Date: Tue, 25 Apr 2017 15:47:35 -0700
+Subject: [PATCH 02/32] kbuild: clang: add -no-integrated-as to
+ KBUILD_[AC]FLAGS
+
+commit a37c45cd82e62a361706b9688a984a3a63957321 upstream.
+
+The Linux Kernel relies on GCC's acceptance of inline assembly as an
+opaque object which will not have any validation performed on the content.
+The current behaviour in LLVM is to perform validation of the contents by
+means of parsing the input if the MC layer can handle it.
+
+Disable clangs integrated assembler and use the GNU assembler instead.
+
+Wording-mostly-from: Saleem Abdulrasool <compnerd@compnerd.org>
+Signed-off-by: Michael Davidson <md@google.com>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index fe94643d247f..3713f35f453b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -719,6 +719,8 @@ KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
+ # See modpost pattern 2
+ KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
+ KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
++KBUILD_CFLAGS += $(call cc-option, -no-integrated-as)
++KBUILD_AFLAGS += $(call cc-option, -no-integrated-as)
+ else
+ 
+ # These warnings generated too much noise in a regular build.
+-- 
+2.20.0.rc0
+

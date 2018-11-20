@@ -45,9 +45,10 @@ apt-get install -y -qq \
 curl https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 echo "deb http://apt.llvm.org/unstable/ llvm-toolchain main" | tee -a /etc/apt/sources.list
 apt-get update -qq
-apt-get install -y -qq \
+apt-get install --no-install-recommends -y -qq \
   clang-8 \
   lld-8 \
+  llvm-8 \
   >/dev/null
 
 # By default, Travis's ccache size is around 500MB. We'll

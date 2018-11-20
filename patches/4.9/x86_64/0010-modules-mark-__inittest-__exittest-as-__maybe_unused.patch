@@ -1,0 +1,47 @@
+From 7c782caa8062672a47bbb244dee41fa04e29d766 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 1 Feb 2017 18:00:14 +0100
+Subject: [PATCH 10/25] modules: mark __inittest/__exittest as __maybe_unused
+
+commit 1f318a8bafcfba9f0d623f4870c4e890fd22e659 upstream.
+
+clang warns about unused inline functions by default:
+
+arch/arm/crypto/aes-cipher-glue.c:68:1: warning: unused function '__inittest' [-Wunused-function]
+arch/arm/crypto/aes-cipher-glue.c:69:1: warning: unused function '__exittest' [-Wunused-function]
+
+As these appear in every single module, let's just disable the warnings by marking the
+two functions as __maybe_unused.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Jessica Yu <jeyu@redhat.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ include/linux/module.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/module.h b/include/linux/module.h
+index d2224a09b4b5..fd9e121c7b3f 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -127,13 +127,13 @@ extern void cleanup_module(void);
+ 
+ /* Each module must use one module_init(). */
+ #define module_init(initfn)					\
+-	static inline initcall_t __inittest(void)		\
++	static inline initcall_t __maybe_unused __inittest(void)		\
+ 	{ return initfn; }					\
+ 	int init_module(void) __attribute__((alias(#initfn)));
+ 
+ /* This is only required if you want to be unloadable. */
+ #define module_exit(exitfn)					\
+-	static inline exitcall_t __exittest(void)		\
++	static inline exitcall_t __maybe_unused __exittest(void)		\
+ 	{ return exitfn; }					\
+ 	void cleanup_module(void) __attribute__((alias(#exitfn)));
+ 
+-- 
+2.19.1.1215.g8438c0b245-goog
+

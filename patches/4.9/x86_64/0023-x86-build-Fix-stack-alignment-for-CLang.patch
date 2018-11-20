@@ -1,0 +1,99 @@
+From 10b70a1210c425c4d739fd860ce19f9986c9b0ae Mon Sep 17 00:00:00 2001
+From: Matthias Kaehlcke <mka@chromium.org>
+Date: Wed, 16 Aug 2017 17:47:40 -0700
+Subject: [PATCH 23/25] x86/build: Fix stack alignment for CLang
+
+commit 8f91869766c00622b2eaa8ee567db4f333b78c1a upstream.
+
+Commit:
+
+  d77698df39a5 ("x86/build: Specify stack alignment for clang")
+
+intended to use the same stack alignment for clang as with gcc.
+
+The two compilers use different options to configure the stack alignment
+(gcc: -mpreferred-stack-boundary=n, clang: -mstack-alignment=n).
+
+The above commit assumes that the clang option uses the same parameter
+type as gcc, i.e. that the alignment is specified as 2^n. However clang
+interprets the value of this option literally to use an alignment of n,
+in consequence the stack remains misaligned.
+
+Change the values used with -mstack-alignment to be the actual alignment
+instead of a power of two.
+
+cc-option isn't used here with the typical pattern of KBUILD_CFLAGS +=
+$(call cc-option ...). The reason is that older gcc versions don't
+support the -mpreferred-stack-boundary option, since cc-option doesn't
+verify whether the alternative option is valid it would incorrectly
+select the clang option -mstack-alignment..
+
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Bernhard.Rosenkranzer@linaro.org
+Cc: Greg Hackmann <ghackmann@google.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Michael Davidson <md@google.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephen Hines <srhines@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: dianders@chromium.org
+Link: http://lkml.kernel.org/r/20170817004740.170588-1-mka@chromium.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ arch/x86/Makefile | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index fb146bd686cc..d3102460bbae 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -14,9 +14,11 @@ endif
+ # For gcc stack alignment is specified with -mpreferred-stack-boundary,
+ # clang has the option -mstack-alignment for that purpose.
+ ifneq ($(call cc-option, -mpreferred-stack-boundary=4),)
+-        cc_stack_align_opt := -mpreferred-stack-boundary
+-else ifneq ($(call cc-option, -mstack-alignment=4),)
+-        cc_stack_align_opt := -mstack-alignment
++      cc_stack_align4 := -mpreferred-stack-boundary=2
++      cc_stack_align8 := -mpreferred-stack-boundary=3
++else ifneq ($(call cc-option, -mstack-alignment=16),)
++      cc_stack_align4 := -mstack-alignment=4
++      cc_stack_align8 := -mstack-alignment=8
+ endif
+ 
+ # How to compile the 16-bit code.  Note we always compile for -march=i386;
+@@ -36,7 +38,7 @@ REALMODE_CFLAGS	:= $(M16_CFLAGS) -g -Os -D__KERNEL__ \
+ 
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding)
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
+-REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align_opt)=2)
++REALMODE_CFLAGS += $(cc_stack_align4)
+ export REALMODE_CFLAGS
+ 
+ # BITS is used as extension for files which are available in a 32 bit
+@@ -76,7 +78,7 @@ ifeq ($(CONFIG_X86_32),y)
+         # Align the stack to the register width instead of using the default
+         # alignment of 16 bytes. This reduces stack usage and the number of
+         # alignment instructions.
+-        KBUILD_CFLAGS += $(call cc-option,$(cc_stack_align_opt)=2)
++        KBUILD_CFLAGS += $(cc_stack_align4)
+ 
+         # Disable unit-at-a-time mode on pre-gcc-4.0 compilers, it makes gcc use
+         # a lot more stack due to the lack of sharing of stacklots:
+@@ -115,7 +117,7 @@ else
+         # default alignment which keep the stack *mis*aligned.
+         # Furthermore an alignment to the register width reduces stack usage
+         # and the number of alignment instructions.
+-        KBUILD_CFLAGS += $(call cc-option,$(cc_stack_align_opt)=3)
++        KBUILD_CFLAGS += $(cc_stack_align8)
+ 
+ 	# Use -mskip-rax-setup if supported.
+ 	KBUILD_CFLAGS += $(call cc-option,-mskip-rax-setup)
+-- 
+2.19.1.1215.g8438c0b245-goog
+

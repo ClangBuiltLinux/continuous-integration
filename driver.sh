@@ -174,6 +174,28 @@ setup_variables() {
       image_name=bzImage
       qemu="qemu-system-x86_64" ;;
 
+    "riscv32")
+      config=defconfig
+      image_name=vmlinux
+      qemu="qemu-system-riscv32"
+      qemu_ram=512m
+      qemu_cmdline=( -machine virt
+                     -drive "file=images/riscv32/rootfs.ext4,format=raw"
+                     -append "console=ttyS0 root=/dev/vda" )
+      export ARCH=riscv
+      export CROSS_COMPILE=riscv64-linux-gnu- ;;
+
+    "riscv64")
+      config=defconfig
+      image_name=vmlinux
+      qemu="qemu-system-riscv64"
+      qemu_ram=512m
+      qemu_cmdline=( -machine virt
+                     -drive "file=images/riscv64/rootfs.ext4,format=raw"
+                     -append "console=ttyS0 root=/dev/vda" )
+      export ARCH=riscv
+      export CROSS_COMPILE=riscv64-linux-gnu- ;;
+
     # Unknown arch, error out
     *)
       echo "Unknown ARCH specified!"

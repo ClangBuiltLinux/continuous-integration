@@ -24,6 +24,10 @@ jobs:
       env: ARCH=s390
     - name: "ARCH=x86_64 LD=ld.lld"
       env: ARCH=x86_64 LD=ld.lld-11
+    - name: "ARCH=riscv32"
+      env: ARCH=riscv32
+    - name: "ARCH=riscv64"
+      env: ARCH=riscv64
     # linux (cron only)
     #
     # linux-next (cron only)

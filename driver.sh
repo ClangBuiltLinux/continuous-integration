@@ -103,11 +103,12 @@ mako_reactor() {
   KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
-  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" "${@}"
+  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" HOSTLD="${HOSTLD:-ld}" "${@}"
 }
 
 build_linux() {
   CC="$(command -v ccache) $(command -v clang-8)"
+  [[ ${LD} =~ lld ]] && HOSTLD=${LD}
 
   if [[ -d ${tree} ]]; then
     cd ${tree}

@@ -1,0 +1,241 @@
+From 7f9c46aac6a808cd9ce75847a903bc53d0a8beb8 Mon Sep 17 00:00:00 2001
+From: Alistair Strachan <astrachan@google.com>
+Date: Tue, 27 Nov 2018 15:33:17 -0800
+Subject: [PATCH 1/5] efi/libstub: arm: support building with clang
+
+(commit 41f1c48420709470c51ee0e54b6fb28b956bb4e0 upstream)
+
+When building with CONFIG_EFI and CONFIG_EFI_STUB on ARM, the libstub
+Makefile would use -mno-single-pic-base without checking it was
+supported by the compiler. As the ARM (32-bit) clang backend does not
+support this flag, the build would fail.
+
+This changes the Makefile to check the compiler's support for
+-mno-single-pic-base before using it, similar to c1c386681bd7 ("ARM:
+8767/1: add support for building ARM kernel with clang").
+
+Signed-off-by: Alistair Strachan <astrachan@google.com>
+Reviewed-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+[ND: adjusted due to missing commit ce279d374ff3 ("efi/libstub:
+ Only disable stackleak plugin for arm64")]
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ drivers/firmware/efi/libstub/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index adaa4a964f0c..678bc910e080 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -13,7 +13,8 @@ cflags-$(CONFIG_X86)		+= -m$(BITS) -D__KERNEL__ -O2 \
+ 
+ cflags-$(CONFIG_ARM64)		:= $(subst -pg,,$(KBUILD_CFLAGS)) -fpie
+ cflags-$(CONFIG_ARM)		:= $(subst -pg,,$(KBUILD_CFLAGS)) \
+-				   -fno-builtin -fpic -mno-single-pic-base
++				   -fno-builtin -fpic \
++				   $(call cc-option,-mno-single-pic-base)
+ 
+ cflags-$(CONFIG_EFI_ARMSTUB)	+= -I$(srctree)/scripts/dtc/libfdt
+ 
+-- 
+2.20.0.rc0.387.gc7a69e6b6c-goog
+
+
+From 2d247048ba3f36c197668acf7b567904a221bde6 Mon Sep 17 00:00:00 2001
+From: Stefan Agner <stefan@agner.ch>
+Date: Tue, 8 May 2018 22:49:49 +0100
+Subject: [PATCH 2/5] ARM: 8766/1: drop no-thumb-interwork in EABI mode
+
+(commit 22905a24306c8c312c2d66da9f90d09af0414f81 upstream)
+
+According to GCC documentation -m(no-)thumb-interwork is
+meaningless in AAPCS configurations. Also clang does not
+support the flag:
+  clang-5.0: error: unknown argument: '-mno-thumb-interwork'
+
+Just drop -mno-thumb-interwork in AEABI configuration.
+
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ arch/arm/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+index 36ae4454554c..17e80f483281 100644
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -106,7 +106,7 @@ tune-$(CONFIG_CPU_V6K)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
+ tune-y := $(tune-y)
+ 
+ ifeq ($(CONFIG_AEABI),y)
+-CFLAGS_ABI	:=-mabi=aapcs-linux -mno-thumb-interwork -mfpu=vfp
++CFLAGS_ABI	:=-mabi=aapcs-linux -mfpu=vfp
+ else
+ CFLAGS_ABI	:=$(call cc-option,-mapcs-32,-mabi=apcs-gnu) $(call cc-option,-mno-thumb-interwork,)
+ endif
+-- 
+2.20.0.rc0.387.gc7a69e6b6c-goog
+
+
+From 2896da5c889a9ad753a7fb11909a978f67b04973 Mon Sep 17 00:00:00 2001
+From: Stefan Agner <stefan@agner.ch>
+Date: Tue, 8 May 2018 22:50:38 +0100
+Subject: [PATCH 3/5] ARM: 8767/1: add support for building ARM kernel with
+ clang
+
+(commit c1c386681bd73c4fc28eb5cc91cf8b7be9b409ba upstream)
+
+Use cc-options call for compiler options which are not available
+in clang. With this patch an ARMv7 multi platform kernel can be
+successfully build using clang (tested with version 5.0.1).
+
+Based-on-patches-by: Behan Webster <behanw@converseincode.com>
+
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ arch/arm/boot/compressed/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/compressed/Makefile b/arch/arm/boot/compressed/Makefile
+index a5889238fc9f..746c8c575f98 100644
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -113,7 +113,7 @@ CFLAGS_fdt_ro.o := $(nossp_flags)
+ CFLAGS_fdt_rw.o := $(nossp_flags)
+ CFLAGS_fdt_wip.o := $(nossp_flags)
+ 
+-ccflags-y := -fpic -mno-single-pic-base -fno-builtin -I$(obj)
++ccflags-y := -fpic $(call cc-option,-mno-single-pic-base,) -fno-builtin -I$(obj)
+ asflags-y := -DZIMAGE
+ 
+ # Supply kernel BSS size to the decompressor via a linker symbol.
+-- 
+2.20.0.rc0.387.gc7a69e6b6c-goog
+
+
+From 014f0ab0f0ab79954ce89377a16c2ca378006f91 Mon Sep 17 00:00:00 2001
+From: Stefan Agner <stefan@agner.ch>
+Date: Tue, 8 May 2018 16:27:26 +0200
+Subject: [PATCH 4/5] bus: arm-cci: remove unnecessary unreachable()
+
+(commit 10d8713429d345867fc8998d6193b233c0cab28c upstream)
+
+Mixing asm and C code is not recommended in a naked function by
+gcc and leads to an error when using clang:
+  drivers/bus/arm-cci.c:2107:2: error: non-ASM statement in naked
+  function is not supported
+        unreachable();
+        ^
+
+While the function is marked __naked it actually properly return
+in asm. There is no need for the unreachable() call.
+
+GCC 7.2 generates identical object files before and after, other
+than (for obvious reasons) the line numbers generated by
+WANT_WARN_ON_SLOWPATH for all the WARN()s appearing later in the
+file.
+
+Suggested-by: Russell King <linux@arm.linux.org.uk>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Acked-by: Nicolas Pitre <nico@linaro.org>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ drivers/bus/arm-cci.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/bus/arm-cci.c b/drivers/bus/arm-cci.c
+index 5426c04fe24b..fc2da3a617ac 100644
+--- a/drivers/bus/arm-cci.c
++++ b/drivers/bus/arm-cci.c
+@@ -2103,8 +2103,6 @@ asmlinkage void __naked cci_enable_port_for_self(void)
+ 	[sizeof_struct_cpu_port] "i" (sizeof(struct cpu_port)),
+ 	[sizeof_struct_ace_port] "i" (sizeof(struct cci_ace_port)),
+ 	[offsetof_port_phys] "i" (offsetof(struct cci_ace_port, phys)) );
+-
+-	unreachable();
+ }
+ 
+ /**
+-- 
+2.20.0.rc0.387.gc7a69e6b6c-goog
+
+
+From 8b75ed00ab6bd1d693f2c3cbe3dec7284247dd72 Mon Sep 17 00:00:00 2001
+From: Stefan Agner <stefan@agner.ch>
+Date: Sun, 25 Mar 2018 20:09:56 +0200
+Subject: [PATCH 5/5] ARM: trusted_foundations: do not use naked function
+
+(commit 4ea7bdc6b5b33427bbd3f41c333e21c1825462a3 upstream)
+
+As documented in GCC naked functions should only use basic ASM
+syntax. The extended ASM or mixture of basic ASM and "C" code is
+not guaranteed. Currently this works because it was hard coded
+to follow and check GCC behavior for arguments and register
+placement.
+
+Furthermore with clang using parameters in Extended asm in a
+naked function is not supported:
+  arch/arm/firmware/trusted_foundations.c:47:10: error: parameter
+          references not allowed in naked functions
+                : "r" (type), "r" (arg1), "r" (arg2)
+                       ^
+
+Use a regular function to be more portable. This aligns also with
+the other SMC call implementations e.g. in qcom_scm-32.c and
+bcm_kona_smc.c.
+
+Cc: Dmitry Osipenko <digetx@gmail.com>
+Cc: Stephen Warren <swarren@nvidia.com>
+Cc: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ arch/arm/firmware/trusted_foundations.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/firmware/trusted_foundations.c b/arch/arm/firmware/trusted_foundations.c
+index 3fb1b5a1dce9..689e6565abfc 100644
+--- a/arch/arm/firmware/trusted_foundations.c
++++ b/arch/arm/firmware/trusted_foundations.c
+@@ -31,21 +31,25 @@
+ 
+ static unsigned long cpu_boot_addr;
+ 
+-static void __naked tf_generic_smc(u32 type, u32 arg1, u32 arg2)
++static void tf_generic_smc(u32 type, u32 arg1, u32 arg2)
+ {
++	register u32 r0 asm("r0") = type;
++	register u32 r1 asm("r1") = arg1;
++	register u32 r2 asm("r2") = arg2;
++
+ 	asm volatile(
+ 		".arch_extension	sec\n\t"
+-		"stmfd	sp!, {r4 - r11, lr}\n\t"
++		"stmfd	sp!, {r4 - r11}\n\t"
+ 		__asmeq("%0", "r0")
+ 		__asmeq("%1", "r1")
+ 		__asmeq("%2", "r2")
+ 		"mov	r3, #0\n\t"
+ 		"mov	r4, #0\n\t"
+ 		"smc	#0\n\t"
+-		"ldmfd	sp!, {r4 - r11, pc}"
++		"ldmfd	sp!, {r4 - r11}\n\t"
+ 		:
+-		: "r" (type), "r" (arg1), "r" (arg2)
+-		: "memory");
++		: "r" (r0), "r" (r1), "r" (r2)
++		: "memory", "r3", "r12", "lr");
+ }
+ 
+ static int tf_set_cpu_boot_addr(int cpu, unsigned long boot_addr)
+-- 
+2.20.0.rc0.387.gc7a69e6b6c-goog
+

@@ -31,6 +31,9 @@ matrix:
       env: ARCH=x86_64 REPO=linux-next
       if: type = cron
     # stable
+    - name: "ARCH=arm REPO=4.19"
+      env: ARCH=arm REPO=4.19
+      if: type = cron
     - name: "ARCH=arm64 REPO=4.19"
       env: ARCH=arm64 REPO=4.19
       if: type = cron

@@ -1,0 +1,496 @@
+From 63674a7e224de25b464fd9ae7ef616a8b03495b1 Mon Sep 17 00:00:00 2001
+From: Nicholas Piggin <npiggin@gmail.com>
+Date: Fri, 14 Sep 2018 15:08:54 +1000
+Subject: [PATCH 01/10] powerpc: avoid -mno-sched-epilog on GCC 4.9 and newer
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+(cherry picked from commit 6977f95e63b9b3fb4a5973481a800dd9f48a1338)
+[nc: Adjust context due to lack of f2910f0e6835 and 2a056f58fd33]
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/powerpc/Makefile | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index 1381693a4a51..7452e50f4d1f 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -236,7 +236,12 @@ endif
+ 
+ # Work around a gcc code-gen bug with -fno-omit-frame-pointer.
+ ifeq ($(CONFIG_FUNCTION_TRACER),y)
+-KBUILD_CFLAGS		+= -mno-sched-epilog
++# Work around gcc code-gen bugs with -pg / -fno-omit-frame-pointer in gcc <= 4.8
++# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=44199
++# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52828
++ifneq ($(cc-name),clang)
++KBUILD_CFLAGS		+= $(call cc-ifversion, -lt, 0409, -mno-sched-epilog)
++endif
+ endif
+ 
+ cpu-as-$(CONFIG_4xx)		+= -Wa,-m405
+-- 
+2.20.0.rc1
+
+
+From df36758aa0b92e43d88cfe2f55fc504372fea13a Mon Sep 17 00:00:00 2001
+From: Joel Stanley <joel@jms.id.au>
+Date: Mon, 17 Sep 2018 17:16:21 +0930
+Subject: [PATCH 02/10] powerpc: Disable -Wbuiltin-requires-header when setjmp
+ is used
+
+The powerpc kernel uses setjmp which causes a warning when building
+with clang:
+
+  In file included from arch/powerpc/xmon/xmon.c:51:
+  ./arch/powerpc/include/asm/setjmp.h:15:13: error: declaration of
+  built-in function 'setjmp' requires inclusion of the header <setjmp.h>
+        [-Werror,-Wbuiltin-requires-header]
+  extern long setjmp(long *);
+              ^
+  ./arch/powerpc/include/asm/setjmp.h:16:13: error: declaration of
+  built-in function 'longjmp' requires inclusion of the header <setjmp.h>
+        [-Werror,-Wbuiltin-requires-header]
+  extern void longjmp(long *, long);
+              ^
+
+This *is* the header and we're not using the built-in setjump but
+rather the one in arch/powerpc/kernel/misc.S. As the compiler warning
+does not make sense, it for the files where setjmp is used.
+
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+[mpe: Move subdir-ccflags in xmon/Makefile to not clobber -Werror]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+(cherry picked from commit aea447141c7e7824b81b49acd1bc785506fba46e)
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/powerpc/kernel/Makefile | 3 +++
+ arch/powerpc/xmon/Makefile   | 5 ++++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
+index 1479c61e29c5..a1089c9a9aa5 100644
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -5,6 +5,9 @@
+ 
+ CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
+ 
++# Disable clang warning for using setjmp without setjmp.h header
++CFLAGS_crash.o		+= $(call cc-disable-warning, builtin-requires-header)
++
+ subdir-ccflags-$(CONFIG_PPC_WERROR) := -Werror
+ 
+ ifeq ($(CONFIG_PPC64),y)
+diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
+index 1bc3abb237cd..549e99e71112 100644
+--- a/arch/powerpc/xmon/Makefile
++++ b/arch/powerpc/xmon/Makefile
+@@ -1,7 +1,10 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for xmon
+ 
+-subdir-ccflags-$(CONFIG_PPC_WERROR) := -Werror
++# Disable clang warning for using setjmp without setjmp.h header
++subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header)
++
++subdir-ccflags-$(CONFIG_PPC_WERROR) += -Werror
+ 
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
+-- 
+2.20.0.rc1
+
+
+From 2ae1ca57ef1f180eb4d560def67cc8a7e80a8dae Mon Sep 17 00:00:00 2001
+From: Joel Stanley <joel@jms.id.au>
+Date: Mon, 17 Sep 2018 17:07:54 +0930
+Subject: [PATCH 03/10] ftrace: Build with CPPFLAGS to get -Qunused-arguments
+
+When building to record the mcount locations the kernel uses
+KBUILD_CFLAGS but not KBUILD_CPPFLAGS. This means it lacks
+-Qunused-arguments when building with clang, resulting in a lot of
+noisy warnings.
+
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+(cherry picked from commit 5a4630aadb9a9525474e9ac92965829f990cb5c4)
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ scripts/Makefile.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index 7143da06d702..ae022b178ed6 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -242,7 +242,7 @@ else
+ sub_cmd_record_mcount = set -e ; perl $(srctree)/scripts/recordmcount.pl "$(ARCH)" \
+ 	"$(if $(CONFIG_CPU_BIG_ENDIAN),big,little)" \
+ 	"$(if $(CONFIG_64BIT),64,32)" \
+-	"$(OBJDUMP)" "$(OBJCOPY)" "$(CC) $(KBUILD_CFLAGS)" \
++	"$(OBJDUMP)" "$(OBJCOPY)" "$(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS)" \
+ 	"$(LD)" "$(NM)" "$(RM)" "$(MV)" \
+ 	"$(if $(part-of-module),1,0)" "$(@)";
+ recordmcount_source := $(srctree)/scripts/recordmcount.pl
+-- 
+2.20.0.rc1
+
+
+From b0f80fa05a9c97ac442b32a744fd411967881a00 Mon Sep 17 00:00:00 2001
+From: Matthias Kaehlcke <mka@chromium.org>
+Date: Thu, 5 Oct 2017 11:28:47 -0700
+Subject: [PATCH 04/10] md: raid10: remove VLAIS
+
+The raid10 driver can't be built with clang since it uses a variable
+length array in a structure (VLAIS):
+
+drivers/md/raid10.c:4583:17: error: fields must have a constant size:
+  'variable length array in structure' extension will never be supported
+
+Allocate the r10bio struct with kmalloc instead of using the VLAIS
+construct.
+
+Shaohua: set the MD_RECOVERY_INTR bit
+Neil Brown: use GFP_NOIO
+
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Shaohua Li <shli@fb.com>
+(cherry picked from commit 584ed9fa9532f8b9d5955628ff87ee3b2ab9f5a9)
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ drivers/md/raid10.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/md/raid10.c b/drivers/md/raid10.c
+index e786546bf3b8..52ddfa0fca94 100644
+--- a/drivers/md/raid10.c
++++ b/drivers/md/raid10.c
+@@ -4591,15 +4591,18 @@ static int handle_reshape_read_error(struct mddev *mddev,
+ 	/* Use sync reads to get the blocks from somewhere else */
+ 	int sectors = r10_bio->sectors;
+ 	struct r10conf *conf = mddev->private;
+-	struct {
+-		struct r10bio r10_bio;
+-		struct r10dev devs[conf->copies];
+-	} on_stack;
+-	struct r10bio *r10b = &on_stack.r10_bio;
++	struct r10bio *r10b;
+ 	int slot = 0;
+ 	int idx = 0;
+ 	struct page **pages;
+ 
++	r10b = kmalloc(sizeof(*r10b) +
++	       sizeof(struct r10dev) * conf->copies, GFP_NOIO);
++	if (!r10b) {
++		set_bit(MD_RECOVERY_INTR, &mddev->recovery);
++		return -ENOMEM;
++	}
++
+ 	/* reshape IOs share pages from .devs[0].bio */
+ 	pages = get_resync_pages(r10_bio->devs[0].bio)->pages;
+ 
+@@ -4648,11 +4651,13 @@ static int handle_reshape_read_error(struct mddev *mddev,
+ 			/* couldn't read this block, must give up */
+ 			set_bit(MD_RECOVERY_INTR,
+ 				&mddev->recovery);
++			kfree(r10b);
+ 			return -EIO;
+ 		}
+ 		sectors -= s;
+ 		idx++;
+ 	}
++	kfree(r10b);
+ 	return 0;
+ }
+ 
+-- 
+2.20.0.rc1
+
+
+From e7a5bf3e0c4aa268baaf809eee6adf3a5503ccc6 Mon Sep 17 00:00:00 2001
+From: Stefan Agner <stefan@agner.ch>
+Date: Mon, 17 Sep 2018 19:31:57 -0700
+Subject: [PATCH 05/10] kbuild: allow to use GCC toolchain not in Clang search
+ path
+
+When using a GCC cross toolchain which is not in a compiled in
+Clang search path, Clang reverts to the system assembler and
+linker. This leads to assembler or linker errors, depending on
+which tool is first used for a given architecture.
+
+It seems that Clang is not searching $PATH for a matching
+assembler or linker.
+
+Make sure that Clang picks up the correct assembler or linker by
+passing the cross compilers bin directory as search path.
+
+This allows to use Clang provided by distributions with GCC
+toolchains not in /usr/bin.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/78
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Reviewed-and-tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+(cherry picked from commit ef8c4ed9db80261f397f0c0bf723684601ae3b52)
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ Makefile | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 874d72a3e6a7..cb131e135c42 100644
+--- a/Makefile
++++ b/Makefile
+@@ -480,13 +480,15 @@ endif
+ ifeq ($(cc-name),clang)
+ ifneq ($(CROSS_COMPILE),)
+ CLANG_TARGET	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
+-GCC_TOOLCHAIN	:= $(realpath $(dir $(shell which $(LD)))/..)
++GCC_TOOLCHAIN_DIR := $(dir $(shell which $(LD)))
++CLANG_PREFIX	:= --prefix=$(GCC_TOOLCHAIN_DIR)
++GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
+ endif
+ ifneq ($(GCC_TOOLCHAIN),)
+ CLANG_GCC_TC	:= --gcc-toolchain=$(GCC_TOOLCHAIN)
+ endif
+-KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
+-KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
++KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
++KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
+ KBUILD_CFLAGS += $(call cc-option, -no-integrated-as)
+ KBUILD_AFLAGS += $(call cc-option, -no-integrated-as)
+ endif
+-- 
+2.20.0.rc1
+
+
+From 0b436f09e099443e5e0f72fb923c333a3235ccb6 Mon Sep 17 00:00:00 2001
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Tue, 6 Nov 2018 12:04:54 +0900
+Subject: [PATCH 06/10] kbuild: add -no-integrated-as Clang option
+ unconditionally
+
+We are still a way off the Clang's integrated assembler support for
+the kernel. Hence, -no-integrated-as is mandatory to build the kernel
+with Clang. If you had an ancient version of Clang that does not
+recognize this option, you would not be able to compile the kernel
+anyway.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+(cherry picked from commit dbe27a002ef8573168cb64e181458ea23a74e2b6)
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index cb131e135c42..57c9898e42b1 100644
+--- a/Makefile
++++ b/Makefile
+@@ -489,8 +489,8 @@ CLANG_GCC_TC	:= --gcc-toolchain=$(GCC_TOOLCHAIN)
+ endif
+ KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
+ KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
+-KBUILD_CFLAGS += $(call cc-option, -no-integrated-as)
+-KBUILD_AFLAGS += $(call cc-option, -no-integrated-as)
++KBUILD_CFLAGS += -no-integrated-as
++KBUILD_AFLAGS += -no-integrated-as
+ endif
+ 
+ RETPOLINE_CFLAGS_GCC := -mindirect-branch=thunk-extern -mindirect-branch-register
+-- 
+2.20.0.rc1
+
+
+From f3af5fdbe06cfb5e4c5b70cba0c190f950f6369b Mon Sep 17 00:00:00 2001
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Tue, 6 Nov 2018 12:04:55 +0900
+Subject: [PATCH 07/10] kbuild: consolidate Clang compiler flags
+
+Collect basic Clang options such as --target, --prefix, --gcc-toolchain,
+-no-integrated-as into a single variable CLANG_FLAGS so that it can be
+easily reused in other parts of Makefile.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Greg Hackmann <ghackmann@google.com>
+(cherry picked from commit 238bcbc4e07fad2fff99c5b157d0c37ccd4d093c)
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ Makefile | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 57c9898e42b1..487cca617ee6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -479,18 +479,17 @@ endif
+ 
+ ifeq ($(cc-name),clang)
+ ifneq ($(CROSS_COMPILE),)
+-CLANG_TARGET	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
++CLANG_FLAGS	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
+ GCC_TOOLCHAIN_DIR := $(dir $(shell which $(LD)))
+-CLANG_PREFIX	:= --prefix=$(GCC_TOOLCHAIN_DIR)
++CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
+ GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
+ endif
+ ifneq ($(GCC_TOOLCHAIN),)
+-CLANG_GCC_TC	:= --gcc-toolchain=$(GCC_TOOLCHAIN)
++CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
+ endif
+-KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
+-KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
+-KBUILD_CFLAGS += -no-integrated-as
+-KBUILD_AFLAGS += -no-integrated-as
++CLANG_FLAGS	+= -no-integrated-as
++KBUILD_CFLAGS	+= $(CLANG_FLAGS)
++KBUILD_AFLAGS	+= $(CLANG_FLAGS)
+ endif
+ 
+ RETPOLINE_CFLAGS_GCC := -mindirect-branch=thunk-extern -mindirect-branch-register
+-- 
+2.20.0.rc1
+
+
+From fd3d10bc3570c8f0234b0c6ee867cc38e3a35f46 Mon Sep 17 00:00:00 2001
+From: Joel Stanley <joel@jms.id.au>
+Date: Mon, 12 Nov 2018 14:51:15 +1030
+Subject: [PATCH 08/10] Makefile: Export clang toolchain variables
+
+The powerpc makefile will use these in it's boot wrapper.
+
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+(cherry picked from commit 3bd9805090af843b25f97ffe5049f20ade1d86d6)
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Makefile b/Makefile
+index 487cca617ee6..cf74401cccdd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -490,6 +490,7 @@ endif
+ CLANG_FLAGS	+= -no-integrated-as
+ KBUILD_CFLAGS	+= $(CLANG_FLAGS)
+ KBUILD_AFLAGS	+= $(CLANG_FLAGS)
++export CLANG_FLAGS
+ endif
+ 
+ RETPOLINE_CFLAGS_GCC := -mindirect-branch=thunk-extern -mindirect-branch-register
+-- 
+2.20.0.rc1
+
+
+From f00f1efddc7120f52701cf1e4254975910754b35 Mon Sep 17 00:00:00 2001
+From: Joel Stanley <joel@jms.id.au>
+Date: Mon, 12 Nov 2018 14:51:16 +1030
+Subject: [PATCH 09/10] powerpc/boot: Set target when cross-compiling for clang
+
+Clang needs to be told which target it is building for when cross
+compiling.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/259
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Tested-by: Daniel Axtens <dja@axtens.net> # powerpc 64-bit BE
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+(cherry picked from commit 813af51f5d30a2da6a2523c08465f9726e51772e)
+[nc: Use cc-name instead of CONFIG_CC_IS_CLANG because that config
+     doesn't exist in this tree]
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/powerpc/boot/Makefile | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index b479926f0167..e2a5a932c24a 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -49,6 +49,11 @@ endif
+ 
+ BOOTAFLAGS	:= -D__ASSEMBLY__ $(BOOTCFLAGS) -traditional -nostdinc
+ 
++ifeq ($(cc-name),clang)
++BOOTCFLAGS += $(CLANG_FLAGS)
++BOOTAFLAGS += $(CLANG_FLAGS)
++endif
++
+ ifdef CONFIG_DEBUG_INFO
+ BOOTCFLAGS	+= -g
+ endif
+-- 
+2.20.0.rc1
+
+
+From a8a336db161a979423acb9348fe89a9a81be41cc Mon Sep 17 00:00:00 2001
+From: Joel Stanley <joel@jms.id.au>
+Date: Wed, 31 Oct 2018 13:58:29 +1030
+Subject: [PATCH 10/10] raid6/ppc: Fix build for clang
+
+We cannot build these files with clang as it does not allow altivec
+instructions in assembly when -msoft-float is passed.
+
+Jinsong Ji <jji@us.ibm.com> wrote:
+> We currently disable Altivec/VSX support when enabling soft-float.  So
+> any usage of vector builtins will break.
+>
+> Enable Altivec/VSX with soft-float may need quite some clean up work, so
+> I guess this is currently a limitation.
+>
+> Removing -msoft-float will make it work (and we are lucky that no
+> floating point instructions will be generated as well).
+
+This is a workaround until the issue is resolved in clang.
+
+Link: https://bugs.llvm.org/show_bug.cgi?id=31177
+Link: https://github.com/ClangBuiltLinux/linux/issues/239
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+[nc: Use cc-name instead of CONFIG_CC_IS_CLANG because that config
+     doesn't exist in this tree]
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ lib/raid6/Makefile | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/lib/raid6/Makefile b/lib/raid6/Makefile
+index 4add700ddfe3..fac313eadfd2 100644
+--- a/lib/raid6/Makefile
++++ b/lib/raid6/Makefile
+@@ -18,6 +18,21 @@ quiet_cmd_unroll = UNROLL  $@
+ 
+ ifeq ($(CONFIG_ALTIVEC),y)
+ altivec_flags := -maltivec $(call cc-option,-mabi=altivec)
++
++ifeq ($(cc-name),clang)
++# clang ppc port does not yet support -maltifec when -msoft-float is
++# enabled. A future release of clang will resolve this
++# https://bugs.llvm.org/show_bug.cgi?id=31177
++CFLAGS_REMOVE_altivec1.o  += -msoft-float
++CFLAGS_REMOVE_altivec2.o  += -msoft-float
++CFLAGS_REMOVE_altivec4.o  += -msoft-float
++CFLAGS_REMOVE_altivec8.o  += -msoft-float
++CFLAGS_REMOVE_altivec8.o  += -msoft-float
++CFLAGS_REMOVE_vpermxor1.o += -msoft-float
++CFLAGS_REMOVE_vpermxor2.o += -msoft-float
++CFLAGS_REMOVE_vpermxor4.o += -msoft-float
++CFLAGS_REMOVE_vpermxor8.o += -msoft-float
++endif
+ endif
+ 
+ # The GCC option -ffreestanding is required in order to compile code containing
+-- 
+2.20.0.rc1
+

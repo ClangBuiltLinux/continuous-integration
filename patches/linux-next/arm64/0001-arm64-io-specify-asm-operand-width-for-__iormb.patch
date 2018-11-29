@@ -1,0 +1,49 @@
+From efc236ec76fafa88b64a2c32c960083f6f155cad Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <nick.desaulniers@gmail.com>
+Date: Wed, 28 Nov 2018 16:26:12 -0800
+Subject: [PATCH] arm64: io: specify asm operand width for __iormb()
+
+Fixes the warning produced from Clang:
+./include/asm-generic/io.h:711:9: warning: value size does not match
+register size specified by the constraint and modifier
+[-Wasm-operand-widths]
+        return readl(addr);
+               ^
+./arch/arm64/include/asm/io.h:149:58: note: expanded from macro 'readl'
+                                                          ^
+./include/asm-generic/io.h:711:9: note: use constraint modifier "w"
+./arch/arm64/include/asm/io.h:149:50: note: expanded from macro 'readl'
+                                                  ^
+./arch/arm64/include/asm/io.h:118:25: note: expanded from macro '__iormb'
+        asm volatile("eor       %w0, %1, %1\n" \
+                                     ^
+Though we disable Clang's integrated assembler with -no-integrated-as,
+it still tries to do some validation of assembler constraints.
+
+While __iormb() is type agnostic to operand widths for argument v, its
+lone use is to zero'd out via eor (exclusive or).
+
+Fixes commit 6460d3201471 ("arm64: io: Ensure calls to delay routines
+are ordered against prior readX()")
+Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
+---
+ arch/arm64/include/asm/io.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/include/asm/io.h b/arch/arm64/include/asm/io.h
+index d42d00d8d5b6..dbdebf81162b 100644
+--- a/arch/arm64/include/asm/io.h
++++ b/arch/arm64/include/asm/io.h
+@@ -115,7 +115,7 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
+ 	 * later instructions. This ensures that a subsequent call to	\
+ 	 * udelay() will be ordered due to the ISB in get_cycles().	\
+ 	 */								\
+-	asm volatile("eor	%0, %1, %1\n"				\
++	asm volatile("eor	%0, %x1, %x1\n"				\
+ 		     "cbnz	%0, ."					\
+ 		     : "=r" (tmp) : "r" (v) : "memory");		\
+ })
+-- 
+2.17.1
+

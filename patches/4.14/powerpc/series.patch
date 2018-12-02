@@ -213,63 +213,6 @@ index e786546bf3b8..52ddfa0fca94 100644
 2.20.0.rc1
 
 
-From e7a5bf3e0c4aa268baaf809eee6adf3a5503ccc6 Mon Sep 17 00:00:00 2001
-From: Stefan Agner <stefan@agner.ch>
-Date: Mon, 17 Sep 2018 19:31:57 -0700
-Subject: [PATCH 05/10] kbuild: allow to use GCC toolchain not in Clang search
- path
-
-When using a GCC cross toolchain which is not in a compiled in
-Clang search path, Clang reverts to the system assembler and
-linker. This leads to assembler or linker errors, depending on
-which tool is first used for a given architecture.
-
-It seems that Clang is not searching $PATH for a matching
-assembler or linker.
-
-Make sure that Clang picks up the correct assembler or linker by
-passing the cross compilers bin directory as search path.
-
-This allows to use Clang provided by distributions with GCC
-toolchains not in /usr/bin.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/78
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Reviewed-and-tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-(cherry picked from commit ef8c4ed9db80261f397f0c0bf723684601ae3b52)
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
----
- Makefile | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/Makefile b/Makefile
-index 874d72a3e6a7..cb131e135c42 100644
---- a/Makefile
-+++ b/Makefile
-@@ -480,13 +480,15 @@ endif
- ifeq ($(cc-name),clang)
- ifneq ($(CROSS_COMPILE),)
- CLANG_TARGET	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
--GCC_TOOLCHAIN	:= $(realpath $(dir $(shell which $(LD)))/..)
-+GCC_TOOLCHAIN_DIR := $(dir $(shell which $(LD)))
-+CLANG_PREFIX	:= --prefix=$(GCC_TOOLCHAIN_DIR)
-+GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
- endif
- ifneq ($(GCC_TOOLCHAIN),)
- CLANG_GCC_TC	:= --gcc-toolchain=$(GCC_TOOLCHAIN)
- endif
--KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
--KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
-+KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
-+KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
- KBUILD_CFLAGS += $(call cc-option, -no-integrated-as)
- KBUILD_AFLAGS += $(call cc-option, -no-integrated-as)
- endif
--- 
-2.20.0.rc1
-
-
 From 0b436f09e099443e5e0f72fb923c333a3235ccb6 Mon Sep 17 00:00:00 2001
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
 Date: Tue, 6 Nov 2018 12:04:54 +0900

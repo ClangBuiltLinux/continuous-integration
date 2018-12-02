@@ -1,5 +1,5 @@
 *.swp
 *.tar.gz
 .ccache
-linux/
-linux-next/
+/linux/
+/linux-next/

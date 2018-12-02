@@ -88,3 +88,10 @@ script:
         debian:sid /bin/bash -c './debian-setup.sh && ./driver.sh && ccache -s'
 after_script:
   - sleep 1
+notifications:
+  email:
+    receipients:
+      - ndesaulniers@google.com
+      - natechancellor@gmail.com
+    on_success: never
+    on_failure: always

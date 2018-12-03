@@ -55,6 +55,9 @@ matrix:
     - name: "ARCH=x86_64 REPO=4.14"
       env: ARCH=x86_64 REPO=4.14
       if: type = cron
+    - name: "ARCH=arm REPO=4.9"
+      env: ARCH=arm REPO=4.9
+      if: type = cron
     - name: "ARCH=arm64 REPO=4.9"
       env: ARCH=arm64 REPO=4.9
       if: type = cron

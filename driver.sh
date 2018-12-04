@@ -51,6 +51,17 @@ setup_variables() {
       qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
                      -append "console=ttyS0 root=/dev/sda" ) ;;
 
+    "ppc64")
+      config=pseries_defconfig
+      qemu="qemu-system-ppc64"
+      image_name=zImage.pseries
+      qemu_ram=1G
+      qemu_cmdline=( -machine pseries
+                     -nographic -vga none
+                     -initrd images/ppc64/rootfs.cpio )
+      export ARCH=powerpc
+      export CROSS_COMPILE=powerpc64-linux-gnu- ;;
+
     "ppc64le")
       config=powernv_defconfig
       image_name=zImage.epapr

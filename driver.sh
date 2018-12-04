@@ -37,7 +37,7 @@ setup_variables() {
       image_name=Image.gz
       qemu="qemu-system-aarch64"
       qemu_ram=512m
-      qemu_cmdline=( -machine virt
+      qemu_cmdline=( -machine virt,virtualization=true
                      -cpu cortex-a57
                      -drive "file=images/arm64/rootfs.ext4,format=raw"
                      -append "console=ttyAMA0 root=/dev/vda" )

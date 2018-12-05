@@ -1,96 +1,7 @@
-From c5ee9df084ed0dad5c093fe7cafa13266c123dbd Mon Sep 17 00:00:00 2001
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Date: Fri, 30 Nov 2018 12:35:58 +0100
-Subject: [PATCH 1/3] arm64: drop linker script hack to hide __efistub_ symbols
-
-Commit 1212f7a16af4 ("scripts/kallsyms: filter arm64's __efistub_
-symbols") updated the kallsyms code to filter out symbols with
-the __efistub_ prefix explicitly, so we no longer require the
-hack in our linker script to emit them as absolute symbols.
-
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
----
- arch/arm64/kernel/image.h | 46 +++++++++++++++------------------------
- 1 file changed, 18 insertions(+), 28 deletions(-)
-
-diff --git a/arch/arm64/kernel/image.h b/arch/arm64/kernel/image.h
-index a820ed07fb80..8da289dc843a 100644
---- a/arch/arm64/kernel/image.h
-+++ b/arch/arm64/kernel/image.h
-@@ -75,16 +75,6 @@
- 
- __efistub_stext_offset = stext - _text;
- 
--/*
-- * Prevent the symbol aliases below from being emitted into the kallsyms
-- * table, by forcing them to be absolute symbols (which are conveniently
-- * ignored by scripts/kallsyms) rather than section relative symbols.
-- * The distinction is only relevant for partial linking, and only for symbols
-- * that are defined within a section declaration (which is not the case for
-- * the definitions below) so the resulting values will be identical.
-- */
--#define KALLSYMS_HIDE(sym)	ABSOLUTE(sym)
--
- /*
-  * The EFI stub has its own symbol namespace prefixed by __efistub_, to
-  * isolate it from the kernel proper. The following symbols are legally
-@@ -94,28 +84,28 @@ __efistub_stext_offset = stext - _text;
-  * linked at. The routines below are all implemented in assembler in a
-  * position independent manner
-  */
--__efistub_memcmp		= KALLSYMS_HIDE(__pi_memcmp);
--__efistub_memchr		= KALLSYMS_HIDE(__pi_memchr);
--__efistub_memcpy		= KALLSYMS_HIDE(__pi_memcpy);
--__efistub_memmove		= KALLSYMS_HIDE(__pi_memmove);
--__efistub_memset		= KALLSYMS_HIDE(__pi_memset);
--__efistub_strlen		= KALLSYMS_HIDE(__pi_strlen);
--__efistub_strnlen		= KALLSYMS_HIDE(__pi_strnlen);
--__efistub_strcmp		= KALLSYMS_HIDE(__pi_strcmp);
--__efistub_strncmp		= KALLSYMS_HIDE(__pi_strncmp);
--__efistub_strrchr		= KALLSYMS_HIDE(__pi_strrchr);
--__efistub___flush_dcache_area	= KALLSYMS_HIDE(__pi___flush_dcache_area);
-+__efistub_memcmp		= __pi_memcmp;
-+__efistub_memchr		= __pi_memchr;
-+__efistub_memcpy		= __pi_memcpy;
-+__efistub_memmove		= __pi_memmove;
-+__efistub_memset		= __pi_memset;
-+__efistub_strlen		= __pi_strlen;
-+__efistub_strnlen		= __pi_strnlen;
-+__efistub_strcmp		= __pi_strcmp;
-+__efistub_strncmp		= __pi_strncmp;
-+__efistub_strrchr		= __pi_strrchr;
-+__efistub___flush_dcache_area	= __pi___flush_dcache_area;
- 
- #ifdef CONFIG_KASAN
--__efistub___memcpy		= KALLSYMS_HIDE(__pi_memcpy);
--__efistub___memmove		= KALLSYMS_HIDE(__pi_memmove);
--__efistub___memset		= KALLSYMS_HIDE(__pi_memset);
-+__efistub___memcpy		= __pi_memcpy;
-+__efistub___memmove		= __pi_memmove;
-+__efistub___memset		= __pi_memset;
- #endif
- 
--__efistub__text			= KALLSYMS_HIDE(_text);
--__efistub__end			= KALLSYMS_HIDE(_end);
--__efistub__edata		= KALLSYMS_HIDE(_edata);
--__efistub_screen_info		= KALLSYMS_HIDE(screen_info);
-+__efistub__text			= _text;
-+__efistub__end			= _end;
-+__efistub__edata		= _edata;
-+__efistub_screen_info		= screen_info;
- 
- #endif
- 
--- 
-2.17.1
-
-
 From 4a0f4c1e201e223f5b0c75031d7747404c60723a Mon Sep 17 00:00:00 2001
 From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Date: Sat, 1 Dec 2018 12:53:24 +0100
-Subject: [PATCH 2/3] arm64: relocatable: build the kernel as a proper shared
+Subject: [PATCH 1/2] arm64: relocatable: build the kernel as a proper shared
  library
 
 readelf complains about the section layout of vmlinux when building
@@ -209,7 +120,7 @@ index 03b00007553d..9ba4016090b1 100644
 From a1362f1f512e8c7d099a78dd9b3cd4f9c279dc45 Mon Sep 17 00:00:00 2001
 From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Date: Sat, 1 Dec 2018 14:57:34 +0100
-Subject: [PATCH 3/3] arm64: add support for building the KASLR kernel with
+Subject: [PATCH 2/2] arm64: add support for building the KASLR kernel with
  LLVM lld
 
 Work around some differences in the behavior of ld.lld as compared

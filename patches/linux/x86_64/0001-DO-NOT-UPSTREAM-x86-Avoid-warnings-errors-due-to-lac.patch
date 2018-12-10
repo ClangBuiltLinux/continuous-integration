@@ -1,4 +1,4 @@
-From 2efd683b3dc094138f14f53866a20c414a1e80c1 Mon Sep 17 00:00:00 2001
+From 28e98de6638031d0ab539469ab0387a95f2d3316 Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Tue, 25 Sep 2018 13:32:33 -0700
 Subject: [PATCH] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack of
@@ -17,10 +17,10 @@ Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
  3 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 88398fdf8129..672c689c1faa 100644
+index 75ef499a66e2..bb705df20a68 100644
 --- a/arch/x86/Makefile
 +++ b/arch/x86/Makefile
-@@ -303,8 +303,7 @@ vdso_install:
+@@ -301,8 +301,7 @@ vdso_install:
  archprepare: checkbin
  checkbin:
  ifndef CC_HAVE_ASM_GOTO
@@ -28,8 +28,8 @@ index 88398fdf8129..672c689c1faa 100644
 -	@exit 1
 +KBUILD_CFLAGS += -D__BPF_TRACING__
  endif
- 
- archclean:
+ ifdef CONFIG_RETPOLINE
+ ifeq ($(RETPOLINE_CFLAGS),)
 diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
 index 466f66c8a7f8..deb2a7fef08c 100644
 --- a/arch/x86/boot/compressed/Makefile
@@ -60,5 +60,5 @@ index c51627660dbb..167572144766 100644
  				   -D__NO_FORTIFY \
  				   $(call cc-option,-ffreestanding) \
 -- 
-2.19.1
+2.20.0
 

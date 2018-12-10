@@ -9,7 +9,7 @@ filesystems, and [QEMU](https://www.qemu.org/) to boot.
 [![Build Status](https://travis-ci.com/ClangBuiltLinux/continuous-integration.svg?branch=master)](https://travis-ci.com/ClangBuiltLinux/continuous-integration)
 
 ```sh
-$ git clone -j`nproc` git@github.com:ClangBuiltLinux/continuous-integration.git
+$ git clone git@github.com:ClangBuiltLinux/continuous-integration.git
 $ cd continuous-integration
 $ ./driver.sh
 ```

@@ -1,1 +1,64 @@
-../../linux/x86_64/0001-DO-NOT-UPSTREAM-x86-Avoid-warnings-errors-due-to-lac.patch
+From 2efd683b3dc094138f14f53866a20c414a1e80c1 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <natechancellor@gmail.com>
+Date: Tue, 25 Sep 2018 13:32:33 -0700
+Subject: [PATCH] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack of
+ asm goto
+
+This isn't strictly required right now and it prevents us from building
+with Clang. It's supposedly in the works though, progress can be tracked
+below.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/6
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/x86/Makefile                     | 3 +--
+ arch/x86/boot/compressed/Makefile     | 3 +++
+ drivers/firmware/efi/libstub/Makefile | 4 ++++
+ 3 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 88398fdf8129..672c689c1faa 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -303,8 +303,7 @@ vdso_install:
+ archprepare: checkbin
+ checkbin:
+ ifndef CC_HAVE_ASM_GOTO
+-	@echo Compiler lacks asm-goto support.
+-	@exit 1
++KBUILD_CFLAGS += -D__BPF_TRACING__
+ endif
+ 
+ archclean:
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 466f66c8a7f8..deb2a7fef08c 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -38,6 +38,9 @@ KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+ KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
+ KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
+ KBUILD_CFLAGS += -Wno-pointer-sign
++ifndef CC_HAVE_ASM_GOTO
++KBUILD_CFLAGS += -D__BPF_TRACING__
++endif
+ 
+ KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
+ GCOV_PROFILE := n
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index c51627660dbb..167572144766 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -21,6 +21,10 @@ cflags-$(CONFIG_ARM)		:= $(subst -pg,,$(KBUILD_CFLAGS)) \
+ 
+ cflags-$(CONFIG_EFI_ARMSTUB)	+= -I$(srctree)/scripts/dtc/libfdt
+ 
++ifndef CC_HAVE_ASM_GOTO
++cflags-$(CONFIG_X86)		+= -D__BPF_TRACING__
++endif
++
+ KBUILD_CFLAGS			:= $(cflags-y) -DDISABLE_BRANCH_PROFILING \
+ 				   -D__NO_FORTIFY \
+ 				   $(call cc-option,-ffreestanding) \
+-- 
+2.19.1
+

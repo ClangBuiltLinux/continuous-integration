@@ -51,6 +51,18 @@ setup_variables() {
       qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
                      -append "console=ttyS0 root=/dev/sda" ) ;;
 
+    "ppc32")
+      config=ppc44x_defconfig
+      image_name=zImage
+      qemu="qemu-system-ppc"
+      qemu_ram=128m
+      qemu_cmdline=( -machine bamboo
+                     -append "console=ttyS0"
+                     -no-reboot
+                     -initrd "images/ppc32/rootfs.cpio" )
+      export ARCH=powerpc
+      export CROSS_COMPILE=powerpc-linux-gnu- ;;
+
     "ppc64le")
       config=powernv_defconfig
       image_name=zImage.epapr

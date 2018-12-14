@@ -187,7 +187,7 @@ build_linux() {
 boot_qemu() {
   local kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
   test -e ${kernel_image}
-  timeout 1m unbuffer ${qemu} \
+  timeout 2m unbuffer ${qemu} \
     -m ${qemu_ram} \
     "${qemu_cmdline[@]}" \
     -nographic \

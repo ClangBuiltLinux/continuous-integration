@@ -19,6 +19,21 @@ setup_variables() {
   # Turn on debug mode after parameters in case -h was specified
   set -x
 
+  # torvalds/linux is the default repo if nothing is specified
+  case ${REPO:=linux} in
+    "linux")
+      owner=torvalds
+      tree=linux ;;
+    "linux-next")
+      owner=next
+      tree=linux-next ;;
+    "4.4"|"4.9"|"4.14"|"4.19")
+      owner=stable
+      branch=linux-${REPO}.y
+      tree=linux ;;
+  esac
+  url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree}.git
+
   # arm64 is the current default if nothing is specified
   case ${ARCH:=arm64} in
     "arm32_v5")
@@ -28,7 +43,7 @@ setup_variables() {
       qemu_ram=512m
       qemu_cmdline=( -machine palmetto-bmc
                      -no-reboot
-                     -dtb "linux/arch/arm/boot/dts/aspeed-bmc-opp-palmetto.dtb"
+                     -dtb "${tree}/arch/arm/boot/dts/aspeed-bmc-opp-palmetto.dtb"
                      -initrd "images/arm/rootfs.cpio" )
       export ARCH=arm
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
@@ -40,7 +55,7 @@ setup_variables() {
       qemu_ram=512m
       qemu_cmdline=( -machine romulus-bmc
                      -no-reboot
-                     -dtb "linux/arch/arm/boot/dts/aspeed-bmc-opp-romulus.dtb"
+                     -dtb "${tree}/arch/arm/boot/dts/aspeed-bmc-opp-romulus.dtb"
                      -initrd "images/arm/rootfs.cpio" )
       export ARCH=arm
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
@@ -108,19 +123,6 @@ setup_variables() {
       exit 1 ;;
   esac
   export ARCH=${ARCH}
-
-  # torvalds/linux is the default repo if nothing is specified
-  case ${REPO:=linux} in
-    "linux")
-      owner=torvalds ;;
-    "linux-next")
-      owner=next
-      tree=linux-next ;;
-    "4.4"|"4.9"|"4.14"|"4.19")
-      owner=stable
-      branch=linux-${REPO}.y ;;
-  esac
-  url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree:=linux}.git
 }
 
 check_dependencies() {

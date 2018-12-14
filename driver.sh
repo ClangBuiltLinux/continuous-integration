@@ -27,6 +27,7 @@ setup_variables() {
       qemu="qemu-system-arm"
       qemu_ram=512m
       qemu_cmdline=( -machine palmetto-bmc
+                     -no-reboot
                      -dtb "linux/arch/arm/boot/dts/aspeed-bmc-opp-palmetto.dtb"
                      -initrd "images/arm/rootfs.cpio" )
       export ARCH=arm
@@ -38,6 +39,7 @@ setup_variables() {
       qemu="qemu-system-arm"
       qemu_ram=512m
       qemu_cmdline=( -machine romulus-bmc
+                     -no-reboot
                      -dtb "linux/arch/arm/boot/dts/aspeed-bmc-opp-romulus.dtb"
                      -initrd "images/arm/rootfs.cpio" )
       export ARCH=arm
@@ -49,6 +51,7 @@ setup_variables() {
       qemu="qemu-system-arm"
       qemu_ram=512m
       qemu_cmdline=( -machine virt
+                     -no-reboot
                      -drive "file=images/arm/rootfs.ext4,format=raw,id=rootfs,if=none"
                      -device "virtio-blk-device,drive=rootfs"
                      -append "console=ttyAMA0 root=/dev/vda" )

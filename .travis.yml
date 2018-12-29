@@ -6,6 +6,8 @@ matrix:
       env: ARCH=arm
     - name: "ARCH=arm64 LD=ld.lld"
       env: ARCH=arm64 LD=ld.lld-8
+    - name: "ARCH=ppc32"
+      env: ARCH=ppc32
     - name: "ARCH=ppc64le"
       env: ARCH=ppc64le
     - name: "ARCH=x86_64"
@@ -23,6 +25,9 @@ matrix:
       if: type = cron
     - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
       env: ARCH=arm64 LD=ld.lld-8 REPO=linux-next
+      if: type = cron
+    - name: "ARCH=ppc32  REPO=linux-next"
+      env: ARCH=ppc32 REPO=linux-next
       if: type = cron
     - name: "ARCH=ppc64le  REPO=linux-next"
       env: ARCH=ppc64le REPO=linux-next

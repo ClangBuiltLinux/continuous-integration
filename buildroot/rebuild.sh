@@ -25,11 +25,6 @@ if [[ -n ${EDITCONFIG:-} ]]; then
     make savedefconfig
 fi
 
-# Init files
-mkdir -p overlays/etc/init.d
-cp ../overlays/S50yolo overlays/etc/init.d
-cp ../overlays/inittab overlays/etc
-
 # Build images
 make -j"$(nproc)"
 

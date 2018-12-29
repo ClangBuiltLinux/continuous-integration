@@ -8,8 +8,8 @@ Environment variables:
   ./driver.sh' OR 'VAR=value ./driver.sh'
 
   ARCH:
-      If no ARCH value is specified, arm64 is the default. Currently, arm,
-      arm64, ppc64le and x86_64 are supported.
+      If no ARCH value is specified, arm64 is the default. Currently, arm32_v7,
+      arm32_v6, arm32_v5, arm64, ppc64le and x86_64 are supported.
   LD:
       If no LD value is specified, ${CROSS_COMPILE}-ld is used. arm64 only.
   REPO:

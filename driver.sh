@@ -19,17 +19,58 @@ setup_variables() {
   # Turn on debug mode after parameters in case -h was specified
   set -x
 
+  # torvalds/linux is the default repo if nothing is specified
+  case ${REPO:=linux} in
+    "linux")
+      owner=torvalds
+      tree=linux ;;
+    "linux-next")
+      owner=next
+      tree=linux-next ;;
+    "4.4"|"4.9"|"4.14"|"4.19")
+      owner=stable
+      branch=linux-${REPO}.y
+      tree=linux ;;
+  esac
+  url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree}.git
+
   # arm64 is the current default if nothing is specified
   case ${ARCH:=arm64} in
-    "arm")
+    "arm32_v5")
+      config=multi_v5_defconfig
+      image_name=zImage
+      qemu="qemu-system-arm"
+      qemu_ram=512m
+      qemu_cmdline=( -machine palmetto-bmc
+                     -no-reboot
+                     -dtb "${tree}/arch/arm/boot/dts/aspeed-bmc-opp-palmetto.dtb"
+                     -initrd "images/arm/rootfs.cpio" )
+      export ARCH=arm
+      export CROSS_COMPILE=arm-linux-gnueabi- ;;
+
+    "arm32_v6")
+      config=aspeed_g5_defconfig
+      image_name=zImage
+      qemu="qemu-system-arm"
+      qemu_ram=512m
+      qemu_cmdline=( -machine romulus-bmc
+                     -no-reboot
+                     -dtb "${tree}/arch/arm/boot/dts/aspeed-bmc-opp-romulus.dtb"
+                     -initrd "images/arm/rootfs.cpio" )
+      export ARCH=arm
+      export CROSS_COMPILE=arm-linux-gnueabi- ;;
+
+    "arm32_v7")
       config=multi_v7_defconfig
       image_name=zImage
       qemu="qemu-system-arm"
       qemu_ram=512m
       qemu_cmdline=( -machine virt
+                     -no-reboot
                      -drive "file=images/arm/rootfs.ext4,format=raw,id=rootfs,if=none"
                      -device "virtio-blk-device,drive=rootfs"
                      -append "console=ttyAMA0 root=/dev/vda" )
+      export ARCH=arm
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
 
     "arm64")
@@ -82,19 +123,6 @@ setup_variables() {
       exit 1 ;;
   esac
   export ARCH=${ARCH}
-
-  # torvalds/linux is the default repo if nothing is specified
-  case ${REPO:=linux} in
-    "linux")
-      owner=torvalds ;;
-    "linux-next")
-      owner=next
-      tree=linux-next ;;
-    "4.4"|"4.9"|"4.14"|"4.19")
-      owner=stable
-      branch=linux-${REPO}.y ;;
-  esac
-  url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree:=linux}.git
 }
 
 check_dependencies() {
@@ -145,12 +173,15 @@ build_linux() {
     cat ../configs/common.config >> .config
     # Some torture test configs cause issues on x86_64
     [[ $ARCH != "x86_64" ]] && cat ../configs/tt.config >> .config
+    # Disable ftrace on arm32: https://github.com/ClangBuiltLinux/linux/issues/35
+    [[ $ARCH == "arm" ]] && ./scripts/config -d CONFIG_FTRACE
   fi
   # Make sure we build with CONFIG_DEBUG_SECTION_MISMATCH so that the
   # full warning gets printed and we can file and fix it properly.
   ./scripts/config -e DEBUG_SECTION_MISMATCH
   mako_reactor olddefconfig &>/dev/null
   mako_reactor ${image_name}
+  [[ $ARCH != "x86_64" ]] && mako_reactor dtbs
 
   cd "${OLDPWD}"
 }
@@ -158,7 +189,7 @@ build_linux() {
 boot_qemu() {
   local kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
   test -e ${kernel_image}
-  timeout 1m unbuffer ${qemu} \
+  timeout 2m unbuffer ${qemu} \
     -m ${qemu_ram} \
     "${qemu_cmdline[@]}" \
     -nographic \

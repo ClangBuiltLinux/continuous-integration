@@ -46,8 +46,8 @@ matrix:
       env: ARCH=x86_64 REPO=linux-next
       if: type = cron
     # stable
-    - name: "ARCH=arm REPO=4.19"
-      env: ARCH=arm REPO=4.19
+    - name: "ARCH=arm32_v7 REPO=4.19"
+      env: ARCH=arm32_v7 REPO=4.19
       if: type = cron
     - name: "ARCH=arm64 REPO=4.19"
       env: ARCH=arm64 REPO=4.19
@@ -58,8 +58,8 @@ matrix:
     - name: "ARCH=x86_64 REPO=4.19"
       env: ARCH=x86_64 REPO=4.19
       if: type = cron
-    - name: "ARCH=arm REPO=4.14"
-      env: ARCH=arm REPO=4.14
+    - name: "ARCH=arm32_v7 REPO=4.14"
+      env: ARCH=arm32_v7 REPO=4.14
       if: type = cron
     - name: "ARCH=arm64 REPO=4.14"
       env: ARCH=arm64 REPO=4.14
@@ -70,8 +70,8 @@ matrix:
     - name: "ARCH=x86_64 REPO=4.14"
       env: ARCH=x86_64 REPO=4.14
       if: type = cron
-    - name: "ARCH=arm REPO=4.9"
-      env: ARCH=arm REPO=4.9
+    - name: "ARCH=arm32_v7 REPO=4.9"
+      env: ARCH=arm32_v7 REPO=4.9
       if: type = cron
     - name: "ARCH=arm64 REPO=4.9"
       env: ARCH=arm64 REPO=4.9

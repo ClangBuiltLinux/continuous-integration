@@ -161,7 +161,7 @@ build_linux() {
   git show -s | cat
 
   patches_folder=../patches/${REPO}/${ARCH}
-  [[ -d ${patches_folder} ]] && git apply -3 "${patches_folder}"/*.patch
+  [[ -d ${patches_folder} ]] && git apply -v -3 "${patches_folder}"/*.patch
 
   # Only clean up old artifacts if requested, the Linux build system
   # is good about figuring out what needs to be rebuilt

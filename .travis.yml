@@ -108,7 +108,7 @@ after_script:
   - sleep 1
 notifications:
   email:
-    receipients:
+    recipients:
       - ndesaulniers@google.com
       - natechancellor@gmail.com
     on_success: never

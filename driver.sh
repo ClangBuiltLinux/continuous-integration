@@ -128,7 +128,6 @@ setup_variables() {
 check_dependencies() {
   command -v nproc
   command -v "${CROSS_COMPILE:-}"as
-  command -v "${CROSS_COMPILE:-}"ld
   command -v ${qemu}
   command -v timeout
   command -v unbuffer

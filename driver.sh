@@ -128,11 +128,10 @@ setup_variables() {
 check_dependencies() {
   command -v nproc
   command -v "${CROSS_COMPILE:-}"as
-  command -v "${CROSS_COMPILE:-}"ld
   command -v ${qemu}
   command -v timeout
   command -v unbuffer
-  command -v clang-8
+  command -v clang-9
   command -v "${LD:="${CROSS_COMPILE:-}"ld}"
 }
 
@@ -146,7 +145,7 @@ mako_reactor() {
 }
 
 build_linux() {
-  CC="$(command -v ccache) $(command -v clang-8)"
+  CC="$(command -v ccache) $(command -v clang-9)"
   [[ ${LD} =~ lld ]] && HOSTLD=${LD}
 
   if [[ -d ${tree} ]]; then

@@ -203,7 +203,7 @@ index f0515ac895a4..d6e04a32b87f 100644
  KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
  KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
  KBUILD_CFLAGS += -Wno-pointer-sign
-+ifndef CONFIG_CC_HAVE_ASM_GOTO
++ifndef CONFIG_CC_HAS_ASM_GOTO
 +KBUILD_CFLAGS += -D__BPF_TRACING__
 +endif
  
@@ -217,7 +217,7 @@ index d9845099635e..0d2817edc8ab 100644
  
  cflags-$(CONFIG_EFI_ARMSTUB)	+= -I$(srctree)/scripts/dtc/libfdt
  
-+ifndef CONFIG_CC_HAVE_ASM_GOTO
++ifndef CONFIG_CC_HAS_ASM_GOTO
 +cflags-$(CONFIG_X86)		+= -D__BPF_TRACING__
 +endif
 +

@@ -1,4 +1,4 @@
-From a4b551d99e0124c144a8ed5c3796135589ecac16 Mon Sep 17 00:00:00 2001
+From e6676062c603d696e70b06041580c62ca364fd18 Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Sat, 5 Jan 2019 11:51:39 -0700
 Subject: [PATCH 1/2] DO-NOT-UPSTREAM: x86: Revert two commits that break the
@@ -17,7 +17,7 @@ Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
  1 file changed, 42 insertions(+), 39 deletions(-)
 
 diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index a77445d1b034..a87ab5290ab4 100644
+index 780f2b42c8ef..122e42319acc 100644
 --- a/arch/x86/include/asm/uaccess.h
 +++ b/arch/x86/include/asm/uaccess.h
 @@ -186,14 +186,19 @@ __typeof__(__builtin_choose_expr(sizeof(x) > sizeof(0UL), 0ULL, 0UL))
@@ -158,7 +158,7 @@ index a77445d1b034..a87ab5290ab4 100644
 2.20.1
 
 
-From a1ceb19fa6ab9383f9db276f465865f02ab76626 Mon Sep 17 00:00:00 2001
+From ebbb36f656831313b8ef5d75e864a0ab8bc83bc9 Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Tue, 25 Sep 2018 13:32:33 -0700
 Subject: [PATCH 2/2] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack
@@ -176,27 +176,40 @@ asm goto can be tracked at the below link.
 Link: https://github.com/ClangBuiltLinux/linux/issues/6
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 ---
- arch/x86/Makefile                     | 3 +--
+ arch/x86/Makefile                     | 9 +++++----
  arch/x86/boot/compressed/Makefile     | 3 +++
  drivers/firmware/efi/libstub/Makefile | 4 ++++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ 3 files changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 9c5a67d1b9c1..a6ee6381f302 100644
+index 9c5a67d1b9c1..95baa56c2de0 100644
 --- a/arch/x86/Makefile
 +++ b/arch/x86/Makefile
-@@ -290,8 +290,7 @@ vdso_install:
+@@ -219,6 +219,11 @@ ifdef CONFIG_RETPOLINE
+   KBUILD_CFLAGS += $(RETPOLINE_CFLAGS)
+ endif
+ 
++# Avoid warnings in arch/x86/include/asm/cpufeature.h when building with Clang
++ifndef CONFIG_CC_HAS_ASM_GOTO
++  KBUILD_CFLAGS += -D__BPF_TRACING__
++endif
++
+ archscripts: scripts_basic
+ 	$(Q)$(MAKE) $(build)=arch/x86/tools relocs
+ 
+@@ -289,10 +294,6 @@ vdso_install:
+ 
  archprepare: checkbin
  checkbin:
- ifndef CONFIG_CC_HAS_ASM_GOTO
+-ifndef CONFIG_CC_HAS_ASM_GOTO
 -	@echo Compiler lacks asm-goto support.
 -	@exit 1
-+KBUILD_CFLAGS += -D__BPF_TRACING__
- endif
+-endif
  ifdef CONFIG_RETPOLINE
  ifeq ($(RETPOLINE_CFLAGS),)
+ 	@echo "You are building kernel with non-retpoline compiler." >&2
 diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index f0515ac895a4..d6e04a32b87f 100644
+index f0515ac895a4..24cca31995ae 100644
 --- a/arch/x86/boot/compressed/Makefile
 +++ b/arch/x86/boot/compressed/Makefile
 @@ -38,6 +38,9 @@ KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
@@ -210,7 +223,7 @@ index f0515ac895a4..d6e04a32b87f 100644
  KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
  GCOV_PROFILE := n
 diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
-index d9845099635e..0d2817edc8ab 100644
+index d9845099635e..68ff33dc075d 100644
 --- a/drivers/firmware/efi/libstub/Makefile
 +++ b/drivers/firmware/efi/libstub/Makefile
 @@ -24,6 +24,10 @@ cflags-$(CONFIG_ARM)		:= $(subst -pg,,$(KBUILD_CFLAGS)) \

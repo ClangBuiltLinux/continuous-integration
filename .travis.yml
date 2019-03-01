@@ -2,20 +2,20 @@ language: cpp
 matrix:
   include:
     # linux
-    - name: "ARCH=arm32_v5"
-      env: ARCH=arm32_v5
-    - name: "ARCH=arm32_v6"
-      env: ARCH=arm32_v6
-    - name: "ARCH=arm32_v7"
-      env: ARCH=arm32_v7
-    - name: "ARCH=arm64 LD=ld.lld"
-      env: ARCH=arm64 LD=ld.lld-9
-    - name: "ARCH=ppc32"
-      env: ARCH=ppc32
-    - name: "ARCH=ppc64le"
-      env: ARCH=ppc64le
-    - name: "ARCH=x86_64"
-      env: ARCH=x86_64
+    #- name: "ARCH=arm32_v5"
+      #env: ARCH=arm32_v5
+    #- name: "ARCH=arm32_v6"
+      #env: ARCH=arm32_v6
+    #- name: "ARCH=arm32_v7"
+      #env: ARCH=arm32_v7
+    #- name: "ARCH=arm64 LD=ld.lld"
+      #env: ARCH=arm64 LD=ld.lld-9
+    #- name: "ARCH=ppc32"
+      #env: ARCH=ppc32
+    #- name: "ARCH=ppc64le"
+      #env: ARCH=ppc64le
+    #- name: "ARCH=x86_64"
+      #env: ARCH=x86_64
     # linux (cron only)
     - name: "ARCH=arm64"
       env: ARCH=arm64
@@ -44,7 +44,6 @@ matrix:
       if: type = cron
     - name: "ARCH=x86_64 REPO=linux-next"
       env: ARCH=x86_64 REPO=linux-next
-      if: type = cron
     # stable
     - name: "ARCH=arm32_v7 REPO=4.19"
       env: ARCH=arm32_v7 REPO=4.19

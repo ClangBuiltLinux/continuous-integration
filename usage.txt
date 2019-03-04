@@ -20,6 +20,10 @@ Environment variables:
         4.14
         4.9
         4.4
+        common-4.19
+        common-4.14
+        common-4.9
+        common-4.4
 
 Optional parameters:
   -c | --clean:

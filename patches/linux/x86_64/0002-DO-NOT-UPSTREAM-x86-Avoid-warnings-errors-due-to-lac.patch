@@ -1,0 +1,82 @@
+From 54fff575943226a41edd644fc3549458ab728143 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <natechancellor@gmail.com>
+Date: Tue, 25 Sep 2018 13:32:33 -0700
+Subject: [PATCH 2/2] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack
+ of asm goto
+
+We don't want to see an inordinate amount of warning spam from
+the BPF samples and after reverting commits 4a789213c9a5 ("x86
+uaccess: Introduce __put_user_goto") and a959dc88f9c8 ("Use
+__put_user_goto in __put_user_size() and unsafe_put_user()"), we
+can successfully compile an x86 kernel with Clang.
+
+This is obviously not a long term solution. LLVM/Clang support for
+asm goto can be tracked at the below link.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/6
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/x86/Makefile                     | 9 +++++----
+ arch/x86/boot/compressed/Makefile     | 3 +++
+ drivers/firmware/efi/libstub/Makefile | 4 ++++
+ 3 files changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 9c5a67d1b9c1..95baa56c2de0 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -219,6 +219,11 @@ ifdef CONFIG_RETPOLINE
+   KBUILD_CFLAGS += $(RETPOLINE_CFLAGS)
+ endif
+ 
++# Avoid warnings in arch/x86/include/asm/cpufeature.h when building with Clang
++ifndef CONFIG_CC_HAS_ASM_GOTO
++  KBUILD_CFLAGS += -D__BPF_TRACING__
++endif
++
+ archscripts: scripts_basic
+ 	$(Q)$(MAKE) $(build)=arch/x86/tools relocs
+ 
+@@ -289,10 +294,6 @@ vdso_install:
+ 
+ archprepare: checkbin
+ checkbin:
+-ifndef CONFIG_CC_HAS_ASM_GOTO
+-	@echo Compiler lacks asm-goto support.
+-	@exit 1
+-endif
+ ifdef CONFIG_RETPOLINE
+ ifeq ($(RETPOLINE_CFLAGS),)
+ 	@echo "You are building kernel with non-retpoline compiler." >&2
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index f0515ac895a4..24cca31995ae 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -38,6 +38,9 @@ KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+ KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
+ KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
+ KBUILD_CFLAGS += -Wno-pointer-sign
++ifndef CONFIG_CC_HAS_ASM_GOTO
++KBUILD_CFLAGS += -D__BPF_TRACING__
++endif
+ 
+ KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
+ GCOV_PROFILE := n
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index d9845099635e..68ff33dc075d 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -24,6 +24,10 @@ cflags-$(CONFIG_ARM)		:= $(subst -pg,,$(KBUILD_CFLAGS)) \
+ 
+ cflags-$(CONFIG_EFI_ARMSTUB)	+= -I$(srctree)/scripts/dtc/libfdt
+ 
++ifndef CONFIG_CC_HAS_ASM_GOTO
++cflags-$(CONFIG_X86)		+= -D__BPF_TRACING__
++endif
++
+ KBUILD_CFLAGS			:= $(cflags-y) -DDISABLE_BRANCH_PROFILING \
+ 				   -D__NO_FORTIFY \
+ 				   $(call cc-option,-ffreestanding) \
+-- 
+2.21.0
+

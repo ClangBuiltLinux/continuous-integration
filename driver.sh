@@ -21,6 +21,10 @@ setup_variables() {
 
   # torvalds/linux is the default repo if nothing is specified
   case ${REPO:=linux} in
+    "common-"*)
+      branch=android-${REPO##*-}
+      tree=common
+      url=https://android.googlesource.com/kernel/${tree} ;;
     "linux")
       owner=torvalds
       tree=linux ;;
@@ -32,7 +36,7 @@ setup_variables() {
       branch=linux-${REPO}.y
       tree=linux ;;
   esac
-  url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree}.git
+  [[ -z "${url:-}" ]] && url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree}.git
 
   # arm64 is the current default if nothing is specified
   case ${ARCH:=arm64} in
@@ -74,7 +78,10 @@ setup_variables() {
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
 
     "arm64")
-      config=defconfig
+      case ${REPO} in
+        common-*) config=cuttlefish_defconfig ;;
+        *) config=defconfig ;;
+      esac
       image_name=Image.gz
       qemu="qemu-system-aarch64"
       qemu_ram=512m
@@ -85,13 +92,19 @@ setup_variables() {
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
 
     "x86_64")
-      config=defconfig
+      case ${REPO} in
+        common-*)
+          config=x86_64_cuttlefish_defconfig
+          qemu_cmdline=( -append "console=ttyS0"
+                         -initrd "images/x86_64/rootfs.cpio" ) ;;
+        *)
+          config=defconfig
+          qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
+                         -append "console=ttyS0 root=/dev/sda" ) ;;
+      esac
       image_name=bzImage
       qemu="qemu-system-x86_64"
-      qemu_ram=512m
-      qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
-                     -append "console=ttyS0 root=/dev/sda" ) ;;
-
+      qemu_ram=512m ;;
     "ppc32")
       config=ppc44x_defconfig
       image_name=zImage

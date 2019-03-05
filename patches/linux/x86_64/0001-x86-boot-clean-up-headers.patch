@@ -1,7 +1,7 @@
-From 8ba9a76635311511f842ea2c55e6912b25ab93aa Mon Sep 17 00:00:00 2001
+From ba2646db362dbdd574d6f6995e88c4cd584805fd Mon Sep 17 00:00:00 2001
 From: Nick Desaulniers <ndesaulniers@google.com>
 Date: Fri, 1 Mar 2019 15:29:40 -0800
-Subject: [PATCH] x86/boot: clean up headers
+Subject: [PATCH v3] x86/boot: clean up headers
 
 The inclusion of <linux/kernel.h> was causing issue as the definition of
 __arch_hweight64 from arch/x86/include/asm/arch_hweight.h eventually gets
@@ -23,30 +23,36 @@ and sort the headers alphabetically.
 
 Link: https://bugs.llvm.org/show_bug.cgi?id=33587
 Link: https://github.com/ClangBuiltLinux/linux/issues/347
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Suggested-by: Stephen Rothwell <sfr@canb.auug.org.au>
 Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 ---
- arch/x86/boot/string.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Changes V2 -> V3:
+* keep linux/types.h
+
+Changes V1 -> V2:
+* Add Reviewed, Tested, Suggested tags.
+* Drop linux/types.h; it's included in linux/limits.h.
+
+ arch/x86/boot/string.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/arch/x86/boot/string.c b/arch/x86/boot/string.c
-index 315a67b8896b..f149316116d0 100644
+index 315a67b8896b..90154df8f125 100644
 --- a/arch/x86/boot/string.c
 +++ b/arch/x86/boot/string.c
-@@ -12,10 +12,11 @@
-  * Very basic string functions
+@@ -13,8 +13,9 @@
   */
  
--#include <linux/types.h>
+ #include <linux/types.h>
 -#include <linux/kernel.h>
--#include <linux/errno.h>
- #include <asm/asm.h>
 +#include <linux/compiler.h>
-+#include <linux/errno.h>
+ #include <linux/errno.h>
 +#include <linux/limits.h>
-+#include <linux/types.h>
+ #include <asm/asm.h>
  #include "ctype.h"
  #include "string.h"
- 
 -- 
 2.21.0.352.gf09ad66450-goog
 

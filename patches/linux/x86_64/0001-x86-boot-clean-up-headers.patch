@@ -1,4 +1,4 @@
-From 6cf81b4f510dc6e75024065a3bc6d5805d304827 Mon Sep 17 00:00:00 2001
+From 8ba9a76635311511f842ea2c55e6912b25ab93aa Mon Sep 17 00:00:00 2001
 From: Nick Desaulniers <ndesaulniers@google.com>
 Date: Fri, 1 Mar 2019 15:29:40 -0800
 Subject: [PATCH] x86/boot: clean up headers
@@ -18,33 +18,35 @@ dead. I consider this another case of PR33587, which I think we can do
 more work to solve.
 
 It turns out that arch/x86/boot/string.c doesn't actually need
-linux/kernel.h, simply linux/limits.h and linux/types.h. Include them,
+linux/kernel.h, simply linux/limits.h and linux/compiler.h. Include them,
 and sort the headers alphabetically.
 
 Link: https://bugs.llvm.org/show_bug.cgi?id=33587
 Link: https://github.com/ClangBuiltLinux/linux/issues/347
 Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 ---
- arch/x86/boot/string.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/boot/string.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/arch/x86/boot/string.c b/arch/x86/boot/string.c
-index 315a67b8896b..cc19bb72ec16 100644
+index 315a67b8896b..f149316116d0 100644
 --- a/arch/x86/boot/string.c
 +++ b/arch/x86/boot/string.c
-@@ -12,9 +12,10 @@
+@@ -12,10 +12,11 @@
   * Very basic string functions
   */
  
 -#include <linux/types.h>
 -#include <linux/kernel.h>
+-#include <linux/errno.h>
+ #include <asm/asm.h>
 +#include <linux/compiler.h>
- #include <linux/errno.h>
++#include <linux/errno.h>
 +#include <linux/limits.h>
 +#include <linux/types.h>
- #include <asm/asm.h>
  #include "ctype.h"
  #include "string.h"
+ 
 -- 
 2.21.0.352.gf09ad66450-goog
 

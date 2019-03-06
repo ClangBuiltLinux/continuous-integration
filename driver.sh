@@ -145,6 +145,7 @@ check_dependencies() {
   command -v timeout
   command -v unbuffer
   command -v clang-9
+  command -v llvm-ar-9
   command -v "${LD:="${CROSS_COMPILE:-}"ld}"
 }
 
@@ -154,7 +155,7 @@ mako_reactor() {
   KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
-  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" HOSTLD="${HOSTLD:-ld}" "${@}"
+  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" HOSTLD="${HOSTLD:-ld}" AR="llvm-ar-9" "${@}"
 }
 
 build_linux() {

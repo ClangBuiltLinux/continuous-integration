@@ -145,7 +145,6 @@ check_dependencies() {
   command -v timeout
   command -v unbuffer
   command -v clang-9
-  command -v lld-9
   command -v llvm-ar-9
   command -v "${LD:="${CROSS_COMPILE:-}"ld}"
 }

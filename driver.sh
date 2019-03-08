@@ -85,8 +85,7 @@ setup_variables() {
       image_name=Image.gz
       qemu="qemu-system-aarch64"
       qemu_ram=512m
-      qemu_cmdline=( -machine virt
-                     -cpu cortex-a57
+      qemu_cmdline=( -cpu cortex-a57
                      -drive "file=images/arm64/rootfs.ext4,format=raw"
                      -append "console=ttyAMA0 root=/dev/vda" )
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
@@ -202,11 +201,18 @@ build_linux() {
 boot_qemu() {
   local kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
   test -e ${kernel_image}
-  timeout 2m unbuffer ${qemu} \
-    -m ${qemu_ram} \
-    "${qemu_cmdline[@]}" \
-    -nographic \
-    -kernel ${kernel_image}
+  qemu=( timeout 2m unbuffer "${qemu}"
+                             -m "${qemu_ram}"
+                             "${qemu_cmdline[@]}"
+                             -nographic
+                             -kernel "${kernel_image}" )
+  # For arm64, we want to test booting at both EL1 and EL2
+  if [[ ${ARCH} = "arm64" ]]; then
+    "${qemu[@]}" -machine virt
+    "${qemu[@]}" -machine "virt,virtualization=true"
+  else
+    "${qemu[@]}"
+  fi
 }
 
 setup_variables "${@}"

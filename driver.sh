@@ -5,6 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
+      "AR="*|"ARCH="*|"CC="*|"LD="*|"REPO="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -139,14 +140,72 @@ setup_variables() {
 }
 
 check_dependencies() {
+  # Check for existence of needed binaries
   command -v nproc
   command -v "${CROSS_COMPILE:-}"as
   command -v ${qemu}
   command -v timeout
   command -v unbuffer
-  command -v clang-9
-  command -v llvm-ar-9
-  command -v "${LD:="${CROSS_COMPILE:-}"ld}"
+
+  # Check for LD, CC, and AR environmental variables
+  # and print the version string of each. If CC and AR
+  # don't exist, try to find them.
+  # lld isn't ready for all architectures so it's just
+  # simpler to fall back to GNU ld when LD isn't specified
+  # to avoid architecture specific selection logic.
+
+  "${LD:="${CROSS_COMPILE:-}"ld}" --version
+
+  if [[ -z "${CC:-}" ]]; then
+    for CC in clang-9 clang-8 clang-7 clang; do
+      command -v ${CC} &>/dev/null && break
+    done
+  fi
+  ${CC} --version 2>/dev/null || {
+    set +x
+    echo
+    echo "Looks like ${CC} could not be found in PATH!"
+    echo
+    echo "Please install as recent a version of clang as you can from your distro or"
+    echo "properly specify the CC variable to point to the correct clang binary."
+    echo
+    echo "If you don't want to install clang, you can either download AOSP's prebuilt"
+    echo "clang [1] or build it from source [2] then add the bin folder to your PATH."
+    echo
+    echo "[1]: https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/"
+    echo "[2]: https://github.com/ClangBuiltLinux/linux/wiki/Building-Clang-from-source"
+    echo
+    exit;
+  }
+
+  if [[ -z "${AR:-}" ]]; then
+    for AR in llvm-ar-9 llvm-ar-8 llvm-ar-7 llvm-ar "${CROSS_COMPILE:-}"ar; do
+      command -v ${AR} 2>/dev/null && break
+    done
+  fi
+  check_ar_version
+  ${AR} --version
+}
+
+# Optimistically check to see that the user has a llvm-ar
+# with https://reviews.llvm.org/rL354044. If they don't,
+# fall back to GNU ar and let them know.
+check_ar_version() {
+  if ${AR} --version | grep -q "LLVM" && \
+     [[ $(${AR} --version | grep version | sed -e 's/.*LLVM version //g' -e 's/[[:blank:]]*$//' -e 's/\.//g') -lt 900 ]]; then
+    set +x
+    echo
+    echo "${AR} found but appears to be too old to build the kernel (needs to be at least 9.0.0)."
+    echo
+    echo "Please either update llvm-ar from your distro or build it from source!"
+    echo
+    echo "See https://github.com/ClangBuiltLinux/linux/issues/33 for more info."
+    echo
+    echo "Falling back to GNU ar..."
+    echo
+    AR=${CROSS_COMPILE:-}ar
+    set -x
+  fi
 }
 
 mako_reactor() {
@@ -155,11 +214,12 @@ mako_reactor() {
   KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
-  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" HOSTLD="${HOSTLD:-ld}" AR="llvm-ar-9" "${@}"
+  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" HOSTLD="${HOSTLD:-ld}" AR="${AR}" "${@}"
 }
 
 build_linux() {
-  CC="$(command -v ccache) $(command -v clang-9)"
+  # Wrap CC in ccache if it is available (it's not strictly required)
+  CC="$(command -v ccache) ${CC}"
   [[ ${LD} =~ lld ]] && HOSTLD=${LD}
 
   if [[ -d ${tree} ]]; then

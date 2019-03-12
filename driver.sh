@@ -191,7 +191,7 @@ check_dependencies() {
 # fall back to GNU ar and let them know.
 check_ar_version() {
   if ${AR} --version | grep -q "LLVM" && \
-     [[ $(${AR} --version | grep version | sed -e 's/.*LLVM version //g' -e 's/[[:blank:]]*$//' -e 's/\.//g') -lt 900 ]]; then
+     [[ $(${AR} --version | grep version | sed -e 's/.*LLVM version //g' -e 's/[[:blank:]]*$//' -e 's/\.//g' -e 's/svn//' ) -lt 900 ]]; then
     set +x
     echo
     echo "${AR} found but appears to be too old to build the kernel (needs to be at least 9.0.0)."

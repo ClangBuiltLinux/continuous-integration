@@ -219,6 +219,9 @@ mako_reactor() {
 apply_patches() {
   patches_folder=$1
   [[ -d ${patches_folder} ]] && git apply -v -3 "${patches_folder}"/*.patch
+  # Otherwise if the above conditional fails, a non-zero return code halts the
+  # build.
+  return 0
 }
 
 build_linux() {

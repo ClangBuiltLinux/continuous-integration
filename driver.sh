@@ -216,6 +216,15 @@ mako_reactor() {
   make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" HOSTLD="${HOSTLD:-ld}" AR="${AR}" "${@}"
 }
 
+apply_patches() {
+  patches_folder=$1
+  if [[ -d ${patches_folder} ]]; then
+    git apply -v -3 "${patches_folder}"/*.patch
+  else
+    return 0
+  fi
+}
+
 build_linux() {
   # Wrap CC in ccache if it is available (it's not strictly required)
   CC="$(command -v ccache) ${CC}"
@@ -232,8 +241,8 @@ build_linux() {
 
   git show -s | cat
 
-  patches_folder=../patches/${REPO}/${ARCH}
-  [[ -d ${patches_folder} ]] && git apply -v -3 "${patches_folder}"/*.patch
+  apply_patches "../patches/all"
+  apply_patches "../patches/${REPO}/${ARCH}"
 
   # Only clean up old artifacts if requested, the Linux build system
   # is good about figuring out what needs to be rebuilt

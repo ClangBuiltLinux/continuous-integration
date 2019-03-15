@@ -125,7 +125,7 @@ setup_variables() {
       qemu_cmdline=( -machine powernv
                      -device "ipmi-bmc-sim,id=bmc0"
                      -device "isa-ipmi-bt,bmc=bmc0,irq=10"
-                     -L /usr/share/skiboot -bios skiboot.lid
+                     -L images/ppc64le/ -bios skiboot.lid
                      -initrd images/ppc64le/rootfs.cpio )
       export ARCH=powerpc
       export CROSS_COMPILE=powerpc64le-linux-gnu- ;;

@@ -6,8 +6,8 @@ matrix:
       env: ARCH=arm32_v5
     - name: "ARCH=arm32_v6"
       env: ARCH=arm32_v6
-    - name: "ARCH=arm32_v7"
-      env: ARCH=arm32_v7
+    - name: "ARCH=arm32_v7 LD=ld.lld"
+      env: ARCH=arm32_v7 LD=ld.lld-9
     - name: "ARCH=arm64 LD=ld.lld"
       env: ARCH=arm64 LD=ld.lld-9
     - name: "ARCH=ppc32"
@@ -17,6 +17,9 @@ matrix:
     - name: "ARCH=x86_64"
       env: ARCH=x86_64
     # linux (cron only)
+    - name: "ARCH=arm32_v7"
+      env: ARCH=arm32_v7
+      if: type = cron
     - name: "ARCH=arm64"
       env: ARCH=arm64
       if: type = cron
@@ -29,6 +32,12 @@ matrix:
       if: type = cron
     - name: "ARCH=arm32_v7 REPO=linux-next"
       env: ARCH=arm32_v7 REPO=linux-next
+      if: type = cron
+    - name: "ARCH=arm32_v7 REPO=linux-next"
+      env: ARCH=arm32_v7 REPO=linux-next
+      if: type = cron
+    - name: "ARCH=arm32_v7 LD=ld.lld REPO=linux-next"
+      env: ARCH=arm32_v7 LD=ld.lld-9 REPO=linux-next
       if: type = cron
     - name: "ARCH=arm64 REPO=linux-next"
       env: ARCH=arm64 REPO=linux-next

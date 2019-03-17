@@ -113,6 +113,34 @@ matrix:
     - name: "ARCH=x86_64 REPO=common-4.19"
       env: ARCH=x86_64 REPO=common-4.19
       if: type = cron
+    # linux with stable LLVM/Clang
+    - name: "ARCH=arm32_v5 LLVM_VERSION=8"
+      env: ARCH=arm32_v5 LLVM_VERSION=8
+      if: type = cron
+    - name: "ARCH=arm32_v6 LLVM_VERSION=8"
+      env: ARCH=arm32_v6 LLVM_VERSION=8
+      if: type = cron
+    - name: "ARCH=arm32_v7 LLVM_VERSION=8"
+      env: ARCH=arm32_v7 LLVM_VERSION=8
+      if: type = cron
+    - name: "ARCH=arm32_v7 LD=ld.lld LLVM_VERSION=8"
+      env: ARCH=arm32_v7 LD=ld.lld-8 LLVM_VERSION=8
+      if: type = cron
+    - name: "ARCH=arm64 LLVM_VERSION=8"
+      env: ARCH=arm64 LLVM_VERSION=8
+      if: type = cron
+    - name: "ARCH=arm64 LD=ld.lld LLVM_VERSION=8"
+      env: ARCH=arm64 LD=ld.lld-8 LLVM_VERSION=8
+      if: type = cron
+    - name: "ARCH=ppc32 LLVM_VERSION=8"
+      env: ARCH=ppc32 LLVM_VERSION=8
+      if: type = cron
+    - name: "ARCH=ppc64le LLVM_VERSION=8"
+      env: ARCH=ppc64le LLVM_VERSION=8
+      if: type = cron
+    - name: "ARCH=x86_64 LLVM_VERSION=8"
+      env: ARCH=x86_64
+      if: type = cron
 compiler: gcc
 os: linux
 dist: trusty
@@ -131,7 +159,7 @@ script:
         --rm \
         --workdir /travis \
         --volume ${TRAVIS_BUILD_DIR}:/travis \
-        clangbuiltlinux/debian /bin/bash -c './env-setup.sh && ./driver.sh && ccache -s'
+        clangbuiltlinux/debian:llvm${LLVM_VERSION:-9}-latest /bin/bash -c './env-setup.sh && ./driver.sh && ccache -s'
 after_script:
   - sleep 1
 notifications:

@@ -1,7 +1,7 @@
-From c729ea3e1f202e29a42728162d72e50b918ed5d7 Mon Sep 17 00:00:00 2001
+From 8332da8a6f04ef2c1aea698cf78d96008afb58ff Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Sat, 5 Jan 2019 11:51:39 -0700
-Subject: [PATCH 1/3] DO-NOT-UPSTREAM: x86: Revert two commits that break the
+Subject: [PATCH 1/2] DO-NOT-UPSTREAM: x86: Revert two commits that break the
  build with Clang
 
 * 4a789213c9a5 ("x86 uaccess: Introduce __put_user_goto")
@@ -162,10 +162,10 @@ index 1954dd5552a2..fd49f32afdbc 100644
 2.21.0
 
 
-From 7f9c5b007617ef72740ae55cb58c9b0585777090 Mon Sep 17 00:00:00 2001
+From e8e8b6a3501be642a50675f7441d30c6a16bc86f Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Tue, 25 Sep 2018 13:32:33 -0700
-Subject: [PATCH 2/3] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack
+Subject: [PATCH 2/2] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack
  of asm goto
 
 We don't want to see an inordinate amount of warning spam from
@@ -241,58 +241,6 @@ index b0103e16fc1b..d8019c714b4d 100644
  KBUILD_CFLAGS			:= $(cflags-y) -DDISABLE_BRANCH_PROFILING \
  				   -D__NO_FORTIFY \
  				   $(call cc-option,-ffreestanding) \
--- 
-2.21.0
-
-
-From 963483a1dc5ef3e51c6c4687b8524b94010edbad Mon Sep 17 00:00:00 2001
-From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Mon, 4 Mar 2019 16:12:21 -0800
-Subject: [PATCH 3/3] x86/boot: clean up headers
-
-The inclusion of <linux/kernel.h> was causing issue as the definition of
-__arch_hweight64 from arch/x86/include/asm/arch_hweight.h eventually gets
-included. The definition is problematic when compiled with -m16 (all code
-in arch/x86/boot/ is) as the "D" inline assembly constraint is rejected
-by both compilers when passed an argument of type long long (regardless
-of signedness, anything smaller is fine).
-
-Because GCC performs inlining before semantic analysis, and
-__arch_hweight64 is dead in this translation unit, GCC does not report
-any issues at compile time.  Clang does the semantic analysis in the
-front end, before inlining (run in the middle) can determine the code is
-dead. I consider this another case of PR33587, which I think we can do
-more work to solve.
-
-It turns out that arch/x86/boot/string.c doesn't actually need
-linux/kernel.h, simply linux/limits.h and linux/compiler.h. Include them,
-and sort the headers alphabetically.
-
-Link: https://bugs.llvm.org/show_bug.cgi?id=33587
-Link: https://github.com/ClangBuiltLinux/linux/issues/347
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Suggested-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
----
- arch/x86/boot/string.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/boot/string.c b/arch/x86/boot/string.c
-index 315a67b8896b..90154df8f125 100644
---- a/arch/x86/boot/string.c
-+++ b/arch/x86/boot/string.c
-@@ -13,8 +13,9 @@
-  */
- 
- #include <linux/types.h>
--#include <linux/kernel.h>
-+#include <linux/compiler.h>
- #include <linux/errno.h>
-+#include <linux/limits.h>
- #include <asm/asm.h>
- #include "ctype.h"
- #include "string.h"
 -- 
 2.21.0
 

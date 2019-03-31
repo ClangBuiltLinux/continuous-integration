@@ -2,6 +2,8 @@ language: cpp
 matrix:
   include:
     # linux
+    - name: "ARCH=arm32_thumb2"
+      env: ARCH=arm32_thumb2
     - name: "ARCH=arm32_v5"
       env: ARCH=arm32_v5
     - name: "ARCH=arm32_v6"
@@ -24,6 +26,9 @@ matrix:
       env: ARCH=arm64
       if: type = cron
     # linux-next (cron only)
+    - name: "ARCH=arm32_thumb2 REPO=linux-next"
+      env: ARCH=arm32_thumb REPO=linux-next
+      if: type = cron
     - name: "ARCH=arm32_v5 REPO=linux-next"
       env: ARCH=arm32_v5 REPO=linux-next
       if: type = cron

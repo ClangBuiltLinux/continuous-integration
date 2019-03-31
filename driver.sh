@@ -39,6 +39,18 @@ setup_variables() {
   esac
   [[ -z "${url:-}" ]] && url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree}.git
 
+  case ${ARCH:=arm32} in
+    "arm32_thumb2")
+      config=multi_v8_defconfig
+      image_name=zImage
+      qemu="qemu-system-arm"
+      qemu_ram=512m
+      qemu_cmdline = ( -no-reboot
+                       -dtb "${tree}/arch/arm/boot/dts/aspeed-bmc-opp-palmetto.dtb"
+                       -initrd "images/arm/rootfs.cpio" )
+      export ARCH=arm
+      export CROSS_COMPILE=arm-linux-gnueabi- ;;
+
   # arm64 is the current default if nothing is specified
   case ${ARCH:=arm64} in
     "arm32_v5")

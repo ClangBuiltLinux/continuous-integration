@@ -252,6 +252,7 @@ build_linux() {
   # like debugging, selftests, and common drivers
   if [[ ${config} =~ defconfig ]]; then
     cat ../configs/common.config >> .config
+    cat ../configs/allyesconfig.config >> .config
     # Some torture test configs cause issues on x86_64
     [[ $ARCH != "x86_64" ]] && cat ../configs/tt.config >> .config
     # Disable ftrace on arm32: https://github.com/ClangBuiltLinux/linux/issues/35

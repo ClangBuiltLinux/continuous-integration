@@ -148,6 +148,7 @@ sudo: required
 cache:
   directories:
     - .ccache
+    - /travis/clangbuiltlinux/debian:llvm${LLVM_VERSION:-9}
 services:
   - docker
 script:
@@ -167,5 +168,6 @@ notifications:
     recipients:
       - ndesaulniers@google.com
       - natechancellor@gmail.com
+      - tapaswenipathak@gmail.com
     on_success: never
     on_failure: always

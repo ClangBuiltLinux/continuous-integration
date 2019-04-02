@@ -242,6 +242,7 @@ build_linux() {
   git show -s | cat
 
   apply_patches "../patches/all"
+  apply_patches "../patches/${REPO}/all"
   apply_patches "../patches/${REPO}/${ARCH}"
 
   # Only clean up old artifacts if requested, the Linux build system

@@ -1,4 +1,4 @@
-From 8332da8a6f04ef2c1aea698cf78d96008afb58ff Mon Sep 17 00:00:00 2001
+From 1b0a2c0dfcd5b7190adb6e491851bf91f3bc014f Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Sat, 5 Jan 2019 11:51:39 -0700
 Subject: [PATCH 1/2] DO-NOT-UPSTREAM: x86: Revert two commits that break the
@@ -162,7 +162,7 @@ index 1954dd5552a2..fd49f32afdbc 100644
 2.21.0
 
 
-From e8e8b6a3501be642a50675f7441d30c6a16bc86f Mon Sep 17 00:00:00 2001
+From f55f98b98f9ea0a6abd0c5c89ccef9bedb5f926a Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Tue, 25 Sep 2018 13:32:33 -0700
 Subject: [PATCH 2/2] DO-NOT-UPSTREAM: x86: Avoid warnings/errors due to lack
@@ -186,11 +186,11 @@ Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
  3 files changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 2d8b9d8ca4f8..2329b1af60f9 100644
+index a587805c6687..2f1105de56cf 100644
 --- a/arch/x86/Makefile
 +++ b/arch/x86/Makefile
-@@ -223,6 +223,11 @@ ifdef CONFIG_RETPOLINE
-   KBUILD_CFLAGS += $(call cc-option,--param=case-values-threshold=20)
+@@ -227,6 +227,11 @@ ifdef CONFIG_RETPOLINE
+   endif
  endif
  
 +# Avoid warnings in arch/x86/include/asm/cpufeature.h when building with Clang
@@ -201,7 +201,7 @@ index 2d8b9d8ca4f8..2329b1af60f9 100644
  archscripts: scripts_basic
  	$(Q)$(MAKE) $(build)=arch/x86/tools relocs
  
-@@ -293,10 +298,6 @@ vdso_install:
+@@ -297,10 +302,6 @@ vdso_install:
  
  archprepare: checkbin
  checkbin:

@@ -45,7 +45,6 @@ setup_variables() {
       config=multi_v5_defconfig
       image_name=zImage
       qemu="qemu-system-arm"
-      qemu_ram=512m
       qemu_cmdline=( -machine palmetto-bmc
                      -no-reboot
                      -dtb "${tree}/arch/arm/boot/dts/aspeed-bmc-opp-palmetto.dtb"
@@ -57,7 +56,6 @@ setup_variables() {
       config=aspeed_g5_defconfig
       image_name=zImage
       qemu="qemu-system-arm"
-      qemu_ram=512m
       qemu_cmdline=( -machine romulus-bmc
                      -no-reboot
                      -dtb "${tree}/arch/arm/boot/dts/aspeed-bmc-opp-romulus.dtb"
@@ -69,7 +67,6 @@ setup_variables() {
       config=multi_v7_defconfig
       image_name=zImage
       qemu="qemu-system-arm"
-      qemu_ram=512m
       qemu_cmdline=( -machine virt
                      -no-reboot
                      -drive "file=images/arm/rootfs.ext4,format=raw,id=rootfs,if=none"
@@ -85,7 +82,6 @@ setup_variables() {
       esac
       image_name=Image.gz
       qemu="qemu-system-aarch64"
-      qemu_ram=512m
       qemu_cmdline=( -cpu cortex-a57
                      -drive "file=images/arm64/rootfs.ext4,format=raw"
                      -append "console=ttyAMA0 root=/dev/vda" )
@@ -103,8 +99,7 @@ setup_variables() {
                          -append "console=ttyS0 root=/dev/sda" ) ;;
       esac
       image_name=bzImage
-      qemu="qemu-system-x86_64"
-      qemu_ram=512m ;;
+      qemu="qemu-system-x86_64" ;;
     "ppc32")
       config=ppc44x_defconfig
       image_name=zImage
@@ -272,7 +267,7 @@ boot_qemu() {
   local kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
   test -e ${kernel_image}
   qemu=( timeout 2m unbuffer "${qemu}"
-                             -m "${qemu_ram}"
+                             -m "${qemu_ram:=512m}"
                              "${qemu_cmdline[@]}"
                              -nographic
                              -kernel "${kernel_image}" )

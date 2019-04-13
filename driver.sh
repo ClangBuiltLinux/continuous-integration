@@ -141,6 +141,10 @@ check_dependencies() {
   command -v timeout
   command -v unbuffer
 
+  for readelf in llvm-readelf-9 llvm-readelf-8 llvm-readelf-7 llvm-readelf; do
+    command -v ${readelf} &>/dev/null && break
+  done
+
   # Check for LD, CC, and AR environmental variables
   # and print the version string of each. If CC and AR
   # don't exist, try to find them.
@@ -259,6 +263,7 @@ build_linux() {
   mako_reactor olddefconfig &>/dev/null
   mako_reactor ${image_name}
   [[ $ARCH =~ arm ]] && mako_reactor dtbs
+  ${readelf} --string-dump=.comment vmlinux
 
   cd "${OLDPWD}"
 }

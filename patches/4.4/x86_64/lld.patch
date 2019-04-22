@@ -1,0 +1,390 @@
+From a011a363720775823e6a291ab62096ae94374bb8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Rafael=20=C3=81vila=20de=20Esp=C3=ADndola?=
+ <rafael@espindo.la>
+Date: Wed, 19 Dec 2018 11:01:43 -0800
+Subject: [PATCH 1/5] x86/build: Mark per-CPU symbols as absolute explicitly
+ for LLD
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+[ Upstream commit d071ae09a4a1414c1433d5ae9908959a7325b0ad ]
+
+Accessing per-CPU variables is done by finding the offset of the
+variable in the per-CPU block and adding it to the address of the
+respective CPU's block.
+
+Section 3.10.8 of ld.bfd's documentation states:
+
+  For expressions involving numbers, relative addresses and absolute
+  addresses, ld follows these rules to evaluate terms:
+
+  Other binary operations, that is, between two relative addresses
+  not in the same section, or between a relative address and an
+  absolute address, first convert any non-absolute term to an
+  absolute address before applying the operator."
+
+Note that LLVM's linker does not adhere to the GNU ld's implementation
+and as such requires implicitly-absolute terms to be explicitly marked
+as absolute in the linker script. If not, it fails currently with:
+
+  ld.lld: error: ./arch/x86/kernel/vmlinux.lds:153: at least one side of the expression must be absolute
+  ld.lld: error: ./arch/x86/kernel/vmlinux.lds:154: at least one side of the expression must be absolute
+  Makefile:1040: recipe for target 'vmlinux' failed
+
+This is not a functional change for ld.bfd which converts the term to an
+absolute symbol anyways as specified above.
+
+Based on a previous submission by Tri Vo <trong@android.com>.
+
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Signed-off-by: Rafael Ávila de Espíndola <rafael@espindo.la>
+[ Update commit message per Boris' and Michael's suggestions. ]
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+[ Massage commit message more, fix typos. ]
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Dmitry Golovin <dima@golovin.in>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Cao Jin <caoj.fnst@cn.fujitsu.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tri Vo <trong@android.com>
+Cc: dima@golovin.in
+Cc: morbo@google.com
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20181219190145.252035-1-ndesaulniers@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/x86/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index a703842b54de..17e1e60b6b40 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -365,7 +365,7 @@ SECTIONS
+  * Per-cpu symbols which need to be offset from __per_cpu_load
+  * for the boot processor.
+  */
+-#define INIT_PER_CPU(x) init_per_cpu__##x = x + __per_cpu_load
++#define INIT_PER_CPU(x) init_per_cpu__##x = ABSOLUTE(x) + __per_cpu_load
+ INIT_PER_CPU(gdt_page);
+ INIT_PER_CPU(irq_stack_union);
+ 
+-- 
+2.21.0
+
+
+From 9a607e600adedd84e58205ae812974322094efe5 Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Mon, 11 Feb 2019 11:30:04 -0800
+Subject: [PATCH 2/5] kbuild: clang: choose GCC_TOOLCHAIN_DIR not on LD
+
+commit ad15006cc78459d059af56729c4d9bed7c7fd860 upstream.
+
+This causes an issue when trying to build with `make LD=ld.lld` if
+ld.lld and the rest of your cross tools aren't in the same directory
+(ex. /usr/local/bin) (as is the case for Android's build system), as the
+GCC_TOOLCHAIN_DIR then gets set based on `which $(LD)` which will point
+where LLVM tools are, not GCC/binutils tools are located.
+
+Instead, select the GCC_TOOLCHAIN_DIR based on another tool provided by
+binutils for which LLVM does not provide a substitute for, such as
+elfedit.
+
+Fixes: 785f11aa595b ("kbuild: Add better clang cross build support")
+Link: https://github.com/ClangBuiltLinux/linux/issues/341
+Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 35be7983ef2d..7bf3fb717921 100644
+--- a/Makefile
++++ b/Makefile
+@@ -610,7 +610,7 @@ all: vmlinux
+ ifeq ($(cc-name),clang)
+ ifneq ($(CROSS_COMPILE),)
+ CLANG_TARGET	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
+-GCC_TOOLCHAIN_DIR := $(dir $(shell which $(LD)))
++GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
+ CLANG_PREFIX	:= --prefix=$(GCC_TOOLCHAIN_DIR)
+ GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
+ endif
+-- 
+2.21.0
+
+
+From c0cccc8cb3c2a4c74550f7cabbfe1a05426a0d45 Mon Sep 17 00:00:00 2001
+From: George Rimar <grimar@accesssoftek.com>
+Date: Fri, 11 Jan 2019 12:10:12 -0800
+Subject: [PATCH 3/5] x86/build: Specify elf_i386 linker emulation explicitly
+ for i386 objects
+
+commit 927185c124d62a9a4d35878d7f6d432a166b74e3 upstream.
+
+The kernel uses the OUTPUT_FORMAT linker script command in it's linker
+scripts. Most of the time, the -m option is passed to the linker with
+correct architecture, but sometimes (at least for x86_64) the -m option
+contradicts the OUTPUT_FORMAT directive.
+
+Specifically, arch/x86/boot and arch/x86/realmode/rm produce i386 object
+files, but are linked with the -m elf_x86_64 linker flag when building
+for x86_64.
+
+The GNU linker manpage doesn't explicitly state any tie-breakers between
+-m and OUTPUT_FORMAT. But with BFD and Gold linkers, OUTPUT_FORMAT
+overrides the emulation value specified with the -m option.
+
+LLVM lld has a different behavior, however. When supplied with
+contradicting -m and OUTPUT_FORMAT values it fails with the following
+error message:
+
+  ld.lld: error: arch/x86/realmode/rm/header.o is incompatible with elf_x86_64
+
+Therefore, just add the correct -m after the incorrect one (it overrides
+it), so the linker invocation looks like this:
+
+  ld -m elf_x86_64 -z max-page-size=0x200000 -m elf_i386 --emit-relocs -T \
+    realmode.lds header.o trampoline_64.o stack.o reboot.o -o realmode.elf
+
+This is not a functional change for GNU ld, because (although not
+explicitly documented) OUTPUT_FORMAT overrides -m EMULATION.
+
+Tested by building x86_64 kernel with GNU gcc/ld toolchain and booting
+it in QEMU.
+
+ [ bp: massage and clarify text. ]
+
+Suggested-by: Dmitry Golovin <dima@golovin.in>
+Signed-off-by: George Rimar <grimar@accesssoftek.com>
+Signed-off-by: Tri Vo <trong@android.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Tri Vo <trong@android.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Michael Matz <matz@suse.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: morbo@google.com
+Cc: ndesaulniers@google.com
+Cc: ruiu@google.com
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190111201012.71210-1-trong@android.com
+[nc: Fix conflicts due to lack of commit 58ab5e0c2c40 ("Kbuild: arch:
+     look for generated headers in obtree") in this tree]
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/x86/boot/Makefile        | 2 +-
+ arch/x86/realmode/rm/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/boot/Makefile b/arch/x86/boot/Makefile
+index 6da2cd0897f3..e94745321cac 100644
+--- a/arch/x86/boot/Makefile
++++ b/arch/x86/boot/Makefile
+@@ -100,7 +100,7 @@ $(obj)/zoffset.h: $(obj)/compressed/vmlinux FORCE
+ AFLAGS_header.o += -I$(obj)
+ $(obj)/header.o: $(obj)/voffset.h $(obj)/zoffset.h
+ 
+-LDFLAGS_setup.elf	:= -T
++LDFLAGS_setup.elf	:= -m elf_i386 -T
+ $(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) FORCE
+ 	$(call if_changed,ld)
+ 
+diff --git a/arch/x86/realmode/rm/Makefile b/arch/x86/realmode/rm/Makefile
+index 2730d775ef9a..228cb16962ba 100644
+--- a/arch/x86/realmode/rm/Makefile
++++ b/arch/x86/realmode/rm/Makefile
+@@ -43,7 +43,7 @@ $(obj)/pasyms.h: $(REALMODE_OBJS) FORCE
+ targets += realmode.lds
+ $(obj)/realmode.lds: $(obj)/pasyms.h
+ 
+-LDFLAGS_realmode.elf := --emit-relocs -T
++LDFLAGS_realmode.elf := -m elf_i386 --emit-relocs -T
+ CPPFLAGS_realmode.lds += -P -C -I$(obj)
+ 
+ targets += realmode.elf
+-- 
+2.21.0
+
+
+From ea44fbb53e24856dd3a2e90ed641acb0f61c695a Mon Sep 17 00:00:00 2001
+From: Alistair Strachan <astrachan@google.com>
+Date: Fri, 3 Aug 2018 10:39:31 -0700
+Subject: [PATCH 4/5] x86: vdso: Use $LD instead of $CC to link
+
+commit 379d98ddf41344273d9718556f761420f4dc80b3 upstream.
+
+The vdso{32,64}.so can fail to link with CC=clang when clang tries to find
+a suitable GCC toolchain to link these libraries with.
+
+/usr/bin/ld: arch/x86/entry/vdso/vclock_gettime.o:
+  access beyond end of merged section (782)
+
+This happens because the host environment leaked into the cross compiler
+environment due to the way clang searches for suitable GCC toolchains.
+
+Clang is a retargetable compiler, and each invocation of it must provide
+--target=<something> --gcc-toolchain=<something> to allow it to find the
+correct binutils for cross compilation. These flags had been added to
+KBUILD_CFLAGS, but the vdso code uses CC and not KBUILD_CFLAGS (for various
+reasons) which breaks clang's ability to find the correct linker when cross
+compiling.
+
+Most of the time this goes unnoticed because the host linker is new enough
+to work anyway, or is incompatible and skipped, but this cannot be reliably
+assumed.
+
+This change alters the vdso makefile to just use LD directly, which
+bypasses clang and thus the searching problem. The makefile will just use
+${CROSS_COMPILE}ld instead, which is always what we want. This matches the
+method used to link vmlinux.
+
+This drops references to DISABLE_LTO; this option doesn't seem to be set
+anywhere, and not knowing what its possible values are, it's not clear how
+to convert it from CC to LD flag.
+
+Signed-off-by: Alistair Strachan <astrachan@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: kernel-team@android.com
+Cc: joel@joelfernandes.org
+Cc: Andi Kleen <andi.kleen@intel.com>
+Link: https://lkml.kernel.org/r/20180803173931.117515-1-astrachan@google.com
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/x86/entry/vdso/Makefile | 22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
+
+diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
+index 265c0ed68118..84c4a7105c2a 100644
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -41,10 +41,8 @@ targets += $(vdso_img_sodbg)
+ 
+ export CPPFLAGS_vdso.lds += -P -C
+ 
+-VDSO_LDFLAGS_vdso.lds = -m64 -Wl,-soname=linux-vdso.so.1 \
+-			-Wl,--no-undefined \
+-			-Wl,-z,max-page-size=4096 -Wl,-z,common-page-size=4096 \
+-			$(DISABLE_LTO)
++VDSO_LDFLAGS_vdso.lds = -m elf_x86_64 -soname linux-vdso.so.1 --no-undefined \
++			-z max-page-size=4096 -z common-page-size=4096
+ 
+ $(obj)/vdso64.so.dbg: $(src)/vdso.lds $(vobjs) FORCE
+ 	$(call if_changed,vdso)
+@@ -90,10 +88,8 @@ CFLAGS_REMOVE_vvar.o = -pg
+ #
+ 
+ CPPFLAGS_vdsox32.lds = $(CPPFLAGS_vdso.lds)
+-VDSO_LDFLAGS_vdsox32.lds = -Wl,-m,elf32_x86_64 \
+-			   -Wl,-soname=linux-vdso.so.1 \
+-			   -Wl,-z,max-page-size=4096 \
+-			   -Wl,-z,common-page-size=4096
++VDSO_LDFLAGS_vdsox32.lds = -m elf32_x86_64 -soname linux-vdso.so.1 \
++			   -z max-page-size=4096 -z common-page-size=4096
+ 
+ # 64-bit objects to re-brand as x32
+ vobjs64-for-x32 := $(filter-out $(vobjs-nox32),$(vobjs-y))
+@@ -121,7 +117,7 @@ $(obj)/vdsox32.so.dbg: $(src)/vdsox32.lds $(vobjx32s) FORCE
+ 	$(call if_changed,vdso)
+ 
+ CPPFLAGS_vdso32.lds = $(CPPFLAGS_vdso.lds)
+-VDSO_LDFLAGS_vdso32.lds = -m32 -Wl,-m,elf_i386 -Wl,-soname=linux-gate.so.1
++VDSO_LDFLAGS_vdso32.lds = -m elf_i386 -soname linux-gate.so.1
+ 
+ # This makes sure the $(obj) subdirectory exists even though vdso32/
+ # is not a kbuild sub-make subdirectory.
+@@ -157,13 +153,13 @@ $(obj)/vdso32.so.dbg: FORCE \
+ # The DSO images are built using a special linker script.
+ #
+ quiet_cmd_vdso = VDSO    $@
+-      cmd_vdso = $(CC) -nostdlib -o $@ \
++      cmd_vdso = $(LD) -nostdlib -o $@ \
+ 		       $(VDSO_LDFLAGS) $(VDSO_LDFLAGS_$(filter %.lds,$(^F))) \
+-		       -Wl,-T,$(filter %.lds,$^) $(filter %.o,$^) && \
++		       -T $(filter %.lds,$^) $(filter %.o,$^) && \
+ 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
+ 
+-VDSO_LDFLAGS = -fPIC -shared $(call cc-ldoption, -Wl$(comma)--hash-style=both) \
+-	$(call cc-ldoption, -Wl$(comma)--build-id) -Wl,-Bsymbolic $(LTO_CFLAGS)
++VDSO_LDFLAGS = -shared $(call ld-option, --hash-style=both) \
++	$(call ld-option, --build-id) -Bsymbolic
+ GCOV_PROFILE := n
+ 
+ #
+-- 
+2.21.0
+
+
+From b22299ee0b94b2e2ed1492d38631a05492e42c63 Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Thu, 6 Dec 2018 11:12:31 -0800
+Subject: [PATCH 5/5] x86/vdso: Drop implicit common-page-size linker flag
+
+commit ac3e233d29f7f77f28243af0132057d378d3ea58 upstream.
+
+GNU linker's -z common-page-size's default value is based on the target
+architecture. arch/x86/entry/vdso/Makefile sets it to the architecture
+default, which is implicit and redundant. Drop it.
+
+Fixes: 2aae950b21e4 ("x86_64: Add vDSO for x86-64 with gettimeofday/clock_gettime/getcpu")
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Reported-by: Bill Wendling <morbo@google.com>
+Suggested-by: Dmitry Golovin <dima@golovin.in>
+Suggested-by: Rui Ueyama <ruiu@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Cc: Andi Kleen <andi@firstfloor.org>
+Cc: Fangrui Song <maskray@google.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20181206191231.192355-1-ndesaulniers@google.com
+Link: https://bugs.llvm.org/show_bug.cgi?id=38774
+Link: https://github.com/ClangBuiltLinux/linux/issues/31
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/x86/entry/vdso/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
+index 84c4a7105c2a..297dda4d5947 100644
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -42,7 +42,7 @@ targets += $(vdso_img_sodbg)
+ export CPPFLAGS_vdso.lds += -P -C
+ 
+ VDSO_LDFLAGS_vdso.lds = -m elf_x86_64 -soname linux-vdso.so.1 --no-undefined \
+-			-z max-page-size=4096 -z common-page-size=4096
++			-z max-page-size=4096
+ 
+ $(obj)/vdso64.so.dbg: $(src)/vdso.lds $(vobjs) FORCE
+ 	$(call if_changed,vdso)
+@@ -89,7 +89,7 @@ CFLAGS_REMOVE_vvar.o = -pg
+ 
+ CPPFLAGS_vdsox32.lds = $(CPPFLAGS_vdso.lds)
+ VDSO_LDFLAGS_vdsox32.lds = -m elf32_x86_64 -soname linux-vdso.so.1 \
+-			   -z max-page-size=4096 -z common-page-size=4096
++			   -z max-page-size=4096
+ 
+ # 64-bit objects to re-brand as x32
+ vobjs64-for-x32 := $(filter-out $(vobjs-nox32),$(vobjs-y))
+-- 
+2.21.0

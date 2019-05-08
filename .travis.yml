@@ -156,9 +156,6 @@ matrix:
     - name: "ARCH=arm64 LLVM_VERSION=8"
       env: ARCH=arm64 LLVM_VERSION=8
       if: type = cron
-    - name: "ARCH=arm64 LD=ld.lld LLVM_VERSION=8"
-      env: ARCH=arm64 LD=ld.lld-8 LLVM_VERSION=8
-      if: type = cron
     - name: "ARCH=ppc32 LLVM_VERSION=8"
       env: ARCH=ppc32 LLVM_VERSION=8
       if: type = cron

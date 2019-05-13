@@ -8,8 +8,8 @@ matrix:
       env: ARCH=arm32_v6
     - name: "ARCH=arm32_v7 LD=ld.lld"
       env: ARCH=arm32_v7 LD=ld.lld-9
-    - name: "ARCH=arm64 LD=ld.lld"
-      env: ARCH=arm64 LD=ld.lld-9
+    - name: "ARCH=arm64 AS=clang LD=ld.lld"
+      env: ARCH=arm64 AS=clang-9 LD=ld.lld-9
     - name: "ARCH=ppc32"
       env: ARCH=ppc32
     - name: "ARCH=ppc64le"
@@ -45,8 +45,8 @@ matrix:
     - name: "ARCH=arm64 REPO=linux-next"
       env: ARCH=arm64 REPO=linux-next
       if: type = cron
-    - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
-      env: ARCH=arm64 LD=ld.lld-9 REPO=linux-next
+    - name: "ARCH=arm64 AS=clang LD=ld.lld REPO=linux-next"
+      env: ARCH=arm64 AS=clang-9 LD=ld.lld-9 REPO=linux-next
       if: type = cron
     - name: "ARCH=ppc32  REPO=linux-next"
       env: ARCH=ppc32 REPO=linux-next
@@ -64,8 +64,8 @@ matrix:
     - name: "ARCH=arm32_v7 REPO=4.19"
       env: ARCH=arm32_v7 REPO=4.19
       if: type = cron
-    - name: "ARCH=arm64 REPO=4.19"
-      env: ARCH=arm64 REPO=4.19
+    - name: "ARCH=arm64 AS=clang REPO=4.19"
+      env: ARCH=arm64 AS=clang-9 REPO=4.19
       if: type = cron
     - name: "ARCH=ppc64le REPO=4.19"
       env: ARCH=ppc64le REPO=4.19
@@ -79,8 +79,8 @@ matrix:
     - name: "ARCH=arm32_v7 REPO=4.14"
       env: ARCH=arm32_v7 REPO=4.14
       if: type = cron
-    - name: "ARCH=arm64 REPO=4.14"
-      env: ARCH=arm64 REPO=4.14
+    - name: "ARCH=arm64 AS=clang REPO=4.14"
+      env: ARCH=arm64 AS=clang-9 REPO=4.14
       if: type = cron
     - name: "ARCH=ppc64le REPO=4.14"
       env: ARCH=ppc64le REPO=4.14
@@ -94,8 +94,8 @@ matrix:
     - name: "ARCH=arm32_v7 REPO=4.9"
       env: ARCH=arm32_v7 REPO=4.9
       if: type = cron
-    - name: "ARCH=arm64 REPO=4.9"
-      env: ARCH=arm64 REPO=4.9
+    - name: "ARCH=arm64 AS=clang REPO=4.9"
+      env: ARCH=arm64 AS=clang-9 REPO=4.9
       if: type = cron
     - name: "ARCH=x86_64 REPO=4.9"
       env: ARCH=x86_64 REPO=4.9
@@ -103,8 +103,8 @@ matrix:
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.9"
       env: ARCH=x86_64 LD=ld.lld-9 REPO=4.9
       if: type = cron
-    - name: "ARCH=arm64 REPO=4.4"
-      env: ARCH=arm64 REPO=4.4
+    - name: "ARCH=arm64 AS=clang REPO=4.4"
+      env: ARCH=arm64 AS=clang-9 REPO=4.4
       if: type = cron
     - name: "ARCH=x86_64 REPO=4.4"
       env: ARCH=x86_64 REPO=4.4
@@ -113,14 +113,14 @@ matrix:
       env: ARCH=x86_64 LD=ld.lld-9 REPO=4.4
       if: type = cron
     # kernel/common
-    - name: "ARCH=arm64 REPO=common-4.9"
-      env: ARCH=arm64 REPO=common-4.9
+    - name: "ARCH=arm64 AS=clang REPO=common-4.9"
+      env: ARCH=arm64 AS=clang-9 REPO=common-4.9
       if: type = cron
-    - name: "ARCH=arm64 REPO=common-4.14"
-      env: ARCH=arm64 REPO=common-4.14
+    - name: "ARCH=arm64 AS=clang REPO=common-4.14"
+      env: ARCH=arm64 AS=clang-9 REPO=common-4.14
       if: type = cron
-    - name: "ARCH=arm64 REPO=common-4.19"
-      env: ARCH=arm64 REPO=common-4.19
+    - name: "ARCH=arm64 AS=clang REPO=common-4.19"
+      env: ARCH=arm64 AS=clang-9 REPO=common-4.19
       if: type = cron
     - name: "ARCH=x86_64 REPO=common-4.9"
       env: ARCH=x86_64 REPO=common-4.9
@@ -153,8 +153,8 @@ matrix:
     - name: "ARCH=arm32_v7 LD=ld.lld LLVM_VERSION=8"
       env: ARCH=arm32_v7 LD=ld.lld-8 LLVM_VERSION=8
       if: type = cron
-    - name: "ARCH=arm64 LLVM_VERSION=8"
-      env: ARCH=arm64 LLVM_VERSION=8
+    - name: "ARCH=arm64 AS=clang LLVM_VERSION=8"
+      env: ARCH=arm64 AS=clang-9 LLVM_VERSION=8
       if: type = cron
     - name: "ARCH=ppc32 LLVM_VERSION=8"
       env: ARCH=ppc32 LLVM_VERSION=8
@@ -178,6 +178,7 @@ script:
   - |
     docker run \
         --env ARCH=${ARCH} \
+        --env AS=${AS} \
         --env LD=${LD} \
         --env REPO=${REPO} \
         --rm \

@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"CC="*|"LD="*|"OBJCOPY"=*|"REPO="*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"AS"=*|"CC="*|"LD="*|"OBJCOPY"=*|"REPO="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -191,6 +191,12 @@ check_dependencies() {
   fi
   check_objcopy_version
   ${OBJCOPY} --version
+
+  if [[ -z "${AS:-}" ]]; then
+    for AS in clang-9 "${CROSS_COMPILE:-}"as; do
+      command -v ${AS} 2>/dev/null && break
+    done
+  fi
 }
 
 # Optimistically check to see that the user has a llvm-ar

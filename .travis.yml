@@ -17,15 +17,7 @@ matrix:
     - name: "ARCH=x86_64 LD=ld.lld"
       env: ARCH=x86_64 LD=ld.lld-9
     # linux (cron only)
-    - name: "ARCH=arm32_v7"
-      env: ARCH=arm32_v7
-      if: type = cron
-    - name: "ARCH=arm64"
-      env: ARCH=arm64
-      if: type = cron
-    - name: "ARCH=x86_64"
-      env: ARCH=x86_64
-      if: type = cron
+    #
     # linux-next (cron only)
     - name: "ARCH=arm32_v5 REPO=linux-next"
       env: ARCH=arm32_v5 REPO=linux-next
@@ -33,29 +25,17 @@ matrix:
     - name: "ARCH=arm32_v6 REPO=linux-next"
       env: ARCH=arm32_v6 REPO=linux-next
       if: type = cron
-    - name: "ARCH=arm32_v7 REPO=linux-next"
-      env: ARCH=arm32_v7 REPO=linux-next
-      if: type = cron
-    - name: "ARCH=arm32_v7 REPO=linux-next"
-      env: ARCH=arm32_v7 REPO=linux-next
-      if: type = cron
     - name: "ARCH=arm32_v7 LD=ld.lld REPO=linux-next"
       env: ARCH=arm32_v7 LD=ld.lld-9 REPO=linux-next
-      if: type = cron
-    - name: "ARCH=arm64 REPO=linux-next"
-      env: ARCH=arm64 REPO=linux-next
       if: type = cron
     - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
       env: ARCH=arm64 LD=ld.lld-9 REPO=linux-next
       if: type = cron
-    - name: "ARCH=ppc32  REPO=linux-next"
+    - name: "ARCH=ppc32 REPO=linux-next"
       env: ARCH=ppc32 REPO=linux-next
       if: type = cron
-    - name: "ARCH=ppc64le  REPO=linux-next"
+    - name: "ARCH=ppc64le REPO=linux-next"
       env: ARCH=ppc64le REPO=linux-next
-      if: type = cron
-    - name: "ARCH=x86_64 REPO=linux-next"
-      env: ARCH=x86_64 REPO=linux-next
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=linux-next"
       env: ARCH=x86_64 LD=ld.lld-9 REPO=linux-next
@@ -70,9 +50,6 @@ matrix:
     - name: "ARCH=ppc64le REPO=4.19"
       env: ARCH=ppc64le REPO=4.19
       if: type = cron
-    - name: "ARCH=x86_64 REPO=4.19"
-      env: ARCH=x86_64 REPO=4.19
-      if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.19"
       env: ARCH=x86_64 LD=ld.lld-9 REPO=4.19
       if: type = cron
@@ -85,9 +62,6 @@ matrix:
     - name: "ARCH=ppc64le REPO=4.14"
       env: ARCH=ppc64le REPO=4.14
       if: type = cron
-    - name: "ARCH=x86_64 REPO=4.14"
-      env: ARCH=x86_64 REPO=4.14
-      if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.14"
       env: ARCH=x86_64 LD=ld.lld-9 REPO=4.14
       if: type = cron
@@ -97,17 +71,11 @@ matrix:
     - name: "ARCH=arm64 REPO=4.9"
       env: ARCH=arm64 REPO=4.9
       if: type = cron
-    - name: "ARCH=x86_64 REPO=4.9"
-      env: ARCH=x86_64 REPO=4.9
-      if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.9"
       env: ARCH=x86_64 LD=ld.lld-9 REPO=4.9
       if: type = cron
     - name: "ARCH=arm64 REPO=4.4"
       env: ARCH=arm64 REPO=4.4
-      if: type = cron
-    - name: "ARCH=x86_64 REPO=4.4"
-      env: ARCH=x86_64 REPO=4.4
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.4"
       env: ARCH=x86_64 LD=ld.lld-9 REPO=4.4
@@ -122,20 +90,11 @@ matrix:
     - name: "ARCH=arm64 REPO=common-4.19"
       env: ARCH=arm64 REPO=common-4.19
       if: type = cron
-    - name: "ARCH=x86_64 REPO=common-4.9"
-      env: ARCH=x86_64 REPO=common-4.9
-      if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=common-4.9"
       env: ARCH=x86_64 LD=ld.lld-9 REPO=common-4.9
       if: type = cron
-    - name: "ARCH=x86_64 REPO=common-4.14"
-      env: ARCH=x86_64 REPO=common-4.14
-      if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=common-4.14"
       env: ARCH=x86_64 LD=ld.lld-9 REPO=common-4.14
-      if: type = cron
-    - name: "ARCH=x86_64 REPO=common-4.19"
-      env: ARCH=x86_64 REPO=common-4.19
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=common-4.19"
       env: ARCH=x86_64 LD=ld.lld-9 REPO=common-4.19
@@ -146,9 +105,6 @@ matrix:
       if: type = cron
     - name: "ARCH=arm32_v6 LLVM_VERSION=8"
       env: ARCH=arm32_v6 LLVM_VERSION=8
-      if: type = cron
-    - name: "ARCH=arm32_v7 LLVM_VERSION=8"
-      env: ARCH=arm32_v7 LLVM_VERSION=8
       if: type = cron
     - name: "ARCH=arm32_v7 LD=ld.lld LLVM_VERSION=8"
       env: ARCH=arm32_v7 LD=ld.lld-8 LLVM_VERSION=8

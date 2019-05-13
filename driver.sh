@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJCOPY"=*|"REPO="*|"STRIP"=*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJCOPY"=*|"OBJDUMP"=*|"REPO="*|"STRIP"=*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -203,6 +203,12 @@ check_dependencies() {
       command -v ${STRIP} 2>/dev/null && break
     done
   fi
+
+  if [[ -z "${OBJDUMP:-}" ]]; then
+    for OBJDUMP in llvm-objdump-9 llvm-objdump-8 llvm-objdump-7 llvm-objdump "${CROSS_COMPILE:-}"objdump; do
+      command -v ${OBJDUMP} 2>/dev/null && break
+    done
+  fi
 }
 
 # Optimistically check to see that the user has a llvm-ar
@@ -254,8 +260,8 @@ mako_reactor() {
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
   make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" \
-    HOSTLD="${HOSTLD:-ld}" AR="${AR}" OBJCOPY="${OBJCOPY}" NM="${NM}" \
-    STRIP="${STRIP}"  "${@}"
+    HOSTLD="${HOSTLD:-ld}" AR="${AR}" NM="${NM}" OBJCOPY="${OBJCOPY}" \
+    OBJDUMP="${OBJDUMP}" STRIP="${STRIP}"  "${@}"
 }
 
 apply_patches() {

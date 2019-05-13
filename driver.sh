@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"CC="*|"LD="*|"OBJCOPY"=*|"REPO="*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJCOPY"=*|"REPO="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -191,6 +191,12 @@ check_dependencies() {
   fi
   check_objcopy_version
   ${OBJCOPY} --version
+
+  if [[ -z "${NM:-}" ]]; then
+    for NM in llvm-nm-9 llvm-nm-8 llvm-nm-7 llvm-nm "${CROSS_COMPILE:-}"nm; do
+      command -v ${NM} 2>/dev/null && break
+    done
+  fi
 }
 
 # Optimistically check to see that the user has a llvm-ar
@@ -241,7 +247,8 @@ mako_reactor() {
   KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
-  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" HOSTLD="${HOSTLD:-ld}" AR="${AR}" OBJCOPY="${OBJCOPY}" "${@}"
+  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" \
+    HOSTLD="${HOSTLD:-ld}" AR="${AR}" OBJCOPY="${OBJCOPY}" NM="${NM}" "${@}"
 }
 
 apply_patches() {

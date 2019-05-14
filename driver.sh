@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJCOPY"=*|"OBJDUMP"=*|"REPO="*|"STRIP"=*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJCOPY"=*|"OBJDUMP"=*|"REPO="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -198,12 +198,6 @@ check_dependencies() {
     done
   fi
 
-  if [[ -z "${STRIP:-}" ]]; then
-    for STRIP in llvm-strip-9 llvm-strip-8 llvm-strip-7 llvm-strip "${CROSS_COMPILE:-}"strip; do
-      command -v ${STRIP} 2>/dev/null && break
-    done
-  fi
-
   if [[ -z "${OBJDUMP:-}" ]]; then
     for OBJDUMP in llvm-objdump-9 llvm-objdump-8 llvm-objdump-7 llvm-objdump "${CROSS_COMPILE:-}"objdump; do
       command -v ${OBJDUMP} 2>/dev/null && break
@@ -261,7 +255,7 @@ mako_reactor() {
   KBUILD_BUILD_HOST=clangbuiltlinux \
   make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" \
     HOSTLD="${HOSTLD:-ld}" AR="${AR}" NM="${NM}" OBJCOPY="${OBJCOPY}" \
-    OBJDUMP="${OBJDUMP}" STRIP="${STRIP}"  "${@}"
+    OBJDUMP="${OBJDUMP}" "${@}"
 }
 
 apply_patches() {

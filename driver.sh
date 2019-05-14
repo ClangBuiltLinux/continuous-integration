@@ -189,7 +189,7 @@ check_dependencies() {
       command -v ${OBJCOPY} 2>/dev/null && break
     done
   fi
-  check_objcopy_version
+  check_ar_version
   ${OBJCOPY} --version
 
   if [[ -z "${NM:-}" ]]; then

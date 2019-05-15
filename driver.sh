@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJCOPY"=*|"OBJDUMP"=*|"REPO="*|"STRIP"=*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJDUMP"=*|"REPO="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -145,7 +145,7 @@ check_dependencies() {
     command -v ${readelf} &>/dev/null && break
   done
 
-  # Check for LD, CC, OBJCOPY, and AR environmental variables
+  # Check for LD, CC, and AR environmental variables
   # and print the version string of each. If CC and AR
   # don't exist, try to find them.
   # lld isn't ready for all architectures so it's just
@@ -184,23 +184,9 @@ check_dependencies() {
   check_ar_version
   ${AR} --version
 
-  if [[ -z "${OBJCOPY:-}" ]]; then
-    for OBJCOPY in llvm-objcopy-9 llvm-objcopy-8 llvm-objcopy-7 llvm-objcopy "${CROSS_COMPILE:-}"objcopy; do
-      command -v ${OBJCOPY} 2>/dev/null && break
-    done
-  fi
-  check_objcopy_version
-  ${OBJCOPY} --version
-
   if [[ -z "${NM:-}" ]]; then
     for NM in llvm-nm-9 llvm-nm-8 llvm-nm-7 llvm-nm "${CROSS_COMPILE:-}"nm; do
       command -v ${NM} 2>/dev/null && break
-    done
-  fi
-
-  if [[ -z "${STRIP:-}" ]]; then
-    for STRIP in llvm-strip-9 llvm-strip-8 llvm-strip-7 llvm-strip "${CROSS_COMPILE:-}"strip; do
-      command -v ${STRIP} 2>/dev/null && break
     done
   fi
 
@@ -232,27 +218,6 @@ check_ar_version() {
   fi
 }
 
-# Optimistically check to see that the user has a llvm-objcopy
-# with https://reviews.llvm.org/rL357017. If they don't,
-# fall back to GNU objcopy and let them know.
-check_objcopy_version() {
-  if ${OBJCOPY} --version | grep -q "LLVM" && \
-     [[ $(${OBJCOPY} --version | grep version | sed -e 's/.*LLVM version //g' -e 's/[[:blank:]]*$//' -e 's/\.//g' -e 's/svn//' ) -lt 900 ]]; then
-    set +x
-    echo
-    echo "${OBJCOPY} found but appears to be too old to build the kernel (needs to be at least 9.0.0)."
-    echo
-    echo "Please either update llvm-objcopy from your distro or build it from source!"
-    echo
-    echo "See https://github.com/ClangBuiltLinux/linux/issues/418 for more info."
-    echo
-    echo "Falling back to GNU objcopy..."
-    echo
-    OBJCOPY=${CROSS_COMPILE:-}objcopy
-    set -x
-  fi
-}
-
 mako_reactor() {
   # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/kbuild/kbuild.txt
   time \
@@ -260,8 +225,7 @@ mako_reactor() {
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
   make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" \
-    HOSTLD="${HOSTLD:-ld}" AR="${AR}" NM="${NM}" OBJCOPY="${OBJCOPY}" \
-    OBJDUMP="${OBJDUMP}" STRIP="${STRIP}"  "${@}"
+    HOSTLD="${HOSTLD:-ld}" AR="${AR}" NM="${NM}" OBJDUMP="${OBJDUMP}" "${@}"
 }
 
 apply_patches() {

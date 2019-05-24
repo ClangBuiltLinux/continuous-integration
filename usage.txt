@@ -42,3 +42,7 @@ Optional parameters:
   -j | --jobs
       Pass this value to make. The script will use all cores by default but
       this isn't always the best value.
+  --lto
+      By default, the script turns off LTO/CFI for quicker build times. If
+      your machine can handle the more intensive compile, pass this flag
+      to avoid attempting to disable it. This does not enable LTO explicitly.

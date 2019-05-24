@@ -9,6 +9,7 @@ setup_variables() {
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
+      "--lto") disable_lto=false ;;
       "-h"|"--help")
         cat usage.txt
         exit 0 ;;
@@ -269,6 +270,8 @@ build_linux() {
     [[ $ARCH != "x86_64" ]] && cat ../configs/tt.config >> .config
     # Disable ftrace on arm32: https://github.com/ClangBuiltLinux/linux/issues/35
     [[ $ARCH == "arm" ]] && ./scripts/config -d CONFIG_FTRACE
+    # Disable LTO and CFI unless explicitly requested
+    ${disable_lto:=true} && ./scripts/config -d CONFIG_LTO -d CONFIG_LTO_CLANG
   fi
   # Make sure we build with CONFIG_DEBUG_SECTION_MISMATCH so that the
   # full warning gets printed and we can file and fix it properly.

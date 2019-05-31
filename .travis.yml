@@ -119,7 +119,7 @@ matrix:
       env: ARCH=ppc64le LLVM_VERSION=8
       if: type = cron
     - name: "ARCH=x86_64 LLVM_VERSION=8"
-      env: ARCH=x86_64
+      env: ARCH=x86_64 LLVM_VERSION=8
       if: type = cron
 compiler: gcc
 os: linux

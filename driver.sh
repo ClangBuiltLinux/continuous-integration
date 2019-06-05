@@ -99,6 +99,8 @@ setup_variables() {
           qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
                          -append "console=ttyS0 root=/dev/sda" ) ;;
       esac
+      # Use KVM if the processor supports it (first part) and the KVM module is loaded (second part)
+      [[ $(grep -c -E 'vmx|svm' /proc/cpuinfo) -gt 0 && $(lsmod 2>/dev/null | grep -c kvm) -gt 0 ]] && qemu_cmdline=( "${qemu_cmdline[@]}" -enable-kvm )
       image_name=bzImage
       qemu="qemu-system-x86_64" ;;
     "ppc32")

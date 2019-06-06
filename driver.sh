@@ -256,9 +256,14 @@ build_linux() {
 
   git show -s | cat
 
-  apply_patches "../patches/all"
-  apply_patches "../patches/${REPO}/all"
-  apply_patches "../patches/${REPO}/${ARCH}"
+  llvm_all_folder="../patches/llvm-all"
+  apply_patches "${llvm_all_folder}/kernel-all"
+  apply_patches "${llvm_all_folder}/${REPO}/arch-all"
+  apply_patches "${llvm_all_folder}/${REPO}/${ARCH}"
+  llvm_version_folder="../patches/llvm-$(echo __clang_major__ | ${CC} -E -x c - | tail -n 1)"
+  apply_patches "${llvm_version_folder}/kernel-all"
+  apply_patches "${llvm_version_folder}/${REPO}/arch-all"
+  apply_patches "${llvm_version_folder}/${REPO}/${ARCH}"
 
   # Only clean up old artifacts if requested, the Linux build system
   # is good about figuring out what needs to be rebuilt

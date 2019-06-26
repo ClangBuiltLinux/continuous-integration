@@ -140,6 +140,12 @@ setup_variables() {
             OBJDUMP=${CROSS_COMPILE}objdump
             ;;
 
+        "x86")
+            config=i386_defconfig
+            make_target=bzImage
+            export ARCH=i386
+            ;;
+
         "x86_64")
             case ${REPO} in
                 android-*)

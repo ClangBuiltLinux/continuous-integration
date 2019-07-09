@@ -5,13 +5,21 @@
 # Make sure we don't have any unset variables
 set -u
 
-# Clean up
-rm -rf build
-mkdir -p build
-
 # Download latest buildroot release
-curl https://buildroot.org/downloads/buildroot-2019.02.3.tar.gz | tar -xzf - -C build --strip-components=1
-cd build || exit 1
+BUILDROOT_VERSION=2019.02.3
+if [[ -d src ]]; then
+    cd src || exit 1
+    if [[ $(git describe --exact-match --tags HEAD) != "${BUILDROOT_VERSION}" ]]; then
+        git fetch origin ${BUILDROOT_VERSION}
+        git checkout ${BUILDROOT_VERSION}
+    fi
+
+    # Clean up artifacts from the last build
+    make clean
+else
+    git clone -b ${BUILDROOT_VERSION} git://git.busybox.net/buildroot src
+    cd src || exit 1
+fi
 
 # Use the config in the parent folder
 CONFIG=../${1}.config

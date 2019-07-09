@@ -4,6 +4,9 @@
 # Make sure we don't have any unset variables
 set -u
 
+# Move into the folder that contains this script
+cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" || exit 1
+
 # Generate list of configs to build
 CONFIGS=()
 while (( ${#} )); do

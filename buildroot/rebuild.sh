@@ -10,7 +10,7 @@ rm -rf build
 mkdir -p build
 
 # Download latest buildroot release
-curl https://buildroot.org/downloads/buildroot-2018.08.2.tar.gz | tar -xzf - -C build --strip-components=1
+curl https://buildroot.org/downloads/buildroot-2019.02.3.tar.gz | tar -xzf - -C build --strip-components=1
 cd build || exit 1
 
 # Use the config in the parent folder

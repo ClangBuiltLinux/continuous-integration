@@ -58,8 +58,13 @@ for CONFIG in "${CONFIGS[@]}"; do
     # Build images
     make -j"$(nproc)"
 
+    # Get the architecture from the name of the config: ../<arch>.config
+    # basename strips ../
+    # ${CONFIG//.config} strips .config
+    ARCH=$(basename "${CONFIG//.config}")
+
     # Make sure images folder exists
-    IMAGES_FOLDER=../../images/$(basename "${CONFIG//.config}")
+    IMAGES_FOLDER=../../images/${ARCH}
     [[ ! -d ${IMAGES_FOLDER} ]] && mkdir -p "${IMAGES_FOLDER}"
 
     # Copy new images

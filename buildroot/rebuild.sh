@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Takes a list of architectures to build images for as the parameter
 
+function download_br() {
+    mkdir -p src
+    curl https://buildroot.org/downloads/buildroot-"${BUILDROOT_VERSION}".tar.gz | tar -xzf - -C src --strip-components=1
+}
+
 # Make sure we don't have any unset variables
 set -u
 
@@ -21,15 +26,14 @@ done
 # Download latest buildroot release
 BUILDROOT_VERSION=2019.02.3
 if [[ -d src ]]; then
-    cd src || exit 1
-    if [[ $(git describe --exact-match --tags HEAD) != "${BUILDROOT_VERSION}" ]]; then
-        git fetch origin ${BUILDROOT_VERSION}
-        git checkout ${BUILDROOT_VERSION}
+    if [[ $(cd src && make print-version | cut -d - -f 1 >/dev/null) != "${BUILDROOT_VERSION}" ]]; then
+        rm -rf src
+        download_br
     fi
 else
-    git clone -b ${BUILDROOT_VERSION} git://git.busybox.net/buildroot src
-    cd src || exit 1
+    download_br
 fi
+cd src || exit 1
 
 # Build the images for the architectures requested
 for CONFIG in "${CONFIGS[@]}"; do

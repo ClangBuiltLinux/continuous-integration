@@ -35,7 +35,7 @@ done
 # Download latest buildroot release
 BUILDROOT_VERSION=2019.02.3
 if [[ -d src ]]; then
-    if [[ $(cd src && make print-version | cut -d - -f 1 >/dev/null) != "${BUILDROOT_VERSION}" ]]; then
+    if [[ $(cd src && make print-version | cut -d - -f 1 2>/dev/null) != "${BUILDROOT_VERSION}" ]]; then
         rm -rf src
         download_br
     fi

@@ -3,7 +3,16 @@
 
 function download_br() {
     mkdir -p src
-    curl https://buildroot.org/downloads/buildroot-"${BUILDROOT_VERSION}".tar.gz | tar -xzf - -C src --strip-components=1
+    TARBALL=buildroot-${BUILDROOT_VERSION}.tar.gz
+    rm -rf "${TARBALL}"
+    curl -LO https://buildroot.org/downloads/"${TARBALL}"
+    SHA256=31a0dd7f5df75d20f6b74f0684918b643e5bf08d87dd5f9f02525852eecccf95
+    if [[ $(sha256sum "${TARBALL}" | cut -d ' ' -f 1) != ${SHA256} ]]; then
+        echo "Downloaded tarball's hash does not match known good one! Please try redownloading."
+        exit 1
+    fi
+    tar -xzf "${TARBALL}" -C src --strip-components=1
+    rm -rf "${TARBALL}"
 }
 
 # Make sure we don't have any unset variables

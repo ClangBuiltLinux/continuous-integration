@@ -6,8 +6,7 @@ function download_br() {
     TARBALL=buildroot-${BUILDROOT_VERSION}.tar.gz
     rm -f "${TARBALL}"
     curl -LO https://buildroot.org/downloads/"${TARBALL}"
-    SHA256=31a0dd7f5df75d20f6b74f0684918b643e5bf08d87dd5f9f02525852eecccf95
-    if [[ $(sha256sum "${TARBALL}" | cut -d ' ' -f 1) != ${SHA256} ]]; then
+    if ! sha256sum --quiet -c "${TARBALL}".sha256; then
         echo "Downloaded tarball's hash does not match known good one! Please try redownloading."
         exit 1
     fi

@@ -1,0 +1,25 @@
+From 8b9a270e9ecf87be3c93cc6de3de14c46b0de32f Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Thu, 25 Jul 2019 10:45:46 -0700
+Subject: [PATCH] WIP: ppc: test removing cast in dcbz
+
+---
+ arch/powerpc/include/asm/cache.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/powerpc/include/asm/cache.h b/arch/powerpc/include/asm/cache.h
+index b3388d95f451..9130a8922576 100644
+--- a/arch/powerpc/include/asm/cache.h
++++ b/arch/powerpc/include/asm/cache.h
+@@ -107,7 +107,7 @@ extern void _set_L3CR(unsigned long);
+ 
+ static inline void dcbz(void *addr)
+ {
+-	__asm__ __volatile__ ("dcbz %y0" : : "Z"(*(u8 *)addr) : "memory");
++	__asm__ __volatile__ ("dcbz %y0" : : "Z"(addr) : "memory");
+ }
+ 
+ static inline void dcbi(void *addr)
+-- 
+2.22.0.709.g102302147b-goog
+

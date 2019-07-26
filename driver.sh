@@ -88,21 +88,6 @@ setup_variables() {
                      -append "console=ttyAMA0 root=/dev/vda" )
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
 
-    "x86_64")
-      case ${REPO} in
-        common-*)
-          config=x86_64_cuttlefish_defconfig
-          qemu_cmdline=( -append "console=ttyS0"
-                         -initrd "images/x86_64/rootfs.cpio" ) ;;
-        *)
-          config=defconfig
-          qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
-                         -append "console=ttyS0 root=/dev/sda" ) ;;
-      esac
-      # Use KVM if the processor supports it (first part) and the KVM module is loaded (second part)
-      [[ $(grep -c -E 'vmx|svm' /proc/cpuinfo) -gt 0 && $(lsmod 2>/dev/null | grep -c kvm) -gt 0 ]] && qemu_cmdline=( "${qemu_cmdline[@]}" -enable-kvm )
-      image_name=bzImage
-      qemu="qemu-system-x86_64" ;;
     "ppc32")
       config=ppc44x_defconfig
       image_name=zImage
@@ -127,6 +112,22 @@ setup_variables() {
                      -initrd images/ppc64le/rootfs.cpio )
       export ARCH=powerpc
       export CROSS_COMPILE=powerpc64le-linux-gnu- ;;
+
+    "x86_64")
+      case ${REPO} in
+        common-*)
+          config=x86_64_cuttlefish_defconfig
+          qemu_cmdline=( -append "console=ttyS0"
+                         -initrd "images/x86_64/rootfs.cpio" ) ;;
+        *)
+          config=defconfig
+          qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
+                         -append "console=ttyS0 root=/dev/sda" ) ;;
+      esac
+      # Use KVM if the processor supports it (first part) and the KVM module is loaded (second part)
+      [[ $(grep -c -E 'vmx|svm' /proc/cpuinfo) -gt 0 && $(lsmod 2>/dev/null | grep -c kvm) -gt 0 ]] && qemu_cmdline=( "${qemu_cmdline[@]}" -enable-kvm )
+      image_name=bzImage
+      qemu="qemu-system-x86_64" ;;
 
     # Unknown arch, error out
     *)

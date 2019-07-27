@@ -144,7 +144,7 @@ check_dependencies() {
   command -v timeout
   command -v unbuffer
 
-  for readelf in llvm-readelf-9 llvm-readelf-8 llvm-readelf-7 llvm-readelf; do
+  for readelf in llvm-readelf-10 llvm-readelf-9 llvm-readelf-8 llvm-readelf-7 llvm-readelf; do
     command -v ${readelf} &>/dev/null && break
   done
 
@@ -158,7 +158,7 @@ check_dependencies() {
   "${LD:="${CROSS_COMPILE:-}"ld}" --version
 
   if [[ -z "${CC:-}" ]]; then
-    for CC in clang-9 clang-8 clang-7 clang; do
+    for CC in clang-10 clang-9 clang-8 clang-7 clang; do
       command -v ${CC} &>/dev/null && break
     done
   fi
@@ -180,7 +180,7 @@ check_dependencies() {
   }
 
   if [[ -z "${AR:-}" ]]; then
-    for AR in llvm-ar-9 llvm-ar-8 llvm-ar-7 llvm-ar "${CROSS_COMPILE:-}"ar; do
+    for AR in llvm-ar-10 llvm-ar-9 llvm-ar-8 llvm-ar-7 llvm-ar "${CROSS_COMPILE:-}"ar; do
       command -v ${AR} 2>/dev/null && break
     done
   fi
@@ -188,13 +188,13 @@ check_dependencies() {
   ${AR} --version
 
   if [[ -z "${NM:-}" ]]; then
-    for NM in llvm-nm-9 llvm-nm-8 llvm-nm-7 llvm-nm "${CROSS_COMPILE:-}"nm; do
+    for NM in llvm-nm-10 llvm-nm-9 llvm-nm-8 llvm-nm-7 llvm-nm "${CROSS_COMPILE:-}"nm; do
       command -v ${NM} 2>/dev/null && break
     done
   fi
 
   if [[ -z "${OBJDUMP:-}" ]]; then
-    for OBJDUMP in llvm-objdump-9 llvm-objdump-8 llvm-objdump-7 llvm-objdump "${CROSS_COMPILE:-}"objdump; do
+    for OBJDUMP in llvm-objdump-10 llvm-objdump-9 llvm-objdump-8 llvm-objdump-7 llvm-objdump "${CROSS_COMPILE:-}"objdump; do
       command -v ${OBJDUMP} 2>/dev/null && break
     done
   fi

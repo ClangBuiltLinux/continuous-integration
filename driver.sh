@@ -88,6 +88,17 @@ setup_variables() {
                      -append "console=ttyAMA0 root=/dev/vda" )
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
 
+    "mipsel")
+      config=malta_defconfig
+      image_name=vmlinux
+      qemu="qemu-system-mipsel"
+      qemu_cmdline=( -machine malta
+                     -cpu 24Kf
+                     -append "root=/dev/sda"
+                     -drive "file=images/mipsel/rootfs.ext4,format=raw,if=ide" )
+      export ARCH=mips
+      export CROSS_COMPILE=mipsel-linux-gnu- ;;
+
     "ppc32")
       config=ppc44x_defconfig
       image_name=zImage
@@ -293,7 +304,14 @@ build_linux() {
 }
 
 boot_qemu() {
-  local kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
+  local kernel_image
+
+  if [[ ${image_name} = "vmlinux" ]]; then
+    kernel_image=${tree}/vmlinux
+  else
+    kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
+  fi
+
   test -e ${kernel_image}
   qemu=( timeout 2m unbuffer "${qemu}"
                              -m "${qemu_ram:=512m}"

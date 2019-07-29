@@ -41,7 +41,8 @@ setup_variables() {
   [[ -z "${url:-}" ]] && url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree}.git
 
   # arm64 is the current default if nothing is specified
-  case ${ARCH:=arm64} in
+  SUBARCH=${ARCH:=arm64}
+  case ${SUBARCH} in
     "arm32_v5")
       config=multi_v5_defconfig
       image_name=zImage
@@ -259,11 +260,11 @@ build_linux() {
   llvm_all_folder="../patches/llvm-all"
   apply_patches "${llvm_all_folder}/kernel-all"
   apply_patches "${llvm_all_folder}/${REPO}/arch-all"
-  apply_patches "${llvm_all_folder}/${REPO}/${ARCH}"
+  apply_patches "${llvm_all_folder}/${REPO}/${SUBARCH}"
   llvm_version_folder="../patches/llvm-$(echo __clang_major__ | ${CC} -E -x c - | tail -n 1)"
   apply_patches "${llvm_version_folder}/kernel-all"
   apply_patches "${llvm_version_folder}/${REPO}/arch-all"
-  apply_patches "${llvm_version_folder}/${REPO}/${ARCH}"
+  apply_patches "${llvm_version_folder}/${REPO}/${SUBARCH}"
 
   # Only clean up old artifacts if requested, the Linux build system
   # is good about figuring out what needs to be rebuilt

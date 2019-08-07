@@ -12,6 +12,8 @@ matrix:
       env: ARCH=arm64 LD=ld.lld-9
     - name: "ARCH=ppc32"
       env: ARCH=ppc32
+    - name: "ARCH=ppc64"
+      env: ARCH=ppc64
     - name: "ARCH=ppc64le LD=ld.lld"
       env: ARCH=ppc64le LD=ld.lld-9
     - name: "ARCH=x86_64 LD=ld.lld"
@@ -33,6 +35,9 @@ matrix:
       if: type = cron
     - name: "ARCH=ppc32 REPO=linux-next"
       env: ARCH=ppc32 REPO=linux-next
+      if: type = cron
+    - name: "ARCH=ppc64 REPO=linux-next"
+      env: ARCH=ppc64 REPO=linux-next
       if: type = cron
     - name: "ARCH=ppc64le LD=ld.lld REPO=linux-next"
       env: ARCH=ppc64le LD=ld.lld-9 REPO=linux-next
@@ -114,6 +119,9 @@ matrix:
       if: type = cron
     - name: "ARCH=ppc32 LLVM_VERSION=8"
       env: ARCH=ppc32 LLVM_VERSION=8
+      if: type = cron
+    - name: "ARCH=ppc64 REPO=linux-next LLVM_VERSION=8"
+      env: ARCH=ppc64 REPO=linux-next LLVM_VERSION=8
       if: type = cron
     - name: "ARCH=ppc64le LLVM_VERSION=8"
       env: ARCH=ppc64le LLVM_VERSION=8

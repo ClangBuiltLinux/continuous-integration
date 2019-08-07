@@ -112,6 +112,17 @@ setup_variables() {
       export ARCH=powerpc
       export CROSS_COMPILE=powerpc-linux-gnu- ;;
 
+    "ppc64")
+      config=pseries_defconfig
+      qemu="qemu-system-ppc64"
+      image_name=vmlinux
+      qemu_ram=1G
+      qemu_cmdline=( -machine pseries
+                     -vga none
+                     -initrd "images/ppc64/rootfs.cpio" )
+      export ARCH=powerpc
+      export CROSS_COMPILE=powerpc64-linux-gnu- ;;
+
     "ppc64le")
       config=powernv_defconfig
       image_name=zImage.epapr

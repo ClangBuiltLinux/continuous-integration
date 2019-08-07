@@ -25,7 +25,7 @@ CONFIGS=()
 while (( ${#} )); do
     case ${1} in
         all) for CONFIG in *.config; do CONFIGS+=( "../${CONFIG}" ); done ;;
-        arm64|arm|mipsel|ppc32|ppc64le|x86_64) CONFIGS+=( "../${1}.config" ) ;;
+        arm64|arm|mipsel|ppc32|ppc64|ppc64le|x86_64) CONFIGS+=( "../${1}.config" ) ;;
         *) echo "Unknown parameter '${1}', exiting!"; exit 1 ;;
     esac
     shift

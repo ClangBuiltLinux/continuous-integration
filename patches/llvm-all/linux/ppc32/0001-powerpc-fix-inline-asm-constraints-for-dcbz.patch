@@ -1,0 +1,58 @@
+From 3fd31945dd4cc082078a0fa7d24fe430402fdf6d Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Thu, 8 Aug 2019 16:16:04 -0700
+Subject: [PATCH] powerpc: fix inline asm constraints for dcbz
+
+The input parameter is modified, so it requires "=" to make it so that a
+copy of the input is not made by Clang.
+
+Link: https://bugs.llvm.org/show_bug.cgi?id=42762
+Link: https://gcc.gnu.org/onlinedocs/gcc/Modifiers.html#Modifiers
+Link: https://github.com/ClangBuiltLinux/linux/issues/593
+Link: https://godbolt.org/z/QwhZXi
+Link: https://lore.kernel.org/lkml/20190721075846.GA97701@archlinux-threadripper/
+Fixes: 6c5875843b87 ("powerpc: slightly improve cache helpers")
+Debugged-by: Nathan Chancellor <natechancellor@gmail.com>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ arch/powerpc/include/asm/cache.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/powerpc/include/asm/cache.h b/arch/powerpc/include/asm/cache.h
+index b3388d95f451..67e1abdfd6b4 100644
+--- a/arch/powerpc/include/asm/cache.h
++++ b/arch/powerpc/include/asm/cache.h
+@@ -107,22 +107,22 @@ extern void _set_L3CR(unsigned long);
+ 
+ static inline void dcbz(void *addr)
+ {
+-	__asm__ __volatile__ ("dcbz %y0" : : "Z"(*(u8 *)addr) : "memory");
++	__asm__ __volatile__ ("dcbz %y0" : : "=Z"(*(u8 *)addr) : "memory");
+ }
+ 
+ static inline void dcbi(void *addr)
+ {
+-	__asm__ __volatile__ ("dcbi %y0" : : "Z"(*(u8 *)addr) : "memory");
++	__asm__ __volatile__ ("dcbi %y0" : : "=Z"(*(u8 *)addr) : "memory");
+ }
+ 
+ static inline void dcbf(void *addr)
+ {
+-	__asm__ __volatile__ ("dcbf %y0" : : "Z"(*(u8 *)addr) : "memory");
++	__asm__ __volatile__ ("dcbf %y0" : : "=Z"(*(u8 *)addr) : "memory");
+ }
+ 
+ static inline void dcbst(void *addr)
+ {
+-	__asm__ __volatile__ ("dcbst %y0" : : "Z"(*(u8 *)addr) : "memory");
++	__asm__ __volatile__ ("dcbst %y0" : : "=Z"(*(u8 *)addr) : "memory");
+ }
+ #endif /* !__ASSEMBLY__ */
+ #endif /* __KERNEL__ */
+-- 
+2.23.0.rc1.153.gdeed80330f-goog
+

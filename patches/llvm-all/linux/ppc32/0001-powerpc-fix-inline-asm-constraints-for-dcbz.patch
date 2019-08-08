@@ -1,10 +1,10 @@
-From 3fd31945dd4cc082078a0fa7d24fe430402fdf6d Mon Sep 17 00:00:00 2001
+From 32a313779ed147cedbad04c8549a70e179d3a92e Mon Sep 17 00:00:00 2001
 From: Nick Desaulniers <ndesaulniers@google.com>
 Date: Thu, 8 Aug 2019 16:16:04 -0700
 Subject: [PATCH] powerpc: fix inline asm constraints for dcbz
 
-The input parameter is modified, so it requires "=" to make it so that a
-copy of the input is not made by Clang.
+The input parameter is modified, so it should be an output parameter
+with "=" to make it so that a copy of the input is not made by Clang.
 
 Link: https://bugs.llvm.org/show_bug.cgi?id=42762
 Link: https://gcc.gnu.org/onlinedocs/gcc/Modifiers.html#Modifiers
@@ -23,7 +23,7 @@ Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/powerpc/include/asm/cache.h b/arch/powerpc/include/asm/cache.h
-index b3388d95f451..67e1abdfd6b4 100644
+index b3388d95f451..5a0df6a1b9dc 100644
 --- a/arch/powerpc/include/asm/cache.h
 +++ b/arch/powerpc/include/asm/cache.h
 @@ -107,22 +107,22 @@ extern void _set_L3CR(unsigned long);
@@ -31,25 +31,25 @@ index b3388d95f451..67e1abdfd6b4 100644
  static inline void dcbz(void *addr)
  {
 -	__asm__ __volatile__ ("dcbz %y0" : : "Z"(*(u8 *)addr) : "memory");
-+	__asm__ __volatile__ ("dcbz %y0" : : "=Z"(*(u8 *)addr) : "memory");
++	__asm__ __volatile__ ("dcbz %y0" : "=Z"(*(u8 *)addr) :: "memory");
  }
  
  static inline void dcbi(void *addr)
  {
 -	__asm__ __volatile__ ("dcbi %y0" : : "Z"(*(u8 *)addr) : "memory");
-+	__asm__ __volatile__ ("dcbi %y0" : : "=Z"(*(u8 *)addr) : "memory");
++	__asm__ __volatile__ ("dcbi %y0" : "=Z"(*(u8 *)addr) :: "memory");
  }
  
  static inline void dcbf(void *addr)
  {
 -	__asm__ __volatile__ ("dcbf %y0" : : "Z"(*(u8 *)addr) : "memory");
-+	__asm__ __volatile__ ("dcbf %y0" : : "=Z"(*(u8 *)addr) : "memory");
++	__asm__ __volatile__ ("dcbf %y0" : "=Z"(*(u8 *)addr) :: "memory");
  }
  
  static inline void dcbst(void *addr)
  {
 -	__asm__ __volatile__ ("dcbst %y0" : : "Z"(*(u8 *)addr) : "memory");
-+	__asm__ __volatile__ ("dcbst %y0" : : "=Z"(*(u8 *)addr) : "memory");
++	__asm__ __volatile__ ("dcbst %y0" : "=Z"(*(u8 *)addr) :: "memory");
  }
  #endif /* !__ASSEMBLY__ */
  #endif /* __KERNEL__ */

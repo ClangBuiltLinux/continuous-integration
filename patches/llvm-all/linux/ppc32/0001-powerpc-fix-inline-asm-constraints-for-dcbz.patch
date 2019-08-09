@@ -1,58 +1,34 @@
-From 32a313779ed147cedbad04c8549a70e179d3a92e Mon Sep 17 00:00:00 2001
+From ec2bc2ed0edcf3a3e4f80a556c680215ae2866e3 Mon Sep 17 00:00:00 2001
 From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Thu, 8 Aug 2019 16:16:04 -0700
-Subject: [PATCH] powerpc: fix inline asm constraints for dcbz
+Date: Fri, 9 Aug 2019 14:38:49 -0700
+Subject: [PATCH] TEST PATCH ARND
 
-The input parameter is modified, so it should be an output parameter
-with "=" to make it so that a copy of the input is not made by Clang.
-
-Link: https://bugs.llvm.org/show_bug.cgi?id=42762
-Link: https://gcc.gnu.org/onlinedocs/gcc/Modifiers.html#Modifiers
-Link: https://github.com/ClangBuiltLinux/linux/issues/593
-Link: https://godbolt.org/z/QwhZXi
-Link: https://lore.kernel.org/lkml/20190721075846.GA97701@archlinux-threadripper/
-Fixes: 6c5875843b87 ("powerpc: slightly improve cache helpers")
-Debugged-by: Nathan Chancellor <natechancellor@gmail.com>
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 ---
- arch/powerpc/include/asm/cache.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/include/asm/io.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/cache.h b/arch/powerpc/include/asm/cache.h
-index b3388d95f451..5a0df6a1b9dc 100644
---- a/arch/powerpc/include/asm/cache.h
-+++ b/arch/powerpc/include/asm/cache.h
-@@ -107,22 +107,22 @@ extern void _set_L3CR(unsigned long);
- 
- static inline void dcbz(void *addr)
- {
--	__asm__ __volatile__ ("dcbz %y0" : : "Z"(*(u8 *)addr) : "memory");
-+	__asm__ __volatile__ ("dcbz %y0" : "=Z"(*(u8 *)addr) :: "memory");
+diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
+index 23e5d5d16c7e..28b467779328 100644
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -106,7 +106,7 @@ static inline u##size name(const volatile u##size __iomem *addr)	\
+ {									\
+ 	u##size ret;							\
+ 	__asm__ __volatile__("sync;"#insn" %0,%y1;twi 0,%0,0;isync"	\
+-		: "=r" (ret) : "Z" (*addr) : "memory");			\
++		: "=r" (ret) : "m" (*addr) : "memory");			\
+ 	return ret;							\
  }
  
- static inline void dcbi(void *addr)
- {
--	__asm__ __volatile__ ("dcbi %y0" : : "Z"(*(u8 *)addr) : "memory");
-+	__asm__ __volatile__ ("dcbi %y0" : "=Z"(*(u8 *)addr) :: "memory");
+@@ -114,7 +114,7 @@ static inline u##size name(const volatile u##size __iomem *addr)	\
+ static inline void name(volatile u##size __iomem *addr, u##size val)	\
+ {									\
+ 	__asm__ __volatile__("sync;"#insn" %1,%y0"			\
+-		: "=Z" (*addr) : "r" (val) : "memory");			\
++		: "=m" (*addr) : "r" (val) : "memory");			\
+ 	mmiowb_set_pending();						\
  }
  
- static inline void dcbf(void *addr)
- {
--	__asm__ __volatile__ ("dcbf %y0" : : "Z"(*(u8 *)addr) : "memory");
-+	__asm__ __volatile__ ("dcbf %y0" : "=Z"(*(u8 *)addr) :: "memory");
- }
- 
- static inline void dcbst(void *addr)
- {
--	__asm__ __volatile__ ("dcbst %y0" : : "Z"(*(u8 *)addr) : "memory");
-+	__asm__ __volatile__ ("dcbst %y0" : "=Z"(*(u8 *)addr) :: "memory");
- }
- #endif /* !__ASSEMBLY__ */
- #endif /* __KERNEL__ */
 -- 
 2.23.0.rc1.153.gdeed80330f-goog
 

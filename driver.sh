@@ -85,7 +85,8 @@ setup_variables() {
       image_name=Image.gz
       qemu="qemu-system-aarch64"
       qemu_cmdline=( -cpu cortex-a57
-                     -drive "file=images/arm64/rootfs.ext4,format=raw"
+                     -drive "file=images/arm64/rootfs.ext4,format=raw,id=rootfs,if=none"
+                     -device "virtio-blk-device,drive=rootfs"
                      -append "console=ttyAMA0 root=/dev/vda" )
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
 

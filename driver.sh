@@ -79,7 +79,11 @@ setup_variables() {
 
     "arm64")
       case ${REPO} in
-        common-*) config=cuttlefish_defconfig ;;
+        common-*)
+          case ${branch} in
+            *4.9|*4.14) config=cuttlefish_defconfig ;;
+            *) config=gki_defconfig ;;
+          esac ;;
         *) config=defconfig ;;
       esac
       image_name=Image.gz
@@ -139,7 +143,10 @@ setup_variables() {
     "x86_64")
       case ${REPO} in
         common-*)
-          config=x86_64_cuttlefish_defconfig
+          case ${branch} in
+            *4.9|*4.14) config=x86_64_cuttlefish_defconfig ;;
+            *) config=gki_defconfig ;;
+          esac
           qemu_cmdline=( -append "console=ttyS0"
                          -initrd "images/x86_64/rootfs.cpio" ) ;;
         *)

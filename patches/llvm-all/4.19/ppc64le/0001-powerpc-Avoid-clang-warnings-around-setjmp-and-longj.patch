@@ -1,0 +1,74 @@
+From 59ad68462b3c06f2ba7d5718f7c4c281050a0425 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <natechancellor@gmail.com>
+Date: Sun, 11 Aug 2019 19:32:15 -0700
+Subject: [PATCH] powerpc: Avoid clang warnings around setjmp and longjmp
+
+Commit aea447141c7e ("powerpc: Disable -Wbuiltin-requires-header when
+setjmp is used") disabled -Wbuiltin-requires-header because of a warning
+about the setjmp and longjmp declarations.
+
+r367387 in clang added another diagnostic around this, complaining that
+there is no jmp_buf declaration.
+
+In file included from ../arch/powerpc/xmon/xmon.c:47:
+../arch/powerpc/include/asm/setjmp.h:10:13: error: declaration of
+built-in function 'setjmp' requires the declaration of the 'jmp_buf'
+type, commonly provided in the header <setjmp.h>.
+[-Werror,-Wincomplete-setjmp-declaration]
+extern long setjmp(long *);
+            ^
+../arch/powerpc/include/asm/setjmp.h:11:13: error: declaration of
+built-in function 'longjmp' requires the declaration of the 'jmp_buf'
+type, commonly provided in the header <setjmp.h>.
+[-Werror,-Wincomplete-setjmp-declaration]
+extern void longjmp(long *, long);
+            ^
+2 errors generated.
+
+Take the same approach as the above commit by disabling the warning for
+the same reason, we provide our own longjmp/setjmp function.
+
+Cc: stable@vger.kernel.org # 4.19+
+Link: https://github.com/ClangBuiltLinux/linux/issues/625
+Link: https://github.com/llvm/llvm-project/commit/3be25e79477db2d31ac46493d97eca8c20592b07
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/powerpc/kernel/Makefile | 5 +++--
+ arch/powerpc/xmon/Makefile   | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
+index eac18790d1b1..78b31ccc9493 100644
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -5,8 +5,9 @@
+ 
+ CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
+ 
+-# Disable clang warning for using setjmp without setjmp.h header
+-CFLAGS_crash.o		+= $(call cc-disable-warning, builtin-requires-header)
++# Avoid clang warnings about longjmp and setjmp built-ins (inclusion of setjmp.h and declaration of jmp_buf type)
++CFLAGS_crash.o		+= $(call cc-disable-warning, builtin-requires-header) \
++			   $(call cc-disable-warning, incomplete-setjmp-declaration)
+ 
+ subdir-ccflags-$(CONFIG_PPC_WERROR) := -Werror
+ 
+diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
+index 9d7d8e6d705c..684d48bd9e6a 100644
+--- a/arch/powerpc/xmon/Makefile
++++ b/arch/powerpc/xmon/Makefile
+@@ -1,8 +1,9 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for xmon
+ 
+-# Disable clang warning for using setjmp without setjmp.h header
+-subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header)
++# Avoid clang warnings about longjmp and setjmp built-ins (inclusion of setjmp.h and declaration of jmp_buf type)
++subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header) \
++		    $(call cc-disable-warning, incomplete-setjmp-declaration)
+ 
+ subdir-ccflags-$(CONFIG_PPC_WERROR) += -Werror
+ 
+-- 
+2.23.0
+

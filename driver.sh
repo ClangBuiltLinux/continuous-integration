@@ -151,7 +151,7 @@ check_dependencies() {
   command -v unbuffer
 
   oldest_llvm_version=7
-  latest_llvm_version=10
+  latest_llvm_version=$(curl -LSs https://raw.githubusercontent.com/llvm/llvm-project/master/llvm/CMakeLists.txt | grep -s -F "set(LLVM_VERSION_MAJOR" | cut -d ' ' -f 4 | sed 's/)//')
 
   for readelf in $(gen_bin_list llvm-readelf) llvm-readelf; do
     command -v ${readelf} &>/dev/null && break

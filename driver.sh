@@ -160,6 +160,12 @@ setup_variables() {
   export ARCH=${ARCH}
 }
 
+# Generates a list of binary versions based on latest_llvm_version and oldest_llvm_version
+# Example: gen_bin_list clang spits out clang-10 clang-9 clang-8...
+gen_bin_list() {
+    seq -f "${1:?}-%.0f" "${latest_llvm_version}" -1 "${oldest_llvm_version}"
+}
+
 check_dependencies() {
   # Check for existence of needed binaries
   command -v nproc
@@ -168,7 +174,10 @@ check_dependencies() {
   command -v timeout
   command -v unbuffer
 
-  for readelf in llvm-readelf-9 llvm-readelf-8 llvm-readelf-7 llvm-readelf; do
+  oldest_llvm_version=7
+  latest_llvm_version=$(curl -LSs https://raw.githubusercontent.com/llvm/llvm-project/master/llvm/CMakeLists.txt | grep -s -F "set(LLVM_VERSION_MAJOR" | cut -d ' ' -f 4 | sed 's/)//')
+
+  for readelf in $(gen_bin_list llvm-readelf) llvm-readelf; do
     command -v ${readelf} &>/dev/null && break
   done
 
@@ -182,7 +191,7 @@ check_dependencies() {
   "${LD:="${CROSS_COMPILE:-}"ld}" --version
 
   if [[ -z "${CC:-}" ]]; then
-    for CC in clang-9 clang-8 clang-7 clang; do
+    for CC in $(gen_bin_list clang) clang; do
       command -v ${CC} &>/dev/null && break
     done
   fi
@@ -204,7 +213,7 @@ check_dependencies() {
   }
 
   if [[ -z "${AR:-}" ]]; then
-    for AR in llvm-ar-9 llvm-ar-8 llvm-ar-7 llvm-ar "${CROSS_COMPILE:-}"ar; do
+    for AR in $(gen_bin_list llvm-ar) llvm-ar "${CROSS_COMPILE:-}"ar; do
       command -v ${AR} 2>/dev/null && break
     done
   fi
@@ -212,13 +221,13 @@ check_dependencies() {
   ${AR} --version
 
   if [[ -z "${NM:-}" ]]; then
-    for NM in llvm-nm-9 llvm-nm-8 llvm-nm-7 llvm-nm "${CROSS_COMPILE:-}"nm; do
+    for NM in $(gen_bin_list llvm-nm) llvm-nm "${CROSS_COMPILE:-}"nm; do
       command -v ${NM} 2>/dev/null && break
     done
   fi
 
   if [[ -z "${OBJDUMP:-}" ]]; then
-    for OBJDUMP in llvm-objdump-9 llvm-objdump-8 llvm-objdump-7 llvm-objdump "${CROSS_COMPILE:-}"objdump; do
+    for OBJDUMP in $(gen_bin_list llvm-objdump) llvm-objdump "${CROSS_COMPILE:-}"objdump; do
       command -v ${OBJDUMP} 2>/dev/null && break
     done
   fi

@@ -11,14 +11,15 @@ Environment variables:
 
   AR:
       If no AR value is specified, the script will attempt to set AR to
-      llvm-ar-9, llvm-ar-8, llvm-ar-7, llvm-ar, then ${CROSS_COMPILE}ar
-      if they are found in PATH.
+      llvm-ar-10 llvm-ar-9, llvm-ar-8, llvm-ar-7, llvm-ar, then
+      ${CROSS_COMPILE}ar if they are found in PATH.
   ARCH:
       If no ARCH value is specified, arm64 is the default. Currently, arm32_v7,
       arm32_v6, arm32_v5, arm64, ppc64le and x86_64 are supported.
   CC:
       If no CC value is specified, the script will attempt to set CC to
-      clang-9, clang-8, clang-7, then clang if they are found in PATH.
+      clang-10, clang-9, clang-8, clang-7, then clang if they are found
+      in PATH.
   LD:
       If no LD value is specified, ${CROSS_COMPILE}ld is used.
   REPO:

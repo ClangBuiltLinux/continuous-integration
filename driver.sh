@@ -272,6 +272,7 @@ mako_reactor() {
        CC="${CC}" \
        HOSTCC="${CC}" \
        HOSTLD="${HOSTLD:-ld}" \
+       KCFLAGS="-Wno-implicit-fallthrough" \
        LD="${LD}" \
        NM="${NM}" \
        OBJDUMP="${OBJDUMP}" \

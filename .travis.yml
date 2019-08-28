@@ -120,8 +120,8 @@ matrix:
     - name: "ARCH=ppc32 LLVM_VERSION=9"
       env: ARCH=ppc32 LLVM_VERSION=9
       if: type = cron
-    - name: "ARCH=ppc64 REPO=linux-next LLVM_VERSION=9"
-      env: ARCH=ppc64 REPO=linux-next LLVM_VERSION=9
+    - name: "ARCH=ppc64 LLVM_VERSION=9"
+      env: ARCH=ppc64 LLVM_VERSION=9
       if: type = cron
     - name: "ARCH=ppc64le LLVM_VERSION=9"
       env: ARCH=ppc64le LLVM_VERSION=9

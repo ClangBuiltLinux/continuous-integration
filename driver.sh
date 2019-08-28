@@ -267,8 +267,16 @@ mako_reactor() {
   KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
-  make -j"${jobs:-$(nproc)}" CC="${CC}" HOSTCC="${CC}" LD="${LD}" \
-    HOSTLD="${HOSTLD:-ld}" AR="${AR}" NM="${NM}" OBJDUMP="${OBJDUMP}" "${@}"
+  make -j"${jobs:-$(nproc)}" \
+       AR="${AR}" \
+       CC="${CC}" \
+       HOSTCC="${CC}" \
+       HOSTLD="${HOSTLD:-ld}" \
+       KCFLAGS="-Wno-implicit-fallthrough" \
+       LD="${LD}" \
+       NM="${NM}" \
+       OBJDUMP="${OBJDUMP}" \
+       "${@}"
 }
 
 apply_patches() {

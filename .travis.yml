@@ -10,6 +10,8 @@ matrix:
       env: ARCH=arm32_v7 LD=ld.lld-10
     - name: "ARCH=arm64 LD=ld.lld"
       env: ARCH=arm64 LD=ld.lld-10
+    - name: "ARCH=mipsel"
+      env: ARCH=mipsel
     - name: "ARCH=ppc32"
       env: ARCH=ppc32
     - name: "ARCH=ppc64"

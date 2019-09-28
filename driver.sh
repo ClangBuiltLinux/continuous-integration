@@ -211,15 +211,9 @@ check_dependencies() {
     # Check for LD, CC, and AR environmental variables
     # and print the version string of each. If CC and AR
     # don't exist, try to find them.
-    # clang's integrated assembler and lld aren't ready for all architectures so
-    # it's just simpler to fall back to GNU as/ld when AS/LD isn't specified to
-    # avoid architecture specific selection logic.
 
-    "${LD:="${CROSS_COMPILE:-}"ld}" --version
-    if [[ -z "${LLVM_IAS:-}" ]]; then
-        LLVM_IAS=0
-        command -v "${CROSS_COMPILE:-}"as
-    fi
+    LLVM_IAS=1
+    "${LD:=ld.lld}" --version
 
     if [[ -z "${CC:-}" ]]; then
         CC=clang

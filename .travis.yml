@@ -91,23 +91,23 @@ matrix:
       env: ARCH=x86_64 LD=ld.lld-10 REPO=4.4
       if: type = cron
     # kernel/common
-    - name: "ARCH=arm64 REPO=common-4.9"
-      env: ARCH=arm64 REPO=common-4.9
+    - name: "ARCH=arm64 REPO=android-4.9-q"
+      env: ARCH=arm64 REPO=android-4.9-q
       if: type = cron
-    - name: "ARCH=arm64 REPO=common-4.14"
-      env: ARCH=arm64 REPO=common-4.14
+    - name: "ARCH=arm64 REPO=android-4.14"
+      env: ARCH=arm64 REPO=android-4.14
       if: type = cron
-    - name: "ARCH=arm64 REPO=common-4.19"
-      env: ARCH=arm64 REPO=common-4.19
+    - name: "ARCH=arm64 REPO=android-4.19"
+      env: ARCH=arm64 REPO=android-4.19
       if: type = cron
-    - name: "ARCH=x86_64 LD=ld.lld REPO=common-4.9"
-      env: ARCH=x86_64 LD=ld.lld-10 REPO=common-4.9
+    - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.9-q"
+      env: ARCH=x86_64 LD=ld.lld-10 REPO=android-4.9-q
       if: type = cron
-    - name: "ARCH=x86_64 LD=ld.lld REPO=common-4.14"
-      env: ARCH=x86_64 LD=ld.lld-10 REPO=common-4.14
+    - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.14"
+      env: ARCH=x86_64 LD=ld.lld-10 REPO=android-4.14
       if: type = cron
-    - name: "ARCH=x86_64 LD=ld.lld REPO=common-4.19"
-      env: ARCH=x86_64 LD=ld.lld-10 REPO=common-4.19
+    - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.19"
+      env: ARCH=x86_64 LD=ld.lld-10 REPO=android-4.19
       if: type = cron
     # linux with stable LLVM/Clang
     - name: "ARCH=arm32_v5 LLVM_VERSION=9"

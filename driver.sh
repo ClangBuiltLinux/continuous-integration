@@ -23,9 +23,9 @@ setup_variables() {
 
   # torvalds/linux is the default repo if nothing is specified
   case ${REPO:=linux} in
-    "common-"*)
-      branch=android-${REPO##*-}
+    "android-"*)
       tree=common
+      branch=${REPO}
       url=https://android.googlesource.com/kernel/${tree} ;;
     "linux")
       owner=torvalds
@@ -79,9 +79,9 @@ setup_variables() {
 
     "arm64")
       case ${REPO} in
-        common-*)
+        android-*)
           case ${branch} in
-            *4.9|*4.14) config=cuttlefish_defconfig ;;
+            *4.9-q|*4.14) config=cuttlefish_defconfig ;;
             *) config=gki_defconfig ;;
           esac ;;
         *) config=defconfig ;;
@@ -142,9 +142,9 @@ setup_variables() {
 
     "x86_64")
       case ${REPO} in
-        common-*)
+        android-*)
           case ${branch} in
-            *4.9|*4.14) config=x86_64_cuttlefish_defconfig ;;
+            *4.9-q|*4.14) config=x86_64_cuttlefish_defconfig ;;
             *) config=gki_defconfig ;;
           esac
           qemu_cmdline=( -append "console=ttyS0"

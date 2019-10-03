@@ -110,7 +110,7 @@ matrix:
       env: ARCH=x86_64 LD=ld.lld-10 REPO=android-4.19
       if: type = cron
     # linux with stable LLVM/Clang
-    - name: "ARCH=arm32_v5 LLVM_VERSION=9"
+    - name: "ARCH=arm32_v5 LD=ld.lld LLVM_VERSION=9"
       env: ARCH=arm32_v5 LD=ld.lld-9 LLVM_VERSION=9
       if: type = cron
     - name: "ARCH=arm32_v6 LLVM_VERSION=9"

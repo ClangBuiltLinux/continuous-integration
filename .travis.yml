@@ -2,8 +2,8 @@ language: cpp
 matrix:
   include:
     # linux
-    - name: "ARCH=arm32_v5"
-      env: ARCH=arm32_v5
+    - name: "ARCH=arm32_v5 LD=ld.lld"
+      env: ARCH=arm32_v5 LD=ld.lld-10
     - name: "ARCH=arm32_v6"
       env: ARCH=arm32_v6
     - name: "ARCH=arm32_v7 LD=ld.lld"
@@ -23,8 +23,8 @@ matrix:
     # linux (cron only)
     #
     # linux-next (cron only)
-    - name: "ARCH=arm32_v5 REPO=linux-next"
-      env: ARCH=arm32_v5 REPO=linux-next
+    - name: "ARCH=arm32_v5 LD=ld.lld REPO=linux-next"
+      env: ARCH=arm32_v5 LD=ld.lld-10 REPO=linux-next
       if: type = cron
     - name: "ARCH=arm32_v6 REPO=linux-next"
       env: ARCH=arm32_v6 REPO=linux-next
@@ -111,7 +111,7 @@ matrix:
       if: type = cron
     # linux with stable LLVM/Clang
     - name: "ARCH=arm32_v5 LLVM_VERSION=9"
-      env: ARCH=arm32_v5 LLVM_VERSION=9
+      env: ARCH=arm32_v5 LD=ld.lld LLVM_VERSION=9
       if: type = cron
     - name: "ARCH=arm32_v6 LLVM_VERSION=9"
       env: ARCH=arm32_v6 LLVM_VERSION=9

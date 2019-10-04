@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJDUMP"=*|"REPO="*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJDUMP"=*|"OBJSIZE"=*|"REPO="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -238,6 +238,12 @@ check_dependencies() {
       command -v ${OBJDUMP} 2>/dev/null && break
     done
   fi
+
+  if [[ -z "${OBJSIZE:-}" ]]; then
+    for OBJSIZE in $(gen_bin_list llvm-size) llvm-size "${CROSS_COMPILE:-}"size; do
+      command -v ${OBJSIZE} 2>/dev/null && break
+    done
+  fi
 }
 
 # Optimistically check to see that the user has a llvm-ar
@@ -276,6 +282,7 @@ mako_reactor() {
        LD="${LD}" \
        NM="${NM}" \
        OBJDUMP="${OBJDUMP}" \
+       OBJSIZE="${OBJSIZE}" \
        "${@}"
 }
 

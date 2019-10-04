@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJDUMP"=*|"REPO="*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJCOPY"=*|"OBJDUMP"=*|"REPO="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -191,11 +191,12 @@ check_dependencies() {
   # Check for LD, CC, and AR environmental variables
   # and print the version string of each. If CC and AR
   # don't exist, try to find them.
-  # lld isn't ready for all architectures so it's just
-  # simpler to fall back to GNU ld when LD isn't specified
+  # lld and objcopy aren't ready for all architectures so it's just
+  # simpler to fall back to GNU ld/objcopy when LD/OBJCOPY aren't specified
   # to avoid architecture specific selection logic.
 
   "${LD:="${CROSS_COMPILE:-}"ld}" --version
+  "${OBJCOPY:="${CROSS_COMPILE:-}"objcopy}" --version
 
   if [[ -z "${CC:-}" ]]; then
     for CC in $(gen_bin_list clang) clang; do
@@ -275,6 +276,7 @@ mako_reactor() {
        KCFLAGS="-Wno-implicit-fallthrough" \
        LD="${LD}" \
        NM="${NM}" \
+       OBJCOPY="${OBJCOPY}" \
        OBJDUMP="${OBJDUMP}" \
        "${@}"
 }

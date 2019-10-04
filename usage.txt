@@ -22,6 +22,8 @@ Environment variables:
       in PATH.
   LD:
       If no LD value is specified, ${CROSS_COMPILE}ld is used.
+  OBJCOPY:
+      If no OBJCOPY value is specified, ${CROSS_COMPILE}objcopy is used.
   REPO:
       Nicknames for trees:
         linux (default)

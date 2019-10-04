@@ -8,8 +8,8 @@ matrix:
       env: ARCH=arm32_v6
     - name: "ARCH=arm32_v7 LD=ld.lld"
       env: ARCH=arm32_v7 LD=ld.lld-10
-    - name: "ARCH=arm64 LD=ld.lld"
-      env: ARCH=arm64 LD=ld.lld-10
+    - name: "ARCH=arm64 OBJCOPY=llvm-objcopy LD=ld.lld"
+      env: ARCH=arm64 OBJCOPY=llvm-objcopy-10 LD=ld.lld-10
     - name: "ARCH=mipsel"
       env: ARCH=mipsel
     - name: "ARCH=ppc32"
@@ -32,8 +32,8 @@ matrix:
     - name: "ARCH=arm32_v7 LD=ld.lld REPO=linux-next"
       env: ARCH=arm32_v7 LD=ld.lld-10 REPO=linux-next
       if: type = cron
-    - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
-      env: ARCH=arm64 LD=ld.lld-10 REPO=linux-next
+    - name: "ARCH=arm64 OBJCOPY=llvm-objcopy LD=ld.lld REPO=linux-next"
+      env: ARCH=arm64 OBJCOPY=llvm-objcopy-10 LD=ld.lld-10 REPO=linux-next
       if: type = cron
     - name: "ARCH=mipsel REPO=linux-next"
       env: ARCH=mipsel REPO=linux-next
@@ -54,8 +54,8 @@ matrix:
     - name: "ARCH=arm32_v7 REPO=4.19"
       env: ARCH=arm32_v7 REPO=4.19
       if: type = cron
-    - name: "ARCH=arm64 REPO=4.19"
-      env: ARCH=arm64 REPO=4.19
+    - name: "ARCH=arm64 OBJCOPY=llvm-objcopy REPO=4.19"
+      env: ARCH=arm64 OBJCOPY=llvm-objcopy-10 REPO=4.19
       if: type = cron
     - name: "ARCH=ppc64le REPO=4.19"
       env: ARCH=ppc64le REPO=4.19
@@ -66,8 +66,8 @@ matrix:
     - name: "ARCH=arm32_v7 REPO=4.14"
       env: ARCH=arm32_v7 REPO=4.14
       if: type = cron
-    - name: "ARCH=arm64 REPO=4.14"
-      env: ARCH=arm64 REPO=4.14
+    - name: "ARCH=arm64 OBJCOPY=llvm-objcopy REPO=4.14"
+      env: ARCH=arm64 OBJCOPY=llvm-objcopy-10 REPO=4.14
       if: type = cron
     - name: "ARCH=ppc64le REPO=4.14"
       env: ARCH=ppc64le REPO=4.14
@@ -78,8 +78,8 @@ matrix:
     - name: "ARCH=arm32_v7 REPO=4.9"
       env: ARCH=arm32_v7 REPO=4.9
       if: type = cron
-    - name: "ARCH=arm64 REPO=4.9"
-      env: ARCH=arm64 REPO=4.9
+    - name: "ARCH=arm64 OBJCOPY=llvm-objcopy REPO=4.9"
+      env: ARCH=arm64 OBJCOPY=llvm-objcopy-10 REPO=4.9
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.9"
       env: ARCH=x86_64 LD=ld.lld-10 REPO=4.9

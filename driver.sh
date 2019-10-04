@@ -349,11 +349,14 @@ boot_qemu() {
   fi
 
   test -e ${kernel_image}
-  qemu=( timeout 2m unbuffer "${qemu}"
-                             -m "${qemu_ram:=512m}"
-                             "${qemu_cmdline[@]}"
-                             -display none -serial mon:stdio
-                             -kernel "${kernel_image}" )
+  qemu=( timeout 2m
+         unbuffer
+         "${qemu}"
+         -m "${qemu_ram:=512m}"
+         "${qemu_cmdline[@]}"
+         -display none
+         -serial mon:stdio
+         -kernel "${kernel_image}" )
   # For arm64, we want to test booting at both EL1 and EL2
   if [[ ${ARCH} = "arm64" ]]; then
     "${qemu[@]}" -machine virt

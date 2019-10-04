@@ -34,6 +34,11 @@ Environment variables:
         common-4.14
         common-4.9
         common-4.4
+  OBJSIZE:
+      If no OBJSIZE value is specified, the script will attempt to set OBJSIZE
+      to llvm-size-10 llvm-size-9, llvm-size-8, llvm-size-7, llvm-size, then
+      ${CROSS_COMPILE}size if they are found in PATH.
+
 
 Optional parameters:
   -c | --clean:

@@ -57,6 +57,7 @@ setup_variables() {
     "arm32_v6")
       config=aspeed_g5_defconfig
       image_name=zImage
+      timeout=4 # This architecture needs a bit of a longer timeout due to some flakiness on Travis
       qemu="qemu-system-arm"
       qemu_cmdline=( -machine romulus-bmc
                      -no-reboot
@@ -349,7 +350,7 @@ boot_qemu() {
   fi
 
   test -e ${kernel_image}
-  qemu=( timeout 2m
+  qemu=( timeout "${timeout:-2}"m
          unbuffer
          "${qemu}"
          -m "${qemu_ram:=512m}"

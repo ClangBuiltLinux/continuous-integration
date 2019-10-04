@@ -54,8 +54,8 @@ matrix:
     - name: "ARCH=arm32_v7 REPO=4.19"
       env: ARCH=arm32_v7 REPO=4.19
       if: type = cron
-    - name: "ARCH=arm64 REPO=4.19"
-      env: ARCH=arm64 REPO=4.19
+    - name: "ARCH=arm64 LD=ld.lld REPO=4.19"
+      env: ARCH=arm64 LD=ld.lld-10 REPO=4.19
       if: type = cron
     - name: "ARCH=ppc64le REPO=4.19"
       env: ARCH=ppc64le REPO=4.19
@@ -66,8 +66,8 @@ matrix:
     - name: "ARCH=arm32_v7 REPO=4.14"
       env: ARCH=arm32_v7 REPO=4.14
       if: type = cron
-    - name: "ARCH=arm64 REPO=4.14"
-      env: ARCH=arm64 REPO=4.14
+    - name: "ARCH=arm64 LD=ld.lld REPO=4.14"
+      env: ARCH=arm64 LD=ld.lld-10 REPO=4.14
       if: type = cron
     - name: "ARCH=ppc64le REPO=4.14"
       env: ARCH=ppc64le REPO=4.14

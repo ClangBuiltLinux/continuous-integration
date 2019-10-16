@@ -122,6 +122,9 @@ matrix:
     - name: "ARCH=arm64 LLVM_VERSION=9"
       env: ARCH=arm64 LLVM_VERSION=9
       if: type = cron
+    - name: "ARCH=mipsel LLVM_VERSION=9"
+      env: ARCH=mipsel LLVM_VERSION=9
+      if: type = cron
     - name: "ARCH=ppc32 LLVM_VERSION=9"
       env: ARCH=ppc32 LLVM_VERSION=9
       if: type = cron

@@ -139,7 +139,6 @@ matrix:
       if: type = cron
 compiler: gcc
 os: linux
-dist: trusty
 sudo: required
 cache:
   directories:

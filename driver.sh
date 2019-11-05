@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+apt purge -y binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi binutils-mips-linux-gnu binutils-mipsel-linux-gnu binutils-powerpc-linux-gnu binutils-powerpc64-linux-gnu binutils-powerpc64le-linux-gnu binutils-riscv64-linux-gnu
+dpkg -r --force-depends binutils binutils-x86-64-linux-gnu libbinutils binutils-common
+
 set -eu
 
 setup_variables() {

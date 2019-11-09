@@ -339,6 +339,7 @@ mako_reactor() {
         CC="${CC}" \
         HOSTCC="${CC}" \
         HOSTLD="${HOSTLD:-ld}" \
+        HOSTAR="${AR}" \
         KCFLAGS="-Wno-implicit-fallthrough" \
         LD="${LD}" \
         LLVM_IAS="${LLVM_IAS}" \

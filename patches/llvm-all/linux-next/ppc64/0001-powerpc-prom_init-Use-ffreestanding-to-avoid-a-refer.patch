@@ -1,4 +1,4 @@
-From 1b98a48e312ac0be1746df53729fbb308a0c1ada Mon Sep 17 00:00:00 2001
+From c2ac2938d28dc4ada5ed22dec1baad5fdc2ce36a Mon Sep 17 00:00:00 2001
 From: Nathan Chancellor <natechancellor@gmail.com>
 Date: Sun, 13 Oct 2019 19:51:01 -0700
 Subject: [PATCH] powerpc/prom_init: Use -ffreestanding to avoid a reference to
@@ -26,24 +26,23 @@ Link: https://github.com/ClangBuiltLinux/linux/issues/647
 Link: https://github.com/llvm/llvm-project/commit/76cdcf25b883751d83402baea6316772aa73865c
 Reviewed-by: Nick Desaulneris <ndesaulniers@google.com>
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Link: https://lore.kernel.org/lkml/20191014025101.18567-4-natechancellor@gmail.com/
+Link: https://lore.kernel.org/lkml/20191119045712.39633-4-natechancellor@gmail.com/
 ---
- arch/powerpc/kernel/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
-index f1f362146135..7f0ee465dfb6 100644
+index 3c113ae0de2b..82170c155cb6 100644
 --- a/arch/powerpc/kernel/Makefile
 +++ b/arch/powerpc/kernel/Makefile
-@@ -21,7 +21,7 @@ CFLAGS_prom_init.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
- CFLAGS_btext.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
- CFLAGS_prom.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+@@ -23,6 +23,7 @@ CFLAGS_prom.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
  
--CFLAGS_prom_init.o += $(call cc-option, -fno-stack-protector)
-+CFLAGS_prom_init.o += $(call cc-option, -fno-stack-protector) -ffreestanding
+ CFLAGS_prom_init.o += $(call cc-option, -fno-stack-protector)
+ CFLAGS_prom_init.o += -DDISABLE_BRANCH_PROFILING
++CFLAGS_prom_init.o += -ffreestanding
  
  ifdef CONFIG_FUNCTION_TRACER
  # Do not trace early boot code
 -- 
-2.23.0
+2.24.0
 

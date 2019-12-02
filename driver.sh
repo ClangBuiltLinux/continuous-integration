@@ -8,7 +8,7 @@ set -eu
 setup_variables() {
     while [[ ${#} -ge 1 ]]; do
         case ${1} in
-            "AR="* | "ARCH="* | "CC="* | "LD="* | "LLVM_IAS="* | "NM"=* | "OBJCOPY"=* | "OBJDUMP"=* | "OBJSIZE"=* | "REPO="* | "STRIP"=*) export "${1?}" ;;
+            "AR="* | "ARCH="* | "CC="* | "LD="* | "LLVM_IAS="* | "NM="* | "OBJCOPY="* | "OBJDUMP="* | "OBJSIZE="* | "READELF="* | "REPO="* | "STRIP="*) export "${1?}" ;;
             "-c" | "--clean") cleanup=true ;;
             "-j" | "--jobs")
                 shift
@@ -208,9 +208,6 @@ check_dependencies() {
         fi
     done
 
-    READELF=llvm-readelf
-    command -v "${READELF}"
-
     # Check for LD, CC, and AR environmental variables
     # and print the version string of each. If CC and AR
     # don't exist, try to find them.
@@ -268,6 +265,12 @@ check_dependencies() {
     if [[ -z "${OBJSIZE:-}" ]]; then
         for OBJSIZE in llvm-size "${CROSS_COMPILE:-}"size; do
             command -v "${OBJSIZE}" 2>/dev/null && break
+        done
+    fi
+
+    if [[ -z "${READELF:-}" ]]; then
+        for READELF in llvm-readelf "${CROSS_COMPILE:-}"readelf; do
+            command -v "${READELF}" 2>/dev/null && break
         done
     fi
 
@@ -408,7 +411,7 @@ build_linux() {
     mako_reactor olddefconfig &>/dev/null
     mako_reactor ${make_target}
     [[ $ARCH =~ arm ]] && mako_reactor dtbs
-    "${READELF}" --string-dump=.comment vmlinux
+    ${READELF} --string-dump=.comment vmlinux
 
     cd "${OLDPWD}"
 }

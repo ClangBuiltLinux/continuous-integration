@@ -72,9 +72,8 @@ setup_variables() {
       qemu="qemu-system-arm"
       qemu_cmdline=( -machine virt
                      -no-reboot
-                     -drive "file=images/arm/rootfs.ext4,format=raw,id=rootfs,if=none"
-                     -device "virtio-blk-device,drive=rootfs"
-                     -append "console=ttyAMA0 root=/dev/vda" )
+                     -initrd "images/arm/rootfs.cpio"
+                     -append "console=ttyAMA0" )
       export ARCH=arm
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
 
@@ -90,8 +89,8 @@ setup_variables() {
       image_name=Image.gz
       qemu="qemu-system-aarch64"
       qemu_cmdline=( -cpu cortex-a57
-                     -drive "file=images/arm64/rootfs.ext4,format=raw"
-                     -append "console=ttyAMA0 root=/dev/vda" )
+                     -initrd "images/arm64/rootfs.cpio"
+                     -append "console=ttyAMA0" )
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
 
     "mipsel")
@@ -100,8 +99,7 @@ setup_variables() {
       qemu="qemu-system-mipsel"
       qemu_cmdline=( -machine malta
                      -cpu 24Kf
-                     -append "root=/dev/sda"
-                     -drive "file=images/mipsel/rootfs.ext4,format=raw,if=ide" )
+                     -initrd "images/mipsel/rootfs.cpio" )
       export ARCH=mips
       export CROSS_COMPILE=mipsel-linux-gnu- ;;
 
@@ -147,14 +145,13 @@ setup_variables() {
           case ${branch} in
             *4.9-q|*4.14) config=x86_64_cuttlefish_defconfig ;;
             *) config=gki_defconfig ;;
-          esac
-          qemu_cmdline=( -append "console=ttyS0"
-                         -initrd "images/x86_64/rootfs.cpio" ) ;;
+          esac ;;
         *)
-          config=defconfig
-          qemu_cmdline=( -drive "file=images/x86_64/rootfs.ext4,format=raw,if=ide"
-                         -append "console=ttyS0 root=/dev/sda" ) ;;
+          config=defconfig ;;
       esac
+
+      qemu_cmdline=( -append "console=ttyS0"
+                     -initrd "images/x86_64/rootfs.cpio" )
       # Use KVM if the processor supports it (first part) and the KVM module is loaded (second part)
       [[ $(grep -c -E 'vmx|svm' /proc/cpuinfo) -gt 0 && $(lsmod 2>/dev/null | grep -c kvm) -gt 0 ]] && qemu_cmdline=( "${qemu_cmdline[@]}" -enable-kvm )
       image_name=bzImage

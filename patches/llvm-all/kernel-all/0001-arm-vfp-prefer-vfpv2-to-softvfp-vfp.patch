@@ -1,0 +1,38 @@
+From e97266a7b5836a3d163e316c1cf384042c595046 Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Thu, 5 Dec 2019 17:18:44 -0800
+Subject: [PATCH] arm: vfp: prefer vfpv2 to softvfp+vfp
+
+The assembler option -mfpu=softvfp+vfp isn't recognized by Clang's
+integrated assembler. GNU AS aliases `softvfp+vfp` to `vfpv2` which
+clang does understand.
+
+This also reverts
+commit 82b9c18dc0ee ("ARM: vfp: use -mfloat-abi=soft to build vfp")
+since the error reported cannot be reproduced with
+CROSS_COMPILE=arm-linux-gnueabihf- and AS=as (ie. binutils, not clang).
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/762
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Suggested-by: Jian Cai <jiancai@google.com>
+Suggested-by: Peter Smith <peter.smith@linaro.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ arch/arm/vfp/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/vfp/Makefile b/arch/arm/vfp/Makefile
+index 9975b63ac3b0..5a36b8c4b4db 100644
+--- a/arch/arm/vfp/Makefile
++++ b/arch/arm/vfp/Makefile
+@@ -8,6 +8,6 @@
+ # ccflags-y := -DDEBUG
+ # asflags-y := -DDEBUG
+ 
+-KBUILD_AFLAGS	:=$(KBUILD_AFLAGS:-msoft-float=-Wa,-mfpu=softvfp+vfp -mfloat-abi=soft)
++KBUILD_AFLAGS	+= -Wa,-mfpu=vfpv2
+ 
+ obj-y		+= vfpmodule.o entry.o vfphw.o vfpsingle.o vfpdouble.o
+-- 
+2.24.0.393.g34dc348eaf-goog
+

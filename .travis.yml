@@ -8,48 +8,48 @@ matrix:
       env: ARCH=arm32_v6
     - name: "ARCH=arm32_v7 LD=ld.lld"
       env: ARCH=arm32_v7 LD=ld.lld-10
-    - name: "ARCH=arm64 LD=ld.lld"
-      env: ARCH=arm64 LD=ld.lld-10
-    - name: "ARCH=mipsel"
-      env: ARCH=mipsel
-    - name: "ARCH=ppc32"
-      env: ARCH=ppc32
-    - name: "ARCH=ppc64"
-      env: ARCH=ppc64
-    - name: "ARCH=ppc64le LD=ld.lld"
-      env: ARCH=ppc64le LD=ld.lld-10
-    - name: "ARCH=x86_64 LD=ld.lld"
-      env: ARCH=x86_64 LD=ld.lld-10
+    #- name: "ARCH=arm64 LD=ld.lld"
+      #env: ARCH=arm64 LD=ld.lld-10
+    #- name: "ARCH=mipsel"
+      #env: ARCH=mipsel
+    #- name: "ARCH=ppc32"
+      #env: ARCH=ppc32
+    #- name: "ARCH=ppc64"
+      #env: ARCH=ppc64
+    #- name: "ARCH=ppc64le LD=ld.lld"
+      #env: ARCH=ppc64le LD=ld.lld-10
+    #- name: "ARCH=x86_64 LD=ld.lld"
+      #env: ARCH=x86_64 LD=ld.lld-10
     # linux (cron only)
     #
     # linux-next (cron only)
     - name: "ARCH=arm32_v5 LD=ld.lld REPO=linux-next"
       env: ARCH=arm32_v5 LD=ld.lld-10 REPO=linux-next
-      if: type = cron
+      #if: type = cron
     - name: "ARCH=arm32_v6 REPO=linux-next"
       env: ARCH=arm32_v6 REPO=linux-next
-      if: type = cron
+      #if: type = cron
     - name: "ARCH=arm32_v7 LD=ld.lld REPO=linux-next"
       env: ARCH=arm32_v7 LD=ld.lld-10 REPO=linux-next
-      if: type = cron
-    - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
-      env: ARCH=arm64 LD=ld.lld-10 REPO=linux-next
-      if: type = cron
-    - name: "ARCH=mipsel REPO=linux-next"
-      env: ARCH=mipsel REPO=linux-next
-      if: type = cron
-    - name: "ARCH=ppc32 REPO=linux-next"
-      env: ARCH=ppc32 REPO=linux-next
-      if: type = cron
-    - name: "ARCH=ppc64 REPO=linux-next"
-      env: ARCH=ppc64 REPO=linux-next
-      if: type = cron
-    - name: "ARCH=ppc64le LD=ld.lld REPO=linux-next"
-      env: ARCH=ppc64le LD=ld.lld-10 REPO=linux-next
-      if: type = cron
-    - name: "ARCH=x86_64 LD=ld.lld REPO=linux-next"
-      env: ARCH=x86_64 LD=ld.lld-10 REPO=linux-next
-      if: type = cron
+      #if: type = cron
+    #- name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
+      #env: ARCH=arm64 LD=ld.lld-10 REPO=linux-next
+      #if: type = cron
+    #- name: "ARCH=mipsel REPO=linux-next"
+      #env: ARCH=mipsel REPO=linux-next
+      #if: type = cron
+    #- name: "ARCH=ppc32 REPO=linux-next"
+      #env: ARCH=ppc32 REPO=linux-next
+      #if: type = cron
+    #- name: "ARCH=ppc64 REPO=linux-next"
+      #env: ARCH=ppc64 REPO=linux-next
+      #if: type = cron
+    #- name: "ARCH=ppc64le LD=ld.lld REPO=linux-next"
+      #env: ARCH=ppc64le LD=ld.lld-10 REPO=linux-next
+      #if: type = cron
+    #- name: "ARCH=x86_64 LD=ld.lld REPO=linux-next"
+      #env: ARCH=x86_64 LD=ld.lld-10 REPO=linux-next
+      #if: type = cron
     # stable
     - name: "ARCH=arm32_v7 REPO=4.19"
       env: ARCH=arm32_v7 REPO=4.19

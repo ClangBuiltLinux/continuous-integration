@@ -59,6 +59,7 @@ matrix:
       if: type = cron
     - name: "ARCH=mipsel REPO=5.4"
       env: ARCH=mipsel REPO=5.4
+      if: type = cron
     - name: "ARCH=ppc64le REPO=5.4"
       env: ARCH=ppc64le REPO=5.4
       if: type = cron

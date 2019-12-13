@@ -51,8 +51,8 @@ matrix:
       env: ARCH=x86_64 LD=ld.lld-10 REPO=linux-next
       if: type = cron
     # stable
-    - name: "ARCH=arm32_v7 REPO=5.4"
-      env: ARCH=arm32_v7 REPO=5.4
+    - name: "ARCH=arm32_v7 LD=ld.lld REPO=5.4"
+      env: ARCH=arm32_v7 LD=ld.lld REPO=5.4
       if: type = cron
     - name: "ARCH=arm64 LD=ld.lld REPO=5.4"
       env: ARCH=arm64 LD=ld.lld-10 REPO=5.4
@@ -60,8 +60,8 @@ matrix:
     - name: "ARCH=mipsel REPO=5.4"
       env: ARCH=mipsel REPO=5.4
       if: type = cron
-    - name: "ARCH=ppc64le REPO=5.4"
-      env: ARCH=ppc64le REPO=5.4
+    - name: "ARCH=ppc32 REPO=5.4"
+      env: ARCH=ppc32 REPO=5.4
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=5.4"
       env: ARCH=x86_64 LD=ld.lld-10 REPO=5.4

@@ -52,7 +52,7 @@ matrix:
       if: type = cron
     # stable
     - name: "ARCH=arm32_v7 LD=ld.lld REPO=5.4"
-      env: ARCH=arm32_v7 LD=ld.lld REPO=5.4
+      env: ARCH=arm32_v7 LD=ld.lld-10 REPO=5.4
       if: type = cron
     - name: "ARCH=arm64 LD=ld.lld REPO=5.4"
       env: ARCH=arm64 LD=ld.lld-10 REPO=5.4

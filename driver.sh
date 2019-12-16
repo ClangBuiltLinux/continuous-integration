@@ -33,7 +33,7 @@ setup_variables() {
     "linux-next")
       owner=next
       tree=linux-next ;;
-    "4.4"|"4.9"|"4.14"|"4.19")
+    "4.4"|"4.9"|"4.14"|"4.19"|"5.4")
       owner=stable
       branch=linux-${REPO}.y
       tree=linux ;;

@@ -51,6 +51,21 @@ matrix:
       env: ARCH=x86_64 LD=ld.lld-10 REPO=linux-next
       if: type = cron
     # stable
+    - name: "ARCH=arm32_v7 LD=ld.lld REPO=5.4"
+      env: ARCH=arm32_v7 LD=ld.lld-10 REPO=5.4
+      if: type = cron
+    - name: "ARCH=arm64 LD=ld.lld REPO=5.4"
+      env: ARCH=arm64 LD=ld.lld-10 REPO=5.4
+      if: type = cron
+    - name: "ARCH=mipsel REPO=5.4"
+      env: ARCH=mipsel REPO=5.4
+      if: type = cron
+    - name: "ARCH=ppc32 REPO=5.4"
+      env: ARCH=ppc32 REPO=5.4
+      if: type = cron
+    - name: "ARCH=x86_64 LD=ld.lld REPO=5.4"
+      env: ARCH=x86_64 LD=ld.lld-10 REPO=5.4
+      if: type = cron
     - name: "ARCH=arm32_v7 REPO=4.19"
       env: ARCH=arm32_v7 REPO=4.19
       if: type = cron
@@ -100,6 +115,12 @@ matrix:
     - name: "ARCH=arm64 REPO=android-4.19"
       env: ARCH=arm64 REPO=android-4.19
       if: type = cron
+    - name: "ARCH=arm64 REPO=android-5.4"
+      env: ARCH=arm64 REPO=android-5.4
+      if: type = cron
+    - name: "ARCH=arm64 REPO=android-mainline"
+      env: ARCH=arm64 REPO=android-mainline
+      if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.9-q"
       env: ARCH=x86_64 LD=ld.lld-10 REPO=android-4.9-q
       if: type = cron
@@ -108,6 +129,12 @@ matrix:
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.19"
       env: ARCH=x86_64 LD=ld.lld-10 REPO=android-4.19
+      if: type = cron
+    - name: "ARCH=x86_64 LD=ld.lld REPO=android-5.4"
+      env: ARCH=x86_64 LD=ld.lld-10 REPO=android-5.4
+      if: type = cron
+    - name: "ARCH=x86_64 LD=ld.lld REPO=android-mainline"
+      env: ARCH=x86_64 LD=ld.lld-10 REPO=android-mainline
       if: type = cron
     # linux with stable LLVM/Clang
     - name: "ARCH=arm32_v5 LD=ld.lld LLVM_VERSION=9"

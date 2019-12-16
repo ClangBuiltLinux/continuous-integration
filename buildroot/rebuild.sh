@@ -68,7 +68,7 @@ for CONFIG in "${CONFIGS[@]}"; do
 
     # Copy new images
     # Make sure images exist before moving them
-    IMAGES=( "output/images/rootfs.cpio" "output/images/rootfs.ext4" )
+    IMAGES=( "output/images/rootfs.cpio" )
     for IMAGE in "${IMAGES[@]}"; do
         if [[ ! -f ${IMAGE} ]]; then
             echo "${IMAGE} could not be found! Did the build error?"

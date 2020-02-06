@@ -175,7 +175,7 @@ check_dependencies() {
   # Check for existence of needed binaries
   command -v nproc
   command -v "${CROSS_COMPILE:-}"as
-  command -v ${qemu}
+  ${using_qemu:=true} && command -v ${qemu}
   command -v timeout
   command -v unbuffer
 
@@ -345,8 +345,10 @@ build_linux() {
 }
 
 boot_qemu() {
+  if ! ${using_qemu}; then
+    return 0;
+  fi
   local kernel_image
-
   if [[ ${image_name} = "vmlinux" ]]; then
     kernel_image=${tree}/vmlinux
   else

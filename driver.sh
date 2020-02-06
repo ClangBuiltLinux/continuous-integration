@@ -139,6 +139,13 @@ setup_variables() {
       export ARCH=powerpc
       export CROSS_COMPILE=powerpc64le-linux-gnu- ;;
 
+    "s390")
+        config=defconfig
+        image_name=bzImage
+        using_qemu=false
+        OBJDUMP=s390x-linux-gnu-objdump
+        export CROSS_COMPILE=s390x-linux-gnu- ;;
+
     "x86_64")
       case ${REPO} in
         android-*)

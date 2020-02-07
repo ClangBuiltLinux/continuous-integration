@@ -1,5 +1,5 @@
 language: cpp
-matrix:
+jobs:
   include:
     # linux
     - name: "ARCH=arm32_v5 LD=ld.lld"
@@ -166,7 +166,6 @@ matrix:
       if: type = cron
 compiler: gcc
 os: linux
-sudo: required
 cache:
   directories:
     - .ccache

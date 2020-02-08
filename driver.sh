@@ -272,6 +272,7 @@ mako_reactor() {
   KBUILD_BUILD_USER=driver \
   KBUILD_BUILD_HOST=clangbuiltlinux \
   make -j"${jobs:-$(nproc)}" \
+       -s \
        AR="${AR}" \
        CC="${CC}" \
        HOSTCC="${CC}" \

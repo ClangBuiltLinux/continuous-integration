@@ -139,6 +139,13 @@ setup_variables() {
       export ARCH=powerpc
       export CROSS_COMPILE=powerpc64le-linux-gnu- ;;
 
+    "s390")
+        config=defconfig
+        image_name=bzImage
+        using_qemu=false
+        OBJDUMP=s390x-linux-gnu-objdump
+        export CROSS_COMPILE=s390x-linux-gnu- ;;
+
     "x86_64")
       case ${REPO} in
         android-*)
@@ -175,7 +182,7 @@ check_dependencies() {
   # Check for existence of needed binaries
   command -v nproc
   command -v "${CROSS_COMPILE:-}"as
-  command -v ${qemu}
+  ${using_qemu:=true} && command -v ${qemu}
   command -v timeout
   command -v unbuffer
 
@@ -345,8 +352,10 @@ build_linux() {
 }
 
 boot_qemu() {
+  if ! ${using_qemu}; then
+    return 0;
+  fi
   local kernel_image
-
   if [[ ${image_name} = "vmlinux" ]]; then
     kernel_image=${tree}/vmlinux
   else

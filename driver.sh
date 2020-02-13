@@ -93,6 +93,13 @@ setup_variables() {
                      -append "console=ttyAMA0" )
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
 
+    "mips")
+      config=malta_defconfig
+      image_name=vmlinux
+      using_qemu=false
+      export ARCH=mips
+      export CROSS_COMPILE=mips-linux-gnu- ;;
+
     "mipsel")
       config=malta_defconfig
       image_name=vmlinux
@@ -340,6 +347,7 @@ build_linux() {
     # Disable LTO and CFI unless explicitly requested
     ${disable_lto:=true} && ./scripts/config -d CONFIG_LTO -d CONFIG_LTO_CLANG
   fi
+  [[ $SUBARCH == "mips" ]] && ./scripts/config -e CPU_BIG_ENDIAN -d CPU_LITTLE_ENDIAN
   # Make sure we build with CONFIG_DEBUG_SECTION_MISMATCH so that the
   # full warning gets printed and we can file and fix it properly.
   ./scripts/config -e DEBUG_SECTION_MISMATCH

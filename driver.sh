@@ -96,7 +96,10 @@ setup_variables() {
     "mips")
       config=malta_defconfig
       image_name=vmlinux
-      using_qemu=false
+      qemu="qemu-system-mips"
+      qemu_cmdline=( -machine malta
+                     -cpu 24Kf
+                     -initrd "images/mips/rootfs.cpio" )
       export ARCH=mips
       export CROSS_COMPILE=mips-linux-gnu- ;;
 

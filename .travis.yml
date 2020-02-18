@@ -10,6 +10,8 @@ jobs:
       env: ARCH=arm32_v7 LD=ld.lld-11
     - name: "ARCH=arm64 LD=ld.lld"
       env: ARCH=arm64 LD=ld.lld-11
+    - name: "ARCH=mips"
+      env: ARCH=mips
     - name: "ARCH=mipsel"
       env: ARCH=mipsel
     - name: "ARCH=ppc32"
@@ -37,6 +39,9 @@ jobs:
     - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
       env: ARCH=arm64 LD=ld.lld-11 REPO=linux-next
       if: type = cron
+    - name: "ARCH=mips REPO=linux-next"
+      env: ARCH=mips REPO=linux-next
+      if: type = cron
     - name: "ARCH=mipsel REPO=linux-next"
       env: ARCH=mipsel REPO=linux-next
       if: type = cron
@@ -61,6 +66,9 @@ jobs:
       if: type = cron
     - name: "ARCH=arm64 LD=ld.lld REPO=5.4"
       env: ARCH=arm64 LD=ld.lld-11 REPO=5.4
+      if: type = cron
+    - name: "ARCH=mips REPO=5.4"
+      env: ARCH=mips REPO=5.4
       if: type = cron
     - name: "ARCH=mipsel REPO=5.4"
       env: ARCH=mipsel REPO=5.4
@@ -153,6 +161,9 @@ jobs:
       if: type = cron
     - name: "ARCH=arm64 LLVM_VERSION=10"
       env: ARCH=arm64 LLVM_VERSION=10
+      if: type = cron
+    - name: "ARCH=mips LLVM_VERSION=10"
+      env: ARCH=mips LLVM_VERSION=10
       if: type = cron
     - name: "ARCH=mipsel LLVM_VERSION=10"
       env: ARCH=mipsel LLVM_VERSION=10

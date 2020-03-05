@@ -1,0 +1,14 @@
+diff --git a/arch/arm/vfp/Makefile b/arch/arm/vfp/Makefile
+index 9975b63ac3b0..5a36b8c4b4db 100644
+--- a/arch/arm/vfp/Makefile
++++ b/arch/arm/vfp/Makefile
+@@ -8,6 +8,6 @@
+ # ccflags-y := -DDEBUG
+ # asflags-y := -DDEBUG
+ 
+-KBUILD_AFLAGS	:=$(KBUILD_AFLAGS:-msoft-float=-Wa,-mfpu=softvfp+vfp -mfloat-abi=soft)
++KBUILD_AFLAGS	:=$(KBUILD_AFLAGS:-msoft-float=-Wa,-mfpu=vfpv2 -mfloat-abi=soft)
+ 
+ obj-y		+= vfpmodule.o entry.o vfphw.o vfpsingle.o vfpdouble.o
+-- 
+2.24.0.393.g34dc348eaf-goog

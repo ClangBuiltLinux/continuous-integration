@@ -1,4 +1,4 @@
-From 0e9225eb0dfec51def612b928d2f1836b092bc7e Mon Sep 17 00:00:00 2001
+From 35595372d95c0d10784bce1aec8cc144a39eb66d Mon Sep 17 00:00:00 2001
 From: Dirk Mueller <dmueller@suse.com>
 Date: Tue, 14 Jan 2020 18:53:41 +0100
 Subject: Remove redundant YYLOC global declaration
@@ -26,14 +26,16 @@ which means the declaration is completely redundant and can just be
 dropped.
 
 Signed-off-by: Dirk Mueller <dmueller@suse.com>
-Message-Id: <20200114175341.2994-1-dmueller@suse.com>
 Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+[robh: cherry-pick from upstream]
+Cc: stable@vger.kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 ---
- dtc-lexer.l | 1 -
+ scripts/dtc/dtc-lexer.l | 1 -
  1 file changed, 1 deletion(-)
 
 diff --git a/scripts/dtc/dtc-lexer.l b/scripts/dtc/dtc-lexer.l
-index 5c6c3fd..b3b7270 100644
+index 5c6c3fd557d7..b3b7270300de 100644
 --- a/scripts/dtc/dtc-lexer.l
 +++ b/scripts/dtc/dtc-lexer.l
 @@ -23,7 +23,6 @@ LINECOMMENT	"//".*\n

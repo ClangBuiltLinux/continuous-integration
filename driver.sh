@@ -149,6 +149,12 @@ setup_variables() {
       export ARCH=powerpc
       export CROSS_COMPILE=powerpc64le-linux-gnu- ;;
 
+    "riscv")
+      config=defconfig
+      image_name=vmlinux
+      using_qemu=false
+      export CROSS_COMPILE=riscv64-linux-gnu- ;;
+
     "s390")
         config=defconfig
         image_name=bzImage

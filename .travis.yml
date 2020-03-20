@@ -2,28 +2,8 @@ language: cpp
 jobs:
   include:
     # linux
-    - name: "ARCH=arm32_v5 LD=ld.lld"
-      env: ARCH=arm32_v5 LD=ld.lld-11
-    - name: "ARCH=arm32_v6"
-      env: ARCH=arm32_v6
-    - name: "ARCH=arm32_v7 LD=ld.lld"
-      env: ARCH=arm32_v7 LD=ld.lld-11
-    - name: "ARCH=arm64 LD=ld.lld"
-      env: ARCH=arm64 LD=ld.lld-11
-    - name: "ARCH=mips"
-      env: ARCH=mips
-    - name: "ARCH=mipsel"
-      env: ARCH=mipsel
-    - name: "ARCH=ppc32"
-      env: ARCH=ppc32
-    - name: "ARCH=ppc64"
-      env: ARCH=ppc64
-    - name: "ARCH=ppc64le LD=ld.lld"
-      env: ARCH=ppc64le LD=ld.lld-11
-    - name: "ARCH=s390 BOOT=0"
-      env: ARCH=s390
-    - name: "ARCH=x86_64 LD=ld.lld"
-      env: ARCH=x86_64 LD=ld.lld-11
+    - name: "ARCH=riscv LD=ld.lld REPO=linux-next BOOT=0"
+      env: ARCH=riscv LD=ld.lld-11 REPO=linux-next
     # linux (cron only)
     #
     # linux-next (cron only)

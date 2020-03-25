@@ -40,8 +40,7 @@ setup_variables() {
   esac
   [[ -z "${url:-}" ]] && url=git://git.kernel.org/pub/scm/linux/kernel/git/${owner}/${tree}.git
 
-  # arm64 is the current default if nothing is specified
-  SUBARCH=${ARCH:=arm64}
+  SUBARCH=${ARCH}
   case ${SUBARCH} in
     "arm32_v5")
       config=multi_v5_defconfig

@@ -2,28 +2,28 @@ language: cpp
 jobs:
   include:
     # linux
-    - name: "ARCH=arm32_v5 LD=ld.lld"
-      env: ARCH=arm32_v5 LD=ld.lld-11
-    - name: "ARCH=arm32_v6"
-      env: ARCH=arm32_v6
-    - name: "ARCH=arm32_v7 LD=ld.lld"
-      env: ARCH=arm32_v7 LD=ld.lld-11
-    - name: "ARCH=arm64 LD=ld.lld"
-      env: ARCH=arm64 LD=ld.lld-11
-    - name: "ARCH=mips"
-      env: ARCH=mips
-    - name: "ARCH=mipsel"
-      env: ARCH=mipsel
-    - name: "ARCH=ppc32"
-      env: ARCH=ppc32
-    - name: "ARCH=ppc64"
-      env: ARCH=ppc64
-    - name: "ARCH=ppc64le LD=ld.lld"
-      env: ARCH=ppc64le LD=ld.lld-11
-    - name: "ARCH=s390 BOOT=0"
-      env: ARCH=s390
-    - name: "ARCH=x86_64 LD=ld.lld"
-      env: ARCH=x86_64 LD=ld.lld-11
+    #- name: "ARCH=arm32_v5 LD=ld.lld"
+      #env: ARCH=arm32_v5 LD=ld.lld-11
+    #- name: "ARCH=arm32_v6"
+      #env: ARCH=arm32_v6
+    #- name: "ARCH=arm32_v7 LD=ld.lld"
+      #env: ARCH=arm32_v7 LD=ld.lld-11
+    #- name: "ARCH=arm64 LD=ld.lld"
+      #env: ARCH=arm64 LD=ld.lld-11
+    #- name: "ARCH=mips"
+      #env: ARCH=mips
+    #- name: "ARCH=mipsel"
+      #env: ARCH=mipsel
+    #- name: "ARCH=ppc32"
+      #env: ARCH=ppc32
+    #- name: "ARCH=ppc64"
+      #env: ARCH=ppc64
+    #- name: "ARCH=ppc64le LD=ld.lld"
+      #env: ARCH=ppc64le LD=ld.lld-11
+    #- name: "ARCH=s390 BOOT=0"
+      #env: ARCH=s390
+    #- name: "ARCH=x86_64 LD=ld.lld"
+      #env: ARCH=x86_64 LD=ld.lld-11
     # linux (cron only)
     #
     # linux-next (cron only)
@@ -183,6 +183,15 @@ jobs:
     - name: "ARCH=x86_64 LLVM_VERSION=10"
       env: ARCH=x86_64 LLVM_VERSION=10
       if: type = cron
+    - name: "ARCH=arm32_v7 LLVM_VERSION=9 TUX_BUILD=1"
+      env: ARCH=arm32_v7 LLVM_VERSION=9 TUX_BUILD=1
+      #if: type = cron
+    - name: "ARCH=arm64 LLVM_VERSION=9 TUX_BUILD=1"
+      env: ARCH=arm64 LLVM_VERSION=9 TUX_BUILD=1
+      #if: type = cron
+    - name: "ARCH=x86_64 LLVM_VERSION=9 TUX_BUILD=1"
+      env: ARCH=x86_64 LLVM_VERSION=9 TUX_BUILD=1
+      #if: type = cron
 compiler: gcc
 os: linux
 cache:
@@ -196,6 +205,8 @@ script:
         --env ARCH=${ARCH} \
         --env LD=${LD} \
         --env REPO=${REPO} \
+        --env TUX_BUILD=${TUX_BUILD} \
+        --env LLVM_VERSION=${LLVM_VERSION:-11} \
         --rm \
         --workdir /travis \
         --volume ${TRAVIS_BUILD_DIR}:/travis \

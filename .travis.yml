@@ -183,6 +183,15 @@ jobs:
     - name: "ARCH=x86_64 LLVM_VERSION=10"
       env: ARCH=x86_64 LLVM_VERSION=10
       if: type = cron
+    - name: "ARCH=arm32_v7 LLVM_VERSION=9 TUX_BUILD=1"
+      env: ARCH=arm32_v7 LLVM_VERSION=9 TUX_BUILD=1
+      if: type = cron
+    - name: "ARCH=arm64 LLVM_VERSION=9 TUX_BUILD=1"
+      env: ARCH=arm64 LLVM_VERSION=9 TUX_BUILD=1
+      if: type = cron
+    - name: "ARCH=x86_64 LLVM_VERSION=9 TUX_BUILD=1"
+      env: ARCH=x86_64 LLVM_VERSION=9 TUX_BUILD=1
+      if: type = cron
 compiler: gcc
 os: linux
 cache:
@@ -196,6 +205,8 @@ script:
         --env ARCH=${ARCH} \
         --env LD=${LD} \
         --env REPO=${REPO} \
+        --env TUX_BUILD=${TUX_BUILD} \
+        --env LLVM_VERSION=${LLVM_VERSION:-11} \
         --rm \
         --workdir /travis \
         --volume ${TRAVIS_BUILD_DIR}:/travis \

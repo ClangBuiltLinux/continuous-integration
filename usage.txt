@@ -39,6 +39,9 @@ Environment variables:
       If no OBJSIZE value is specified, the script will attempt to set OBJSIZE
       to llvm-size-10 llvm-size-9, llvm-size-8, llvm-size-7, llvm-size, then
       ${CROSS_COMPILE}size if they are found in PATH.
+  TUX_BUILD:
+      If set, will use the tuxbuild client to trigger a remote build on
+      tuxbuild. https://gitlab.com/Linaro/tuxbuild
 
 
 Optional parameters:

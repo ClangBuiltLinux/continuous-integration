@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJDUMP"=*|"OBJSIZE"=*|"REPO="*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJDUMP"=*|"OBJSIZE"=*|"REPO="*|"TUX_BUILD="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -195,11 +195,19 @@ gen_bin_list() {
 
 check_dependencies() {
   # Check for existence of needed binaries
-  command -v nproc
-  command -v "${CROSS_COMPILE:-}"as
   ${using_qemu:=true} && command -v ${qemu}
   command -v timeout
   command -v unbuffer
+
+  if [[ -n "${TUX_BUILD:=}" ]]; then
+    command -v python3
+    command -v tuxbuild
+    command -v wget
+    return 0
+  fi
+
+  command -v nproc
+  command -v "${CROSS_COMPILE:-}"as
 
   oldest_llvm_version=7
   latest_llvm_version=$(curl -LSs https://raw.githubusercontent.com/llvm/llvm-project/master/llvm/CMakeLists.txt | grep -s -F "set(LLVM_VERSION_MAJOR" | cut -d ' ' -f 4 | sed 's/)//')
@@ -306,6 +314,50 @@ mako_reactor() {
        "${@}"
 }
 
+build_via_tuxbuild() {
+  echo "tuxbuild"
+  # https://gitlab.com/Linaro/tuxbuild/-/issues/55
+  if [[ ${ARCH} == "x86_64" ]]; then
+    tux_arch=x86
+  else
+    tux_arch=${ARCH}
+  fi
+  # https://gitlab.com/Linaro/tuxbuild/-/issues/53
+  if [[ ${ARCH} == "arm64" ]]; then
+    tux_image=Image
+  else
+    tux_image=${image_name}
+  fi
+  # Example command:
+  # $ tuxbuild build \
+  #   --git-repo https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git \
+  #   --git-ref master --target-arch x86 --kconfig defconfig
+  #   --toolchain clang-9
+  # Example artifacts to play with:
+  # https://builds.tuxbuild.com/k4gifttltEVagDHstq0NoA/ x86 811
+  # https://builds.tuxbuild.com/neNnj76CSx8sDEbwlUHGbA/ arm64 31:06
+  # https://builds.tuxbuild.com/9ieKegqDeZBTCMaG3et7ig/ arm64
+  # https://builds.tuxbuild.com/rPqYnwW4B8xhi8i6atmcpg/ arm
+  cmd="tuxbuild build --git-repo ${url} --git-ref ${branch:=master} --target-arch ${tux_arch} --kconfig ${config} --toolchain clang-${LLVM_VERSION}"
+  echo "${cmd}"
+
+  # https://gitlab.com/Linaro/tuxbuild/-/issues/56
+  start=$(date +%s)
+  build_url=$(timeout 50m ${cmd} | grep -o https://builds.tuxbuild.com/.\* | head -n1)
+  end=$(date +%s)
+  runtime=$((${end}-${start}))
+  echo "tuxbuild took ${runtime} seconds: ${build_url}"
+
+  rm -f build.log
+  wget "${build_url}build.log" -O build.log
+  cat build.log
+
+  #kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
+  mkdir -p ${tree}/arch/${ARCH}/boot
+  rm -f "${tree}/arch/${ARCH}/boot/${image_name}"
+  wget "${build_url}${tux_image}" -O "${tree}/arch/${ARCH}/boot/${image_name}"
+}
+
 apply_patches() {
   patches_folder=$1
   if [[ -d ${patches_folder} ]]; then
@@ -316,6 +368,11 @@ apply_patches() {
 }
 
 build_linux() {
+  if [[ -n ${TUX_BUILD} ]]; then
+    build_via_tuxbuild
+    return 0
+  fi
+
   # Wrap CC in ccache if it is available (it's not strictly required)
   CC="$(command -v ccache) ${CC}"
   [[ ${LD} =~ lld ]] && HOSTLD=${LD}

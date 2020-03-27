@@ -194,6 +194,7 @@ script:
   - |
     docker run \
         --env ARCH=${ARCH} \
+        --env AS=${AS} \
         --env LD=${LD} \
         --env REPO=${REPO} \
         --rm \

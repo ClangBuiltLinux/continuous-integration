@@ -13,6 +13,8 @@ Environment variables:
       If no AR value is specified, the script will attempt to set AR to
       llvm-ar-10 llvm-ar-9, llvm-ar-8, llvm-ar-7, llvm-ar, then
       ${CROSS_COMPILE}ar if they are found in PATH.
+  AS:
+      If no AS value is specified, ${CROSS_COMPILE}as is used.
   ARCH (required):
       If no ARCH value is specified, it's an error; there is no default.
       Currently, arm32_v7, arm32_v6, arm32_v5, arm64, mips, mipsel, ppc32,

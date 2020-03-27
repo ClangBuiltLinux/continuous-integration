@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"CC="*|"LD="*|"NM"=*|"OBJDUMP"=*|"OBJSIZE"=*|"REPO="*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"AS="*|"CC="*|"LD="*|"NM"=*|"OBJDUMP"=*|"OBJSIZE"=*|"REPO="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -211,11 +211,12 @@ check_dependencies() {
   # Check for LD, CC, and AR environmental variables
   # and print the version string of each. If CC and AR
   # don't exist, try to find them.
-  # lld isn't ready for all architectures so it's just
-  # simpler to fall back to GNU ld when LD isn't specified
-  # to avoid architecture specific selection logic.
+  # clang's integrated assembler and lld aren't ready for all architectures so
+  # it's just simpler to fall back to GNU as/ld when AS/LD isn't specified to
+  # avoid architecture specific selection logic.
 
   "${LD:="${CROSS_COMPILE:-}"ld}" --version
+  "${AS:="${CROSS_COMPILE:-}"as}" --version
 
   if [[ -z "${CC:-}" ]]; then
     for CC in $(gen_bin_list clang) clang; do
@@ -295,6 +296,7 @@ mako_reactor() {
   KBUILD_BUILD_HOST=clangbuiltlinux \
   make -j"${jobs:-$(nproc)}" \
        AR="${AR}" \
+       AS="${AS}" \
        CC="${CC}" \
        HOSTCC="${CC}" \
        HOSTLD="${HOSTLD:-ld}" \

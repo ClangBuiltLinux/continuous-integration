@@ -44,35 +44,20 @@ setup_variables() {
   case ${SUBARCH} in
     "arm32_v5")
       config=multi_v5_defconfig
-      image_name=zImage
-      qemu="qemu-system-arm"
-      qemu_cmdline=( -machine palmetto-bmc
-                     -no-reboot
-                     -dtb "${tree}/arch/arm/boot/dts/aspeed-bmc-opp-palmetto.dtb"
-                     -initrd "images/arm/rootfs.cpio" )
+      make_target=zImage
       export ARCH=arm
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
 
     "arm32_v6")
       config=aspeed_g5_defconfig
-      image_name=zImage
+      make_target=zImage
       timeout=4 # This architecture needs a bit of a longer timeout due to some flakiness on Travis
-      qemu="qemu-system-arm"
-      qemu_cmdline=( -machine romulus-bmc
-                     -no-reboot
-                     -dtb "${tree}/arch/arm/boot/dts/aspeed-bmc-opp-romulus.dtb"
-                     -initrd "images/arm/rootfs.cpio" )
       export ARCH=arm
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
 
     "arm32_v7")
       config=multi_v7_defconfig
-      image_name=zImage
-      qemu="qemu-system-arm"
-      qemu_cmdline=( -machine virt
-                     -no-reboot
-                     -initrd "images/arm/rootfs.cpio"
-                     -append "console=ttyAMA0" )
+      make_target=zImage
       export ARCH=arm
       export CROSS_COMPILE=arm-linux-gnueabi- ;;
 
@@ -85,81 +70,51 @@ setup_variables() {
           esac ;;
         *) config=defconfig ;;
       esac
-      image_name=Image.gz
-      qemu="qemu-system-aarch64"
-      qemu_cmdline=( -cpu cortex-a57
-                     -initrd "images/arm64/rootfs.cpio"
-                     -append "console=ttyAMA0" )
+      make_target=Image.gz
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
 
     "mips")
       config=malta_defconfig
-      image_name=vmlinux
-      qemu="qemu-system-mips"
-      qemu_cmdline=( -machine malta
-                     -cpu 24Kf
-                     -initrd "images/mips/rootfs.cpio" )
+      make_target=vmlinux
       export ARCH=mips
       export CROSS_COMPILE=mips-linux-gnu- ;;
 
     "mipsel")
       config=malta_defconfig
-      image_name=vmlinux
-      qemu="qemu-system-mipsel"
-      qemu_cmdline=( -machine malta
-                     -cpu 24Kf
-                     -initrd "images/mipsel/rootfs.cpio" )
+      make_target=vmlinux
       export ARCH=mips
       export CROSS_COMPILE=mipsel-linux-gnu- ;;
 
     "ppc32")
       config=ppc44x_defconfig
-      image_name=zImage
-      qemu="qemu-system-ppc"
-      qemu_ram=128m
-      qemu_cmdline=( -machine bamboo
-                     -append "console=ttyS0"
-                     -no-reboot
-                     -initrd "images/ppc32/rootfs.cpio" )
+      make_target=zImage
       export ARCH=powerpc
       export CROSS_COMPILE=powerpc-linux-gnu- ;;
 
     "ppc64")
       config=pseries_defconfig
-      qemu="qemu-system-ppc64"
-      image_name=vmlinux
-      qemu_ram=1G
-      qemu_cmdline=( -machine pseries
-                     -vga none
-                     -initrd "images/ppc64/rootfs.cpio" )
+      make_target=vmlinux
       export ARCH=powerpc
       export CROSS_COMPILE=powerpc64-linux-gnu- ;;
 
     "ppc64le")
       config=powernv_defconfig
-      image_name=zImage.epapr
-      qemu="qemu-system-ppc64"
-      qemu_ram=2G
-      qemu_cmdline=( -machine powernv
-                     -device "ipmi-bmc-sim,id=bmc0"
-                     -device "isa-ipmi-bt,bmc=bmc0,irq=10"
-                     -L images/ppc64le/ -bios skiboot.lid
-                     -initrd images/ppc64le/rootfs.cpio )
+      make_target=zImage.epapr
       export ARCH=powerpc
       export CROSS_COMPILE=powerpc64le-linux-gnu- ;;
 
     "riscv")
       config=defconfig
-      image_name=vmlinux
+      make_target=vmlinux
       using_qemu=false
       export CROSS_COMPILE=riscv64-linux-gnu- ;;
 
     "s390")
-        config=defconfig
-        image_name=bzImage
-        using_qemu=false
-        OBJDUMP=s390x-linux-gnu-objdump
-        export CROSS_COMPILE=s390x-linux-gnu- ;;
+      config=defconfig
+      make_target=bzImage
+      using_qemu=false
+      OBJDUMP=s390x-linux-gnu-objdump
+      export CROSS_COMPILE=s390x-linux-gnu- ;;
 
     "x86_64")
       case ${REPO} in
@@ -171,13 +126,7 @@ setup_variables() {
         *)
           config=defconfig ;;
       esac
-
-      qemu_cmdline=( -append "console=ttyS0"
-                     -initrd "images/x86_64/rootfs.cpio" )
-      # Use KVM if the processor supports it (first part) and the KVM module is loaded (second part)
-      [[ $(grep -c -E 'vmx|svm' /proc/cpuinfo) -gt 0 && $(lsmod 2>/dev/null | grep -c kvm) -gt 0 ]] && qemu_cmdline=( "${qemu_cmdline[@]}" -enable-kvm )
-      image_name=bzImage
-      qemu="qemu-system-x86_64" ;;
+      make_target=bzImage ;;
 
     # Unknown arch, error out
     *)
@@ -185,6 +134,21 @@ setup_variables() {
       exit 1 ;;
   esac
   export ARCH=${ARCH}
+}
+
+# Clone/update the boot-utils
+# It would be nice to use submodules for this but those don't always play well with Travis
+# https://github.com/ClangBuiltLinux/continuous-integration/commit/e9054499bb1cb1a51cd1cdc73dc3c1dfa45b4199
+function update_boot_utils() {
+  images_url=https://github.com/ClangBuiltLinux/boot-utils
+  if [[ -d boot-utils ]]; then
+    cd boot-utils
+    git fetch --depth=1 ${images_url} master
+    git reset --hard FETCH_HEAD
+    cd ..
+  else
+    git clone --depth=1 ${images_url}
+  fi
 }
 
 # Generates a list of binary versions based on latest_llvm_version and oldest_llvm_version
@@ -197,9 +161,11 @@ check_dependencies() {
   # Check for existence of needed binaries
   command -v nproc
   command -v "${CROSS_COMPILE:-}"as
-  ${using_qemu:=true} && command -v ${qemu}
   command -v timeout
   command -v unbuffer
+  command -v zstd
+
+  update_boot_utils
 
   oldest_llvm_version=7
   latest_llvm_version=$(curl -LSs https://raw.githubusercontent.com/llvm/llvm-project/master/llvm/CMakeLists.txt | grep -s -F "set(LLVM_VERSION_MAJOR" | cut -d ' ' -f 4 | sed 's/)//')
@@ -362,7 +328,7 @@ build_linux() {
   # full warning gets printed and we can file and fix it properly.
   ./scripts/config -e DEBUG_SECTION_MISMATCH
   mako_reactor olddefconfig &>/dev/null
-  mako_reactor ${image_name}
+  mako_reactor ${make_target}
   [[ $ARCH =~ arm ]] && mako_reactor dtbs
   ${readelf} --string-dump=.comment vmlinux
 
@@ -370,32 +336,8 @@ build_linux() {
 }
 
 boot_qemu() {
-  if ! ${using_qemu}; then
-    return 0;
-  fi
-  local kernel_image
-  if [[ ${image_name} = "vmlinux" ]]; then
-    kernel_image=${tree}/vmlinux
-  else
-    kernel_image=${tree}/arch/${ARCH}/boot/${image_name}
-  fi
-
-  test -e ${kernel_image}
-  qemu=( timeout "${timeout:-2}"m
-         unbuffer
-         "${qemu}"
-         -m "${qemu_ram:=512m}"
-         "${qemu_cmdline[@]}"
-         -display none
-         -serial mon:stdio
-         -kernel "${kernel_image}" )
-  # For arm64, we want to test booting at both EL1 and EL2
-  if [[ ${ARCH} = "arm64" ]]; then
-    "${qemu[@]}" -machine virt
-    "${qemu[@]}" -machine "virt,virtualization=true"
-  else
-    "${qemu[@]}"
-  fi
+  ${using_qemu:=true} || return 0
+  ./boot-utils/boot-qemu.sh -a "${SUBARCH}" -k "${tree}" -t "${timeout:-2}"m
 }
 
 setup_variables "${@}"

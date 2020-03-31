@@ -1,6 +1,7 @@
 *.swp
 *.tar.gz
 .ccache
+/boot-utils/
 /common/
 /linux/
 /linux-next/

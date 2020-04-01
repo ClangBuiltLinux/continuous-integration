@@ -54,8 +54,8 @@ jobs:
     - name: "ARCH=ppc64le LD=ld.lld REPO=linux-next"
       env: ARCH=ppc64le LD=ld.lld REPO=linux-next
       if: type = cron
-    - name: "ARCH=riscv REPO=linux-next BOOT=0"
-      env: ARCH=riscv REPO=linux-next
+    - name: "ARCH=riscv AS=clang REPO=linux-next BOOT=0"
+      env: ARCH=riscv AS=clang REPO=linux-next
       if: type = cron
     - name: "ARCH=s390 BOOT=0 REPO=linux-next"
       env: ARCH=s390 REPO=linux-next

@@ -27,10 +27,6 @@ grep "env:" .travis.yml | grep -v LLVM_VERSION | sed "s/.*env: //g" | while read
         export "${VALUE:?}"
     done
 
-    # Make sure that the version suffix is stripped for local builds,
-    # where it is assumed that the user will be using a tip of tree build
-    [[ -n ${LD} ]] && export LD=${LD//-*}
-
     echo -e "Running '${ARCH:+ARCH=${ARCH} }${LD:+LD=${LD} }${REPO:+REPO=${REPO} }./driver.sh'... \c"
     if ! ./driver.sh "${@}" &>/dev/null; then
         echo -e "${RED}Failed${RESET}\c"

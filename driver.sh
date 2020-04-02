@@ -113,8 +113,12 @@ setup_variables() {
       config=defconfig
       make_target=bzImage
       using_qemu=false
-      OBJDUMP=s390x-linux-gnu-objdump
-      export CROSS_COMPILE=s390x-linux-gnu- ;;
+      export CROSS_COMPILE=s390x-linux-gnu-
+
+      # llvm-objcopy: error: invalid output format: 'elf64-s390'
+      # https://github.com/llvm/llvm-project/blob/llvmorg-11-init/llvm/tools/llvm-objcopy/CopyConfig.cpp#L242-L275
+      OBJCOPY=${CROSS_COMPILE}objcopy
+      OBJDUMP=${CROSS_COMPILE}objdump ;;
 
     "x86_64")
       case ${REPO} in
@@ -221,6 +225,12 @@ check_dependencies() {
     done
   fi
 
+  if [[ -z "${OBJCOPY:-}" ]]; then
+    for OBJCOPY in llvm-objcopy "${CROSS_COMPILE:-}"objcopy; do
+      command -v "${OBJCOPY}" 2>/dev/null && break
+    done
+  fi
+
   if [[ -z "${OBJDUMP:-}" ]]; then
     for OBJDUMP in llvm-objdump "${CROSS_COMPILE:-}"objdump; do
       command -v "${OBJDUMP}" 2>/dev/null && break
@@ -232,6 +242,16 @@ check_dependencies() {
       command -v "${OBJSIZE}" 2>/dev/null && break
     done
   fi
+
+  if [[ -z "${STRIP:-}" ]]; then
+    for STRIP in llvm-strip "${CROSS_COMPILE:-}"strip; do
+      command -v "${STRIP}" 2>/dev/null && break
+    done
+  fi
+
+  check_objcopy_strip_version
+  "${OBJCOPY}" --version
+  "${STRIP}" --version
 }
 
 # Optimistically check to see that the user has a llvm-ar
@@ -255,6 +275,31 @@ check_ar_version() {
   fi
 }
 
+# Optimistically check to see that the user has an llvm-{objcopy,strip}
+# with https://reviews.llvm.org/rGedeebad7715774b8481103733dc5d52dac43bdf3.
+# If they don't, fall back to GNU objcopy and let them know.
+check_objcopy_strip_version() {
+  for TOOL in ${OBJCOPY} ${STRIP}; do
+    if ${TOOL} --version | grep -q "LLVM" && \
+       [[ $(${TOOL} --version | grep version | sed -e 's/.*LLVM version //g' -e 's/[[:blank:]]*$//' -e 's/\.//g' -e 's/svn//' -e 's/git//' ) -lt 1000 ]]; then
+      set +x
+      echo
+      echo "${TOOL} found but appears to be too old to build the kernel (needs to be at least 10.0.0)."
+      echo
+      echo "Please either update ${TOOL} from your distro or build it from source!"
+      echo
+      echo "See https://github.com/ClangBuiltLinux/linux/issues/478 for more info."
+      echo
+      echo "Falling back to GNU ${TOOL//llvm-}..."
+      echo
+      case ${TOOL} in
+        *objcopy*) OBJCOPY=${CROSS_COMPILE:-}objcopy ;;
+        *strip*) STRIP=${CROSS_COMPILE:-}strip ;;
+      esac
+      set -x
+    fi
+  done
+}
 mako_reactor() {
   # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/kbuild/kbuild.txt
   time \
@@ -270,8 +315,10 @@ mako_reactor() {
        KCFLAGS="-Wno-implicit-fallthrough" \
        LD="${LD}" \
        NM="${NM}" \
+       OBJCOPY="${OBJCOPY}" \
        OBJDUMP="${OBJDUMP}" \
        OBJSIZE="${OBJSIZE}" \
+       STRIP="${STRIP}" \
        "${@}"
 }
 

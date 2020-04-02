@@ -318,6 +318,7 @@ mako_reactor() {
        OBJCOPY="${OBJCOPY}" \
        OBJDUMP="${OBJDUMP}" \
        OBJSIZE="${OBJSIZE}" \
+       READELF="${READELF}" \
        STRIP="${STRIP}" \
        "${@}"
 }

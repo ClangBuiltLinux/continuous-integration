@@ -210,3 +210,4 @@ notifications:
       - natechancellor@gmail.com
     on_success: never
     on_failure: always
+    if: type = cron

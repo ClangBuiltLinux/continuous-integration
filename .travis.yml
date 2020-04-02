@@ -3,13 +3,13 @@ jobs:
   include:
     # linux
     - name: "ARCH=arm32_v5 LD=ld.lld"
-      env: ARCH=arm32_v5 LD=ld.lld-11
+      env: ARCH=arm32_v5 LD=ld.lld
     - name: "ARCH=arm32_v6"
       env: ARCH=arm32_v6
     - name: "ARCH=arm32_v7 LD=ld.lld"
-      env: ARCH=arm32_v7 LD=ld.lld-11
+      env: ARCH=arm32_v7 LD=ld.lld
     - name: "ARCH=arm64 LD=ld.lld"
-      env: ARCH=arm64 LD=ld.lld-11
+      env: ARCH=arm64 LD=ld.lld
     - name: "ARCH=mips"
       env: ARCH=mips
     - name: "ARCH=mipsel"
@@ -19,25 +19,25 @@ jobs:
     - name: "ARCH=ppc64"
       env: ARCH=ppc64
     - name: "ARCH=ppc64le LD=ld.lld"
-      env: ARCH=ppc64le LD=ld.lld-11
+      env: ARCH=ppc64le LD=ld.lld
     - name: "ARCH=s390 BOOT=0"
       env: ARCH=s390
     - name: "ARCH=x86_64 LD=ld.lld"
-      env: ARCH=x86_64 LD=ld.lld-11
+      env: ARCH=x86_64 LD=ld.lld
     # linux (cron only)
     #
     # linux-next (cron only)
     - name: "ARCH=arm32_v5 LD=ld.lld REPO=linux-next"
-      env: ARCH=arm32_v5 LD=ld.lld-11 REPO=linux-next
+      env: ARCH=arm32_v5 LD=ld.lld REPO=linux-next
       if: type = cron
     - name: "ARCH=arm32_v6 REPO=linux-next"
       env: ARCH=arm32_v6 REPO=linux-next
       if: type = cron
     - name: "ARCH=arm32_v7 LD=ld.lld REPO=linux-next"
-      env: ARCH=arm32_v7 LD=ld.lld-11 REPO=linux-next
+      env: ARCH=arm32_v7 LD=ld.lld REPO=linux-next
       if: type = cron
     - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
-      env: ARCH=arm64 LD=ld.lld-11 REPO=linux-next
+      env: ARCH=arm64 LD=ld.lld REPO=linux-next
       if: type = cron
     - name: "ARCH=mips REPO=linux-next"
       env: ARCH=mips REPO=linux-next
@@ -52,7 +52,7 @@ jobs:
       env: ARCH=ppc64 REPO=linux-next
       if: type = cron
     - name: "ARCH=ppc64le LD=ld.lld REPO=linux-next"
-      env: ARCH=ppc64le LD=ld.lld-11 REPO=linux-next
+      env: ARCH=ppc64le LD=ld.lld REPO=linux-next
       if: type = cron
     - name: "ARCH=riscv REPO=linux-next BOOT=0"
       env: ARCH=riscv REPO=linux-next
@@ -61,14 +61,14 @@ jobs:
       env: ARCH=s390 REPO=linux-next
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=linux-next"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=linux-next
+      env: ARCH=x86_64 LD=ld.lld REPO=linux-next
       if: type = cron
     # stable
     - name: "ARCH=arm32_v7 LD=ld.lld REPO=5.4"
-      env: ARCH=arm32_v7 LD=ld.lld-11 REPO=5.4
+      env: ARCH=arm32_v7 LD=ld.lld REPO=5.4
       if: type = cron
     - name: "ARCH=arm64 LD=ld.lld REPO=5.4"
-      env: ARCH=arm64 LD=ld.lld-11 REPO=5.4
+      env: ARCH=arm64 LD=ld.lld REPO=5.4
       if: type = cron
     - name: "ARCH=mips REPO=5.4"
       env: ARCH=mips REPO=5.4
@@ -80,31 +80,31 @@ jobs:
       env: ARCH=ppc32 REPO=5.4
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=5.4"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=5.4
+      env: ARCH=x86_64 LD=ld.lld REPO=5.4
       if: type = cron
     - name: "ARCH=arm32_v7 REPO=4.19"
       env: ARCH=arm32_v7 REPO=4.19
       if: type = cron
     - name: "ARCH=arm64 LD=ld.lld REPO=4.19"
-      env: ARCH=arm64 LD=ld.lld-11 REPO=4.19
+      env: ARCH=arm64 LD=ld.lld REPO=4.19
       if: type = cron
     - name: "ARCH=ppc64le REPO=4.19"
       env: ARCH=ppc64le REPO=4.19
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.19"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=4.19
+      env: ARCH=x86_64 LD=ld.lld REPO=4.19
       if: type = cron
     - name: "ARCH=arm32_v7 REPO=4.14"
       env: ARCH=arm32_v7 REPO=4.14
       if: type = cron
     - name: "ARCH=arm64 LD=ld.lld REPO=4.14"
-      env: ARCH=arm64 LD=ld.lld-11 REPO=4.14
+      env: ARCH=arm64 LD=ld.lld REPO=4.14
       if: type = cron
     - name: "ARCH=ppc64le REPO=4.14"
       env: ARCH=ppc64le REPO=4.14
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.14"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=4.14
+      env: ARCH=x86_64 LD=ld.lld REPO=4.14
       if: type = cron
     - name: "ARCH=arm32_v7 REPO=4.9"
       env: ARCH=arm32_v7 REPO=4.9
@@ -113,13 +113,13 @@ jobs:
       env: ARCH=arm64 REPO=4.9
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.9"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=4.9
+      env: ARCH=x86_64 LD=ld.lld REPO=4.9
       if: type = cron
     - name: "ARCH=arm64 REPO=4.4"
       env: ARCH=arm64 REPO=4.4
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=4.4"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=4.4
+      env: ARCH=x86_64 LD=ld.lld REPO=4.4
       if: type = cron
     # kernel/common
     - name: "ARCH=arm64 REPO=android-4.9-q"
@@ -138,29 +138,29 @@ jobs:
       env: ARCH=arm64 REPO=android-mainline
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.9-q"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=android-4.9-q
+      env: ARCH=x86_64 LD=ld.lld REPO=android-4.9-q
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.14"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=android-4.14
+      env: ARCH=x86_64 LD=ld.lld REPO=android-4.14
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.19"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=android-4.19
+      env: ARCH=x86_64 LD=ld.lld REPO=android-4.19
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-5.4"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=android-5.4
+      env: ARCH=x86_64 LD=ld.lld REPO=android-5.4
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-mainline"
-      env: ARCH=x86_64 LD=ld.lld-11 REPO=android-mainline
+      env: ARCH=x86_64 LD=ld.lld REPO=android-mainline
       if: type = cron
     # linux with stable LLVM/Clang
     - name: "ARCH=arm32_v5 LD=ld.lld LLVM_VERSION=10"
-      env: ARCH=arm32_v5 LD=ld.lld-10 LLVM_VERSION=10
+      env: ARCH=arm32_v5 LD=ld.lld LLVM_VERSION=10
       if: type = cron
     - name: "ARCH=arm32_v6 LLVM_VERSION=10"
       env: ARCH=arm32_v6 LLVM_VERSION=10
       if: type = cron
     - name: "ARCH=arm32_v7 LD=ld.lld LLVM_VERSION=10"
-      env: ARCH=arm32_v7 LD=ld.lld-10 LLVM_VERSION=10
+      env: ARCH=arm32_v7 LD=ld.lld LLVM_VERSION=10
       if: type = cron
     - name: "ARCH=arm64 LLVM_VERSION=10"
       env: ARCH=arm64 LLVM_VERSION=10

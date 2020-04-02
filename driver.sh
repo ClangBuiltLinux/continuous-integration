@@ -151,11 +151,6 @@ function update_boot_utils() {
   fi
 }
 
-# Generates a list of binary versions based on latest_llvm_version and oldest_llvm_version
-# Example: gen_bin_list clang spits out clang-10 clang-9 clang-8...
-gen_bin_list() {
-    seq -f "${1:?}-%.0f" "${latest_llvm_version}" -1 "${oldest_llvm_version}"
-}
 
 check_dependencies() {
   # Check for existence of needed binaries
@@ -170,9 +165,16 @@ check_dependencies() {
   oldest_llvm_version=7
   latest_llvm_version=$(curl -LSs https://raw.githubusercontent.com/llvm/llvm-project/master/llvm/CMakeLists.txt | grep -s -F "set(LLVM_VERSION_MAJOR" | cut -d ' ' -f 4 | sed 's/)//')
 
-  for readelf in $(gen_bin_list llvm-readelf) llvm-readelf; do
-    command -v ${readelf} &>/dev/null && break
+  for llvm_version in $(seq "${latest_llvm_version}" -1 "${oldest_llvm_version}"); do
+    debian_llvm_bin=/usr/lib/llvm-${llvm_version}/bin
+    if [[ -d ${debian_llvm_bin} ]]; then
+      export PATH=${debian_llvm_bin}:${PATH}
+      break
+    fi
   done
+
+  READELF=llvm-readelf
+  command -v "${READELF}"
 
   # Check for LD, CC, and AR environmental variables
   # and print the version string of each. If CC and AR
@@ -185,9 +187,8 @@ check_dependencies() {
   "${AS:="${CROSS_COMPILE:-}"as}" --version
 
   if [[ -z "${CC:-}" ]]; then
-    for CC in $(gen_bin_list clang) clang; do
-      command -v ${CC} &>/dev/null && break
-    done
+    CC=clang
+    command -v "${CC}"
   fi
   ${CC} --version 2>/dev/null || {
     set +x
@@ -207,28 +208,28 @@ check_dependencies() {
   }
 
   if [[ -z "${AR:-}" ]]; then
-    for AR in $(gen_bin_list llvm-ar) llvm-ar "${CROSS_COMPILE:-}"ar; do
-      command -v ${AR} 2>/dev/null && break
+    for AR in llvm-ar "${CROSS_COMPILE:-}"ar; do
+      command -v "${AR}" 2>/dev/null && break
     done
   fi
   check_ar_version
-  ${AR} --version
+  "${AR}" --version
 
   if [[ -z "${NM:-}" ]]; then
-    for NM in $(gen_bin_list llvm-nm) llvm-nm "${CROSS_COMPILE:-}"nm; do
-      command -v ${NM} 2>/dev/null && break
+    for NM in llvm-nm "${CROSS_COMPILE:-}"nm; do
+      command -v "${NM}" 2>/dev/null && break
     done
   fi
 
   if [[ -z "${OBJDUMP:-}" ]]; then
-    for OBJDUMP in $(gen_bin_list llvm-objdump) llvm-objdump "${CROSS_COMPILE:-}"objdump; do
-      command -v ${OBJDUMP} 2>/dev/null && break
+    for OBJDUMP in llvm-objdump "${CROSS_COMPILE:-}"objdump; do
+      command -v "${OBJDUMP}" 2>/dev/null && break
     done
   fi
 
   if [[ -z "${OBJSIZE:-}" ]]; then
-    for OBJSIZE in $(gen_bin_list llvm-size) llvm-size "${CROSS_COMPILE:-}"size; do
-      command -v ${OBJSIZE} 2>/dev/null && break
+    for OBJSIZE in llvm-size "${CROSS_COMPILE:-}"size; do
+      command -v "${OBJSIZE}" 2>/dev/null && break
     done
   fi
 }
@@ -330,7 +331,7 @@ build_linux() {
   mako_reactor olddefconfig &>/dev/null
   mako_reactor ${make_target}
   [[ $ARCH =~ arm ]] && mako_reactor dtbs
-  ${readelf} --string-dump=.comment vmlinux
+  "${READELF}" --string-dump=.comment vmlinux
 
   cd "${OLDPWD}"
 }

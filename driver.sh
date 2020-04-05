@@ -74,13 +74,13 @@ setup_variables() {
       export CROSS_COMPILE=aarch64-linux-gnu- ;;
 
     "mips")
-      config=malta_defconfig
+      config=malta_kvm_guest_defconfig
       make_target=vmlinux
       export ARCH=mips
       export CROSS_COMPILE=mips-linux-gnu- ;;
 
     "mipsel")
-      config=malta_defconfig
+      config=malta_kvm_guest_defconfig
       make_target=vmlinux
       export ARCH=mips
       export CROSS_COMPILE=mipsel-linux-gnu- ;;

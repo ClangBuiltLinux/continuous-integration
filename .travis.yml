@@ -10,10 +10,10 @@ jobs:
       env: ARCH=arm32_v7 LD=ld.lld
     - name: "ARCH=arm64 LD=ld.lld"
       env: ARCH=arm64 LD=ld.lld
-    - name: "ARCH=mips"
-      env: ARCH=mips
-    - name: "ARCH=mipsel"
-      env: ARCH=mipsel
+    - name: "ARCH=mips LD=ld.lld"
+      env: ARCH=mips LD=ld.lld
+    - name: "ARCH=mipsel LD=ld.lld"
+      env: ARCH=mipsel LD=ld.lld
     - name: "ARCH=ppc32"
       env: ARCH=ppc32
     - name: "ARCH=ppc64"
@@ -39,11 +39,11 @@ jobs:
     - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
       env: ARCH=arm64 LD=ld.lld REPO=linux-next
       if: type = cron
-    - name: "ARCH=mips REPO=linux-next"
-      env: ARCH=mips REPO=linux-next
+    - name: "ARCH=mips LD=ld.lld REPO=linux-next"
+      env: ARCH=mips LD=ld.lld REPO=linux-next
       if: type = cron
-    - name: "ARCH=mipsel REPO=linux-next"
-      env: ARCH=mipsel REPO=linux-next
+    - name: "ARCH=mipsel LD=ld.lld REPO=linux-next"
+      env: ARCH=mipsel LD=ld.lld REPO=linux-next
       if: type = cron
     - name: "ARCH=ppc32 REPO=linux-next"
       env: ARCH=ppc32 REPO=linux-next
@@ -70,11 +70,11 @@ jobs:
     - name: "ARCH=arm64 LD=ld.lld REPO=5.4"
       env: ARCH=arm64 LD=ld.lld REPO=5.4
       if: type = cron
-    - name: "ARCH=mips REPO=5.4"
-      env: ARCH=mips REPO=5.4
+    - name: "ARCH=mips LD=ld.lld REPO=5.4"
+      env: ARCH=mips LD=ld.lld REPO=5.4
       if: type = cron
-    - name: "ARCH=mipsel REPO=5.4"
-      env: ARCH=mipsel REPO=5.4
+    - name: "ARCH=mipsel LD=ld.lld REPO=5.4"
+      env: ARCH=mipsel LD=ld.lld REPO=5.4
       if: type = cron
     - name: "ARCH=ppc32 REPO=5.4"
       env: ARCH=ppc32 REPO=5.4

@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
   while [[ ${#} -ge 1 ]]; do
     case ${1} in
-      "AR="*|"ARCH="*|"AS="*|"CC="*|"LD="*|"NM"=*|"OBJDUMP"=*|"OBJSIZE"=*|"REPO="*) export "${1?}" ;;
+      "AR="*|"ARCH="*|"CC="*|"LD="*|"LLVM_IAS="*|"NM"=*|"OBJDUMP"=*|"OBJSIZE"=*|"REPO="*) export "${1?}" ;;
       "-c"|"--clean") cleanup=true ;;
       "-j"|"--jobs") shift; jobs=$1 ;;
       "-j"*) jobs=${1/-j} ;;
@@ -159,7 +159,6 @@ function update_boot_utils() {
 check_dependencies() {
   # Check for existence of needed binaries
   command -v nproc
-  command -v "${CROSS_COMPILE:-}"as
   command -v timeout
   command -v unbuffer
   command -v zstd
@@ -188,7 +187,10 @@ check_dependencies() {
   # avoid architecture specific selection logic.
 
   "${LD:="${CROSS_COMPILE:-}"ld}" --version
-  "${AS:="${CROSS_COMPILE:-}"as}" --version
+  if [[ -z "${LLVM_IAS:-}" ]]; then
+    LLVM_IAS=0
+    command -v "${CROSS_COMPILE:-}"as
+  fi
 
   if [[ -z "${CC:-}" ]]; then
     CC=clang
@@ -308,12 +310,12 @@ mako_reactor() {
   KBUILD_BUILD_HOST=clangbuiltlinux \
   make -j"${jobs:-$(nproc)}" \
        AR="${AR}" \
-       AS="${AS}" \
        CC="${CC}" \
        HOSTCC="${CC}" \
        HOSTLD="${HOSTLD:-ld}" \
        KCFLAGS="-Wno-implicit-fallthrough" \
        LD="${LD}" \
+       LLVM_IAS="${LLVM_IAS}" \
        NM="${NM}" \
        OBJCOPY="${OBJCOPY}" \
        OBJDUMP="${OBJDUMP}" \

@@ -54,8 +54,8 @@ jobs:
     - name: "ARCH=ppc64le LD=ld.lld REPO=linux-next"
       env: ARCH=ppc64le LD=ld.lld REPO=linux-next
       if: type = cron
-    - name: "ARCH=riscv AS=clang REPO=linux-next BOOT=0"
-      env: ARCH=riscv AS=clang REPO=linux-next
+    - name: "ARCH=riscv LLVM_IAS=1 REPO=linux-next BOOT=0"
+      env: ARCH=riscv LLVM_IAS=1 REPO=linux-next
       if: type = cron
     - name: "ARCH=s390 BOOT=0 REPO=linux-next"
       env: ARCH=s390 REPO=linux-next
@@ -194,8 +194,8 @@ script:
   - |
     docker run \
         --env ARCH=${ARCH} \
-        --env AS=${AS} \
         --env LD=${LD} \
+        --env LLVM_IAS=${LLVM_IAS} \
         --env REPO=${REPO} \
         --rm \
         --workdir /travis \

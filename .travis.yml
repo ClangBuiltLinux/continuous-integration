@@ -125,8 +125,8 @@ jobs:
     - name: "ARCH=arm64 REPO=android-4.9-q"
       env: ARCH=arm64 REPO=android-4.9-q
       if: type = cron
-    - name: "ARCH=arm64 REPO=android-4.14"
-      env: ARCH=arm64 REPO=android-4.14
+    - name: "ARCH=arm64 REPO=android-4.14-stable"
+      env: ARCH=arm64 REPO=android-4.14-stable
       if: type = cron
     - name: "ARCH=arm64 REPO=android-4.19"
       env: ARCH=arm64 REPO=android-4.19
@@ -140,8 +140,8 @@ jobs:
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.9-q"
       env: ARCH=x86_64 LD=ld.lld REPO=android-4.9-q
       if: type = cron
-    - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.14"
-      env: ARCH=x86_64 LD=ld.lld REPO=android-4.14
+    - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.14-stable"
+      env: ARCH=x86_64 LD=ld.lld REPO=android-4.14-stable
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.19"
       env: ARCH=x86_64 LD=ld.lld REPO=android-4.19

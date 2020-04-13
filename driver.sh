@@ -65,7 +65,7 @@ setup_variables() {
       case ${REPO} in
         android-*)
           case ${branch} in
-            *4.9-q|*4.14) config=cuttlefish_defconfig ;;
+            *4.9-q|*4.14-stable) config=cuttlefish_defconfig ;;
             *) config=gki_defconfig ;;
           esac ;;
         *) config=defconfig ;;
@@ -124,7 +124,7 @@ setup_variables() {
       case ${REPO} in
         android-*)
           case ${branch} in
-            *4.9-q|*4.14) config=x86_64_cuttlefish_defconfig ;;
+            *4.9-q|*4.14-stable) config=x86_64_cuttlefish_defconfig ;;
             *) config=gki_defconfig ;;
           esac ;;
         *)

@@ -20,6 +20,8 @@ jobs:
       env: ARCH=ppc64
     - name: "ARCH=ppc64le LD=ld.lld"
       env: ARCH=ppc64le LD=ld.lld
+    - name: "ARCH=riscv LLVM_IAS=1 BOOT=0"
+      env: ARCH=riscv LLVM_IAS=1
     - name: "ARCH=s390 BOOT=0"
       env: ARCH=s390
     - name: "ARCH=x86_64 LD=ld.lld"

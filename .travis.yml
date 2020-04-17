@@ -202,7 +202,7 @@ script:
         --rm \
         --workdir /travis \
         --volume ${TRAVIS_BUILD_DIR}:/travis \
-        clangbuiltlinux/debian:llvm${LLVM_VERSION:-11}-latest /bin/bash -c './env-setup.sh && ./driver.sh && ccache -s'
+        clangbuiltlinux/ubuntu:llvm${LLVM_VERSION:-11}-latest /bin/bash -c './env-setup.sh && ./driver.sh && ccache -s'
 after_script:
   - sleep 1
 notifications:

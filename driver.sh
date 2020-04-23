@@ -136,11 +136,6 @@ setup_variables() {
             make_target=bzImage
             using_qemu=false
             export CROSS_COMPILE=s390x-linux-gnu-
-
-            # llvm-objcopy: error: invalid output format: 'elf64-s390'
-            # https://github.com/llvm/llvm-project/blob/llvmorg-11-init/llvm/tools/llvm-objcopy/CopyConfig.cpp#L242-L275
-            OBJCOPY=${CROSS_COMPILE}objcopy
-            OBJDUMP=${CROSS_COMPILE}objdump
             ;;
 
         "x86")
@@ -237,47 +232,40 @@ check_dependencies() {
     }
 
     if [[ -z "${AR:-}" ]]; then
-        for AR in llvm-ar "${CROSS_COMPILE:-}"ar; do
-            command -v "${AR}" 2>/dev/null && break
-        done
+        AR=llvm-ar
+        command -v "${AR}"
     fi
     check_ar_version
     "${AR}" --version
 
     if [[ -z "${NM:-}" ]]; then
-        for NM in llvm-nm "${CROSS_COMPILE:-}"nm; do
-            command -v "${NM}" 2>/dev/null && break
-        done
+        NM=llvm-nm
+        command -v "${NM}"
     fi
 
     if [[ -z "${OBJCOPY:-}" ]]; then
-        for OBJCOPY in llvm-objcopy "${CROSS_COMPILE:-}"objcopy; do
-            command -v "${OBJCOPY}" 2>/dev/null && break
-        done
+        OBJCOPY=llvm-objcopy
+        command -v "${OBJCOPY}"
     fi
 
     if [[ -z "${OBJDUMP:-}" ]]; then
-        for OBJDUMP in llvm-objdump "${CROSS_COMPILE:-}"objdump; do
-            command -v "${OBJDUMP}" 2>/dev/null && break
-        done
+        OBJDUMP=llvm-objdump
+        command -v "${OBJDUMP}"
     fi
 
     if [[ -z "${OBJSIZE:-}" ]]; then
-        for OBJSIZE in llvm-size "${CROSS_COMPILE:-}"size; do
-            command -v "${OBJSIZE}" 2>/dev/null && break
-        done
+        OBJSIZE=llvm-size
+        command -v "${OBJSIZE}"
     fi
 
     if [[ -z "${READELF:-}" ]]; then
-        for READELF in llvm-readelf "${CROSS_COMPILE:-}"readelf; do
-            command -v "${READELF}" 2>/dev/null && break
-        done
+        READELF=llvm-readelf
+        command -v "${READELF}"
     fi
 
     if [[ -z "${STRIP:-}" ]]; then
-        for STRIP in llvm-strip "${CROSS_COMPILE:-}"strip; do
-            command -v "${STRIP}" 2>/dev/null && break
-        done
+        STRIP=llvm-strip
+        command -v "${STRIP}"
     fi
 
     check_objcopy_strip_version
@@ -299,10 +287,7 @@ check_ar_version() {
         echo
         echo "See https://github.com/ClangBuiltLinux/linux/issues/33 for more info."
         echo
-        echo "Falling back to GNU ar..."
-        echo
-        AR=${CROSS_COMPILE:-}ar
-        set -x
+        exit
     fi
 }
 
@@ -321,13 +306,7 @@ check_objcopy_strip_version() {
             echo
             echo "See https://github.com/ClangBuiltLinux/linux/issues/478 for more info."
             echo
-            echo "Falling back to GNU ${TOOL//llvm-/}..."
-            echo
-            case ${TOOL} in
-                *objcopy*) OBJCOPY=${CROSS_COMPILE:-}objcopy ;;
-                *strip*) STRIP=${CROSS_COMPILE:-}strip ;;
-            esac
-            set -x
+            exit
         fi
     done
 }

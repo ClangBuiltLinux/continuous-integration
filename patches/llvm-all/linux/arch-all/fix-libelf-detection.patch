@@ -1,10 +1,10 @@
 diff --git a/Makefile b/Makefile
-index b37d0e8fc..884667480 100644
+index 49b2709ff4..831dd1401b 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -401,6 +401,9 @@ KBUILD_HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 \
+@@ -411,6 +411,9 @@ KBUILD_HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 \
  		$(HOSTCFLAGS)
- KBUILD_HOSTCXXFLAGS := -O2 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
+ KBUILD_HOSTCXXFLAGS := -Wall -O2 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
  KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
 +ifeq ($(shell $(HOSTLD) -v | grep -o ^LLD),LLD)
 +KBUILD_HOSTLDFLAGS += -fuse-ld=lld
@@ -12,7 +12,7 @@ index b37d0e8fc..884667480 100644
  KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
  
  # Make variables (CC, etc...)
-@@ -996,7 +999,7 @@ HOST_LIBELF_LIBS = $(shell pkg-config libelf --libs 2>/dev/null || echo -lelf)
+@@ -1019,7 +1022,7 @@ HOST_LIBELF_LIBS = $(shell pkg-config libelf --libs 2>/dev/null || echo -lelf)
  
  ifdef CONFIG_STACK_VALIDATION
    has_libelf := $(call try-run,\

@@ -1,5 +1,5 @@
-# Run shellcheck on all shell files in this repository
-name: shellcheck
+# Run shellcheck and shfmt on all shell files in this repository
+name: shell-scripts-codestyle-check
 on: [push, pull_request]
 jobs:
   shellcheck:
@@ -8,3 +8,22 @@ jobs:
     - uses: actions/checkout@v2
     - name: shellcheck
       uses: bewuethr/shellcheck-action@v1
+  shfmt-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '1.14.2'
+    - uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go
+        restore-keys: |
+          ${{ runner.os }}-go-
+    - name: Run shfmt
+      run: |
+        GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
+        while read -r f; do
+          PATH=$HOME/go/bin:$PATH shfmt -ci -d -i 4 $f
+        done < <(find . -type f -name "*.sh")

@@ -55,9 +55,6 @@ setup_variables() {
             make_target=zImage
             export ARCH=arm
             export CROSS_COMPILE=arm-linux-gnueabi-
-
-            # https://bugs.llvm.org/show_bug.cgi?id=45632
-            OBJCOPY=${CROSS_COMPILE}objcopy
             ;;
 
         "arm32_v6")

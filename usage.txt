@@ -30,14 +30,16 @@ Environment variables:
       Nicknames for trees:
         linux (default)
         linux-next
+        5.4
         4.19
         4.14
         4.9
         4.4
-        common-4.19
-        common-4.14
-        common-4.9
-        common-4.4
+        android-mainline
+        android-5.4
+        android-4.19
+        android-4.14-stable
+        android-4.9-q
   OBJSIZE:
       If no OBJSIZE value is specified, the script will attempt to set OBJSIZE
       to llvm-size-10 llvm-size-9, llvm-size-8, llvm-size-7, llvm-size, then

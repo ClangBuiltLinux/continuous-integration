@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
     while [[ ${#} -ge 1 ]]; do
         case ${1} in
-            "AR="* | "ARCH="* | "CC="* | "LD="* | "LLVM_IAS="* | "NM"=* | "OBJDUMP"=* | "OBJSIZE"=* | "REPO="*) export "${1?}" ;;
+            "AR="* | "ARCH="* | "CC="* | "LD="* | "LLVM_IAS="* | "NM"=* | "OBJCOPY"=* | "OBJDUMP"=* | "OBJSIZE"=* | "REPO="* | "STRIP"=*) export "${1?}" ;;
             "-c" | "--clean") cleanup=true ;;
             "-j" | "--jobs")
                 shift

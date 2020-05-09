@@ -323,6 +323,7 @@ mako_reactor() {
         HOSTLD="${HOSTLD:-ld}" \
         HOSTAR="${AR}" \
         KCFLAGS="-Wno-implicit-fallthrough" \
+        KAFLAGS="${KAFLAGS}" \
         LD="${LD}" \
         LLVM_IAS="${LLVM_IAS}" \
         NM="${NM}" \
@@ -370,6 +371,8 @@ build_linux() {
 
     # Only clean up old artifacts if requested, the Linux build system
     # is good about figuring out what needs to be rebuilt
+    KAFLAGS=" "
+    [[ $ARCH == "riscv" ]] && KAFLAGS="-mno-relax"
     [[ -n "${cleanup:-}" ]] && mako_reactor mrproper
     mako_reactor ${config}
     # If we're using a defconfig, enable some more common config options

@@ -28,6 +28,14 @@ jobs:
       env: ARCH=x86
     - name: "ARCH=x86_64"
       env: ARCH=x86_64
+    - name: "ARCH=arm32_v5 REPO=linux-next"
+      env: ARCH=arm32_v5 REPO=linux-next
+    - name: "ARCH=arm64 REPO=linux-next"
+      env: ARCH=arm64 REPO=linux-next
+    - name: "ARCH=x86 REPO=linux-next"
+      env: ARCH=x86 REPO=linux-next
+    - name: "ARCH=x86_64 REPO=linux-next"
+      env: ARCH=x86_64 REPO=linux-next
     # linux (cron only)
     #
     # linux-next (cron only)

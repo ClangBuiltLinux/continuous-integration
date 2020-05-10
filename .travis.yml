@@ -31,8 +31,8 @@ jobs:
     # linux (cron only)
     #
     # linux-next (cron only)
-    - name: "ARCH=arm32_v5 LD=ld.lld REPO=linux-next"
-      env: ARCH=arm32_v5 LD=ld.lld REPO=linux-next
+    - name: "ARCH=arm32_v5 LD=ld.lld LLVM_IAS=1 REPO=linux-next"
+      env: ARCH=arm32_v5 LD=ld.lld LLVM_IAS=1 REPO=linux-next
       if: type = cron
     - name: "ARCH=arm32_v6 REPO=linux-next"
       env: ARCH=arm32_v6 REPO=linux-next
@@ -40,8 +40,8 @@ jobs:
     - name: "ARCH=arm32_v7 LD=ld.lld REPO=linux-next"
       env: ARCH=arm32_v7 LD=ld.lld REPO=linux-next
       if: type = cron
-    - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
-      env: ARCH=arm64 LD=ld.lld REPO=linux-next
+    - name: "ARCH=arm64 LD=ld.lld LLVM_IAS=1 REPO=linux-next"
+      env: ARCH=arm64 LD=ld.lld LLVM_IAS=1 REPO=linux-next
       if: type = cron
     - name: "ARCH=mips LD=ld.lld REPO=linux-next"
       env: ARCH=mips LD=ld.lld REPO=linux-next
@@ -64,11 +64,11 @@ jobs:
     - name: "ARCH=s390 BOOT=0 REPO=linux-next"
       env: ARCH=s390 REPO=linux-next
       if: type = cron
-    - name: "ARCH=x86 LD=ld.lld REPO=linux-next"
-      env: ARCH=x86 LD=ld.lld REPO=linux-next
+    - name: "ARCH=x86 LD=ld.lld LLVM_IAS=1 REPO=linux-next"
+      env: ARCH=x86 LD=ld.lld LLVM_IAS=1 REPO=linux-next
       if: type = cron
-    - name: "ARCH=x86_64 LD=ld.lld REPO=linux-next"
-      env: ARCH=x86_64 LD=ld.lld REPO=linux-next
+    - name: "ARCH=x86_64 LD=ld.lld LLVM_IAS=1 REPO=linux-next"
+      env: ARCH=x86_64 LD=ld.lld LLVM_IAS=1 REPO=linux-next
       if: type = cron
     # stable
     - name: "ARCH=arm32_v7 LD=ld.lld REPO=5.4"

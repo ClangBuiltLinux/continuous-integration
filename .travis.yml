@@ -43,8 +43,8 @@ jobs:
     - name: "ARCH=arm64 LD=ld.lld LLVM_IAS=1 REPO=linux-next"
       env: ARCH=arm64 LD=ld.lld LLVM_IAS=1 REPO=linux-next
       if: type = cron
-    - name: "ARCH=mips LD=ld.lld REPO=linux-next"
-      env: ARCH=mips LD=ld.lld REPO=linux-next
+    - name: "ARCH=mips REPO=linux-next"
+      env: ARCH=mips REPO=linux-next
       if: type = cron
     - name: "ARCH=mipsel LD=ld.lld REPO=linux-next"
       env: ARCH=mipsel LD=ld.lld REPO=linux-next

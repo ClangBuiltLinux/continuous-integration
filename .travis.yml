@@ -10,8 +10,8 @@ jobs:
       env: ARCH=arm32_v7 LD=ld.lld
     - name: "ARCH=arm64 LD=ld.lld"
       env: ARCH=arm64 LD=ld.lld
-    - name: "ARCH=mips LD=ld.lld"
-      env: ARCH=mips LD=ld.lld
+    - name: "ARCH=mips"
+      env: ARCH=mips
     - name: "ARCH=mipsel LD=ld.lld"
       env: ARCH=mipsel LD=ld.lld
     - name: "ARCH=ppc32"

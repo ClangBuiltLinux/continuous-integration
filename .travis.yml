@@ -14,8 +14,7 @@ jobs:
       env: ARCH=mips
     - name: "ARCH=mipsel LD=ld.lld"
       env: ARCH=mipsel LD=ld.lld
-    - name: "ARCH=ppc32"
-      env: ARCH=ppc32
+    # ppc32 disabled due to https://llvm.org/pr46186
     - name: "ARCH=ppc64"
       env: ARCH=ppc64
     - name: "ARCH=ppc64le LD=ld.lld"
@@ -28,8 +27,6 @@ jobs:
       env: ARCH=x86 LD=ld.lld
     - name: "ARCH=x86_64 LD=ld.lld"
       env: ARCH=x86_64 LD=ld.lld
-    # linux (cron only)
-    #
     # linux-next (cron only)
     - name: "ARCH=arm32_v5 LD=ld.lld LLVM_IAS=1 REPO=linux-next"
       env: ARCH=arm32_v5 LD=ld.lld LLVM_IAS=1 REPO=linux-next
@@ -49,9 +46,7 @@ jobs:
     - name: "ARCH=mipsel LD=ld.lld REPO=linux-next"
       env: ARCH=mipsel LD=ld.lld REPO=linux-next
       if: type = cron
-    - name: "ARCH=ppc32 REPO=linux-next"
-      env: ARCH=ppc32 REPO=linux-next
-      if: type = cron
+    # ppc32 disabled due to https://llvm.org/pr46186
     - name: "ARCH=ppc64 REPO=linux-next"
       env: ARCH=ppc64 REPO=linux-next
       if: type = cron
@@ -178,9 +173,7 @@ jobs:
     - name: "ARCH=mipsel LLVM_VERSION=10"
       env: ARCH=mipsel LLVM_VERSION=10
       if: type = cron
-    - name: "ARCH=ppc32 LLVM_VERSION=10"
-      env: ARCH=ppc32 LLVM_VERSION=10
-      if: type = cron
+    # ppc32 disabled due to https://llvm.org/pr46186
     - name: "ARCH=ppc64 LLVM_VERSION=10"
       env: ARCH=ppc64 LLVM_VERSION=10
       if: type = cron

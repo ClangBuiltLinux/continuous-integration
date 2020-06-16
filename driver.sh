@@ -124,14 +124,12 @@ setup_variables() {
         "riscv")
             config=defconfig
             make_target=vmlinux
-            using_qemu=false
             export CROSS_COMPILE=riscv64-linux-gnu-
             ;;
 
         "s390")
             config=defconfig
             make_target=bzImage
-            using_qemu=false
             export CROSS_COMPILE=s390x-linux-gnu-
 
             # llvm-objcopy: error: invalid output format: 'elf64-s390'
@@ -416,7 +414,7 @@ build_linux() {
 }
 
 boot_qemu() {
-    ${using_qemu:=true} || return 0
+    if [[ "${BOOT}" == "0" ]]; then return 0; fi
     ./boot-utils/boot-qemu.sh -a "${SUBARCH}" -k "${tree}" -t "${timeout:-2}"m
 }
 

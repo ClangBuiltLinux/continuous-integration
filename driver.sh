@@ -128,6 +128,7 @@ setup_variables() {
             ;;
 
         "s390")
+            BOOT=false
             config=defconfig
             make_target=bzImage
             export CROSS_COMPILE=s390x-linux-gnu-
@@ -414,7 +415,7 @@ build_linux() {
 }
 
 boot_qemu() {
-    if [[ "${BOOT}" == "0" ]]; then return 0; fi
+    ${BOOT:=true} || return 0;
     ./boot-utils/boot-qemu.sh -a "${SUBARCH}" -k "${tree}" -t "${timeout:-2}"m
 }
 

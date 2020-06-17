@@ -19,10 +19,10 @@ jobs:
       env: ARCH=ppc64
     - name: "ARCH=ppc64le LD=ld.lld"
       env: ARCH=ppc64le LD=ld.lld
-    - name: "ARCH=riscv LLVM_IAS=1 BOOT=0"
-      env: ARCH=riscv LLVM_IAS=1 BOOT=0
-    - name: "ARCH=s390 BOOT=0"
-      env: ARCH=s390 BOOT=0
+    - name: "ARCH=riscv LLVM_IAS=1 BOOT=false"
+      env: ARCH=riscv LLVM_IAS=1 BOOT=false
+    - name: "ARCH=s390 BOOT=false"
+      env: ARCH=s390 BOOT=false
     - name: "ARCH=x86 LD=ld.lld"
       env: ARCH=x86 LD=ld.lld
     - name: "ARCH=x86_64 LD=ld.lld"
@@ -56,8 +56,8 @@ jobs:
     - name: "ARCH=riscv LLVM_IAS=1 REPO=linux-next"
       env: ARCH=riscv LLVM_IAS=1 REPO=linux-next
       if: type = cron
-    - name: "ARCH=s390 BOOT=0 REPO=linux-next"
-      env: ARCH=s390 REPO=linux-next BOOT=0
+    - name: "ARCH=s390 BOOT=false REPO=linux-next"
+      env: ARCH=s390 REPO=linux-next BOOT=false
       if: type = cron
     - name: "ARCH=x86 LD=ld.lld REPO=linux-next"
       env: ARCH=x86 LD=ld.lld REPO=linux-next

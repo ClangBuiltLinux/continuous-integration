@@ -102,7 +102,7 @@ setup_variables() {
 
         "ppc32")
             config=ppc44x_defconfig
-            make_target=zImage
+            make_target=uImage
             export ARCH=powerpc
             export CROSS_COMPILE=powerpc-linux-gnu-
             ;;

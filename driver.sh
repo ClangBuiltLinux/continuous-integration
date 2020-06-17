@@ -415,7 +415,7 @@ build_linux() {
 }
 
 boot_qemu() {
-    ${BOOT:=true} || return 0;
+    ${BOOT:=true} || return 0
     ./boot-utils/boot-qemu.sh -a "${SUBARCH}" -k "${tree}" -t "${timeout:-2}"m
 }
 

@@ -83,6 +83,7 @@ setup_variables() {
                 *) config=defconfig ;;
             esac
             make_target=Image.gz
+            timeout=5 # Bump the timeout to 5m.
             export CROSS_COMPILE=aarch64-linux-gnu-
             ;;
 

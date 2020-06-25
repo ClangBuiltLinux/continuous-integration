@@ -124,7 +124,7 @@ setup_variables() {
 
         "riscv")
             config=defconfig
-            make_target=vmlinux
+            make_target=Image
             export CROSS_COMPILE=riscv64-linux-gnu-
             ;;
 

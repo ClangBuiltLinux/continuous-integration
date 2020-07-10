@@ -27,7 +27,7 @@ setup_variables() {
 
     # torvalds/linux is the default repo if nothing is specified
     case ${REPO:=linux} in
-        "android-"*)
+        "android"*)
             tree=common
             branch=${REPO}
             url=https://android.googlesource.com/kernel/${tree}

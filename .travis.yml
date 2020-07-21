@@ -160,35 +160,35 @@ jobs:
       env: ARCH=x86_64 LD=ld.lld REPO=android-mainline
       if: type = cron
     # linux with stable LLVM/Clang
-    - name: "ARCH=arm32_v5 LD=ld.lld LLVM_VERSION=10"
-      env: ARCH=arm32_v5 LD=ld.lld LLVM_VERSION=10
+    - name: "ARCH=arm32_v5 LD=ld.lld LLVM_VERSION=11"
+      env: ARCH=arm32_v5 LD=ld.lld LLVM_VERSION=11
       if: type = cron
-    - name: "ARCH=arm32_v6 LLVM_VERSION=10"
-      env: ARCH=arm32_v6 LLVM_VERSION=10
+    - name: "ARCH=arm32_v6 LLVM_VERSION=11"
+      env: ARCH=arm32_v6 LLVM_VERSION=11
       if: type = cron
-    - name: "ARCH=arm32_v7 LD=ld.lld LLVM_VERSION=10"
-      env: ARCH=arm32_v7 LD=ld.lld LLVM_VERSION=10
+    - name: "ARCH=arm32_v7 LD=ld.lld LLVM_VERSION=11"
+      env: ARCH=arm32_v7 LD=ld.lld LLVM_VERSION=11
       if: type = cron
-    - name: "ARCH=arm64 LLVM_VERSION=10"
-      env: ARCH=arm64 LLVM_VERSION=10
+    - name: "ARCH=arm64 LLVM_VERSION=11"
+      env: ARCH=arm64 LLVM_VERSION=11
       if: type = cron
-    - name: "ARCH=mips LLVM_VERSION=10"
-      env: ARCH=mips LLVM_VERSION=10
+    - name: "ARCH=mips LLVM_VERSION=11"
+      env: ARCH=mips LLVM_VERSION=11
       if: type = cron
-    - name: "ARCH=mipsel LLVM_VERSION=10"
-      env: ARCH=mipsel LLVM_VERSION=10
+    - name: "ARCH=mipsel LLVM_VERSION=11"
+      env: ARCH=mipsel LLVM_VERSION=11
       if: type = cron
-    - name: "ARCH=ppc32 LLVM_VERSION=10"
-      env: ARCH=ppc32 LLVM_VERSION=10
+    - name: "ARCH=ppc32 LLVM_VERSION=11"
+      env: ARCH=ppc32 LLVM_VERSION=11
       if: type = cron
-    - name: "ARCH=ppc64 LLVM_VERSION=10"
-      env: ARCH=ppc64 LLVM_VERSION=10
+    - name: "ARCH=ppc64 LLVM_VERSION=11"
+      env: ARCH=ppc64 LLVM_VERSION=11
       if: type = cron
-    - name: "ARCH=ppc64le LLVM_VERSION=10"
-      env: ARCH=ppc64le LLVM_VERSION=10
+    - name: "ARCH=ppc64le LLVM_VERSION=11"
+      env: ARCH=ppc64le LLVM_VERSION=11
       if: type = cron
-    - name: "ARCH=x86_64 LLVM_VERSION=10"
-      env: ARCH=x86_64 LLVM_VERSION=10
+    - name: "ARCH=x86_64 LLVM_VERSION=11"
+      env: ARCH=x86_64 LLVM_VERSION=11
       if: type = cron
 compiler: gcc
 os: linux
@@ -208,7 +208,7 @@ script:
         --rm \
         --workdir /travis \
         --volume ${TRAVIS_BUILD_DIR}:/travis \
-        clangbuiltlinux/ubuntu:llvm${LLVM_VERSION:-11}-latest /bin/bash -c './env-setup.sh && ./driver.sh && ccache -s'
+        clangbuiltlinux/ubuntu:llvm${LLVM_VERSION:-12}-latest /bin/bash -c './env-setup.sh && ./driver.sh && ccache -s'
 after_script:
   - sleep 1
 notifications:

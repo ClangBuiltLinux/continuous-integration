@@ -22,6 +22,11 @@ setup_variables() {
         shift
     done
 
+    if [ "${ARCH:-0}" -eq "0" ]; then
+        cat usage.txt
+        exit 1
+    fi
+
     # Turn on debug mode after parameters in case -h was specified
     set -x
 

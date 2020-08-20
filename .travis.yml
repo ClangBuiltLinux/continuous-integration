@@ -202,6 +202,7 @@ script:
     docker run \
         --env ARCH=${ARCH} \
         --env LD=${LD} \
+        --env LLVM=${LLVM} \
         --env LLVM_IAS=${LLVM_IAS} \
         --env REPO=${REPO} \
         --env BOOT=${BOOT} \

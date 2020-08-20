@@ -20,6 +20,9 @@ Environment variables:
       If no CC value is specified, clang is used.
   LD:
       If no LD value is specified, ${CROSS_COMPILE}ld is used.
+  LLVM:
+      If this is set to 1, all LLVM utilities are used, except for the
+      integrated assembler. Use LLVM_IAS=1 to enable that.
   LLVM_IAS:
       If this is set to 1, the integrated assembler is used. No value means
       ${CROSS_COMPILE}as is used for assembling.

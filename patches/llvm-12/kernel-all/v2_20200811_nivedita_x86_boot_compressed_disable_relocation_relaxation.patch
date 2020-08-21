@@ -1,0 +1,92 @@
+From MAILER-DAEMON Fri Aug 21 00:05:42 2020
+From: Arvind Sankar <nivedita@alum.mit.edu>
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Fangrui Song <maskray@google.com>, clang-built-linux <clang-built-linux@googlegroups.com>, e5ten.arch@gmail.com, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Masahiro Yamada <masahiroy@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Subject: [PATCH v2] x86/boot/compressed: Disable relocation relaxation
+Date: Tue, 11 Aug 2020 20:43:08 -0400
+Message-Id: <20200812004308.1448603-1-nivedita@alum.mit.edu>
+In-Reply-To: <20200812004158.GA1447296@rani.riverdale.lan>
+References: <20200812004158.GA1447296@rani.riverdale.lan>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+The x86-64 psABI [0] specifies special relocation types
+(R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
+Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
+can take advantage of for optimization (relaxation) at link time. This
+is supported by LLD and binutils versions 2.26 onwards.
+
+The compressed kernel is position-independent code, however, when using
+LLD or binutils versions before 2.27, it must be linked without the -pie
+option. In this case, the linker may optimize certain instructions into
+a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
+
+This potential issue has been present with LLD and binutils-2.26 for a
+long time, but it has never manifested itself before now:
+- LLD and binutils-2.26 only relax
+	movq	foo@GOTPCREL(%rip), %reg
+  to
+	leaq	foo(%rip), %reg
+  which is still position-independent, rather than
+	mov	$foo, %reg
+  which is permitted by the psABI when -pie is not enabled.
+- gcc happens to only generate GOTPCREL relocations on mov instructions.
+- clang does generate GOTPCREL relocations on non-mov instructions, but
+  when building the compressed kernel, it uses its integrated assembler
+  (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
+  which has so far defaulted to not generating the GOTPCRELX
+  relocations.
+
+Nick Desaulniers reports [1,2]:
+  A recent change [3] to a default value of configuration variable
+  (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
+  integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
+  relocations. LLD will relax instructions with these relocations based
+  on whether the image is being linked as position independent or not.
+  When not, then LLD will relax these instructions to use absolute
+  addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
+  Clang and linked with LLD to fail to boot.
+
+Patch series [4] is a solution to allow the compressed kernel to be
+linked with -pie unconditionally, but even if merged is unlikely to be
+backported. As a simple solution that can be applied to stable as well,
+prevent the assembler from generating the relaxed relocation types using
+the -mrelax-relocations=no option. For ease of backporting, do this
+unconditionally.
+
+[0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
+[1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
+[2] https://github.com/ClangBuiltLinux/linux/issues/1121
+[3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
+[4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: stable@vger.kernel.org
+---
+ arch/x86/boot/compressed/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 3962f592633d..ff7894f39e0e 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -43,6 +43,8 @@ KBUILD_CFLAGS += -Wno-pointer-sign
+ KBUILD_CFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+ KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
+ KBUILD_CFLAGS += -D__DISABLE_EXPORTS
++# Disable relocation relaxation in case the link is not PIE.
++KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
+ 
+ KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
+ GCOV_PROFILE := n
+-- 
+2.26.2
+

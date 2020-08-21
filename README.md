@@ -13,3 +13,4 @@ $ git clone git@github.com:ClangBuiltLinux/continuous-integration.git
 $ cd continuous-integration
 $ ./driver.sh
 ```
+See also [usage](/usage.txt).

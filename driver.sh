@@ -5,7 +5,7 @@ set -eu
 setup_variables() {
     while [[ ${#} -ge 1 ]]; do
         case ${1} in
-            "AR="* | "ARCH="* | "CC="* | "LD="* | "LLVM_IAS="* | "NM"=* | "OBJCOPY"=* | "OBJDUMP"=* | "OBJSIZE"=* | "REPO="* | "STRIP"=*) export "${1?}" ;;
+            "AR="* | "ARCH="* | "CC="* | "LD="* | "LLVM="* | "LLVM_IAS="* | "NM"=* | "OBJCOPY"=* | "OBJDUMP"=* | "OBJSIZE"=* | "REPO="* | "STRIP"=*) export "${1?}" ;;
             "-c" | "--clean") cleanup=true ;;
             "-j" | "--jobs")
                 shift
@@ -21,6 +21,11 @@ setup_variables() {
 
         shift
     done
+
+    if [ "${ARCH:-0}" -eq "0" ]; then
+        cat usage.txt
+        exit 1
+    fi
 
     # Turn on debug mode after parameters in case -h was specified
     set -x
@@ -332,26 +337,37 @@ check_objcopy_strip_version() {
     done
 }
 mako_reactor() {
-    # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/kbuild/kbuild.txt
-    time \
-        KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
-        KBUILD_BUILD_USER=driver \
-        KBUILD_BUILD_HOST=clangbuiltlinux \
-        make -j"${jobs:-$(nproc)}" \
-        AR="${AR}" \
-        CC="${CC}" \
-        HOSTCC="${CC}" \
-        HOSTLD="${HOSTLD:-ld}" \
-        KCFLAGS="-Wno-implicit-fallthrough" \
-        LD="${LD}" \
-        LLVM_IAS="${LLVM_IAS}" \
-        NM="${NM}" \
-        OBJCOPY="${OBJCOPY}" \
-        OBJDUMP="${OBJDUMP}" \
-        OBJSIZE="${OBJSIZE}" \
-        READELF="${READELF}" \
-        STRIP="${STRIP}" \
-        "${@}"
+    if [[ ${LLVM:-0} -eq "1" ]]; then
+        time \
+            KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
+            KBUILD_BUILD_USER=driver \
+            KBUILD_BUILD_HOST=clangbuiltlinux \
+            make -j"${jobs:-$(nproc)}" \
+            LLVM=1 \
+            LLVM_IAS="${LLVM_IAS}" \
+            "${@}"
+    else
+        # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/kbuild/kbuild.txt
+        time \
+            KBUILD_BUILD_TIMESTAMP="Thu Jan  1 00:00:00 UTC 1970" \
+            KBUILD_BUILD_USER=driver \
+            KBUILD_BUILD_HOST=clangbuiltlinux \
+            make -j"${jobs:-$(nproc)}" \
+            AR="${AR}" \
+            CC="${CC}" \
+            HOSTCC="${CC}" \
+            HOSTLD="${HOSTLD:-ld}" \
+            KCFLAGS="-Wno-implicit-fallthrough" \
+            LD="${LD}" \
+            LLVM_IAS="${LLVM_IAS}" \
+            NM="${NM}" \
+            OBJCOPY="${OBJCOPY}" \
+            OBJDUMP="${OBJDUMP}" \
+            OBJSIZE="${OBJSIZE}" \
+            READELF="${READELF}" \
+            STRIP="${STRIP}" \
+            "${@}"
+    fi
 }
 
 apply_patches() {

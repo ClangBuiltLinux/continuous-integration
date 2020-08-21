@@ -2,14 +2,14 @@ language: cpp
 jobs:
   include:
     # linux
-    - name: "ARCH=arm32_v5 LD=ld.lld"
-      env: ARCH=arm32_v5 LD=ld.lld
+    - name: "ARCH=arm32_v5 LLVM=1"
+      env: ARCH=arm32_v5 LLVM=1
     - name: "ARCH=arm32_v6"
       env: ARCH=arm32_v6
-    - name: "ARCH=arm32_v7 LD=ld.lld"
-      env: ARCH=arm32_v7 LD=ld.lld
-    - name: "ARCH=arm64 LD=ld.lld"
-      env: ARCH=arm64 LD=ld.lld
+    - name: "ARCH=arm32_v7 LLVM=1"
+      env: ARCH=arm32_v7 LLVM=1
+    - name: "ARCH=arm64 LLVM=1"
+      env: ARCH=arm64 LLVM=1
     - name: "ARCH=mips"
       env: ARCH=mips
     - name: "ARCH=mipsel LD=ld.lld"
@@ -24,8 +24,8 @@ jobs:
       env: ARCH=riscv LLVM_IAS=1
     - name: "ARCH=s390 BOOT=false"
       env: ARCH=s390 BOOT=false
-    - name: "ARCH=x86 LD=ld.lld"
-      env: ARCH=x86 LD=ld.lld
+    - name: "ARCH=x86 LLVM=1"
+      env: ARCH=x86 LLVM=1
     - name: "ARCH=x86_64 LD=ld.lld"
       env: ARCH=x86_64 LD=ld.lld
     # linux (cron only)
@@ -40,8 +40,8 @@ jobs:
     - name: "ARCH=arm32_v7 LD=ld.lld REPO=linux-next"
       env: ARCH=arm32_v7 LD=ld.lld REPO=linux-next
       if: type = cron
-    - name: "ARCH=arm64 LD=ld.lld REPO=linux-next"
-      env: ARCH=arm64 LD=ld.lld REPO=linux-next
+    - name: "ARCH=arm64 LLVM=1 REPO=linux-next"
+      env: ARCH=arm64 LLVM=1 REPO=linux-next
       if: type = cron
     - name: "ARCH=mips REPO=linux-next"
       env: ARCH=mips REPO=linux-next
@@ -64,8 +64,8 @@ jobs:
     - name: "ARCH=s390 BOOT=false REPO=linux-next"
       env: ARCH=s390 REPO=linux-next BOOT=false
       if: type = cron
-    - name: "ARCH=x86 LD=ld.lld REPO=linux-next"
-      env: ARCH=x86 LD=ld.lld REPO=linux-next
+    - name: "ARCH=x86 LLVM=1 REPO=linux-next"
+      env: ARCH=x86 LLVM=1 REPO=linux-next
       if: type = cron
     - name: "ARCH=x86_64 LD=ld.lld REPO=linux-next"
       env: ARCH=x86_64 LD=ld.lld REPO=linux-next
@@ -202,6 +202,7 @@ script:
     docker run \
         --env ARCH=${ARCH} \
         --env LD=${LD} \
+        --env LLVM=${LLVM} \
         --env LLVM_IAS=${LLVM_IAS} \
         --env REPO=${REPO} \
         --env BOOT=${BOOT} \

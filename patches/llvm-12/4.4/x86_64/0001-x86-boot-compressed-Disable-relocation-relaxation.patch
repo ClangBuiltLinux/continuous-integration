@@ -1,18 +1,7 @@
-From MAILER-DAEMON Fri Aug 21 00:05:42 2020
+From c01391e3075ab922a696873e497ac6b7e0c8b8c4 Mon Sep 17 00:00:00 2001
 From: Arvind Sankar <nivedita@alum.mit.edu>
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Fangrui Song <maskray@google.com>, clang-built-linux <clang-built-linux@googlegroups.com>, e5ten.arch@gmail.com, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Masahiro Yamada <masahiroy@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2] x86/boot/compressed: Disable relocation relaxation
 Date: Tue, 11 Aug 2020 20:43:08 -0400
-Message-Id: <20200812004308.1448603-1-nivedita@alum.mit.edu>
-In-Reply-To: <20200812004158.GA1447296@rani.riverdale.lan>
-References: <20200812004158.GA1447296@rani.riverdale.lan>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-kernel.vger.kernel.org>
-X-Mailing-List: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] x86/boot/compressed: Disable relocation relaxation
 
 The x86-64 psABI [0] specifies special relocation types
 (R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
@@ -70,23 +59,25 @@ Tested-by: Nick Desaulniers <ndesaulniers@google.com>
 Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
 Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200812004308.1448603-1-nivedita@alum.mit.edu
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 ---
  arch/x86/boot/compressed/Makefile | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 3962f592633d..ff7894f39e0e 100644
+index bf0c7b6b00c3..01eafd8aeec6 100644
 --- a/arch/x86/boot/compressed/Makefile
 +++ b/arch/x86/boot/compressed/Makefile
-@@ -43,6 +43,8 @@ KBUILD_CFLAGS += -Wno-pointer-sign
- KBUILD_CFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
- KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
- KBUILD_CFLAGS += -D__DISABLE_EXPORTS
+@@ -31,6 +31,8 @@ KBUILD_CFLAGS += -mno-mmx -mno-sse
+ KBUILD_CFLAGS += $(call cc-option,-ffreestanding)
+ KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+ KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
 +# Disable relocation relaxation in case the link is not PIE.
 +KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
  
  KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
  GCOV_PROFILE := n
 -- 
-2.26.2
+2.28.0
 

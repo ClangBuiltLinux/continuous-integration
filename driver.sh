@@ -414,6 +414,19 @@ build_linux() {
         cat ../configs/common.config >>.config
         # Some torture test configs cause issues on PowerPC and x86_64
         [[ $ARCH != "x86_64" && $ARCH != "powerpc" ]] && cat ../configs/tt.config >>.config
+        # For RISC-V, disable a couple of configs:
+        # * CONFIG_EFI: https://github.com/ClangBuiltLinux/linux/issues/1143
+        # * CONFIG_KALLSYMS_ALL: https://github.com/ClangBuiltLinux/linux/issues/1144
+        # Every other configuration option disabled is to get rid of CONFIG_KALLSYMS_ALL.
+        if [[ $ARCH = "riscv" ]]; then
+            ./scripts/config \
+                -d DEBUG_LOCK_ALLOC \
+                -d DEBUG_WW_MUTEX_SLOWPATH \
+                -d EFI \
+                -d KALLSYMS_ALL \
+                -d LOCK_STAT \
+                -d PROVE_LOCKING
+        fi
         # Disable LTO and CFI unless explicitly requested
         ${disable_lto:=true} && ./scripts/config -d CONFIG_LTO -d CONFIG_LTO_CLANG
     fi

@@ -1,0 +1,12 @@
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index 5ab185130cae..41ef96d0d97a 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -19,6 +19,7 @@
+ #include <linux/smp.h>
+ 
+ #include <asm/cpu_ops.h>
++#include <asm/early_ioremap.h>
+ #include <asm/setup.h>
+ #include <asm/sections.h>
+ #include <asm/sbi.h>

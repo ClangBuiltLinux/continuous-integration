@@ -8,8 +8,8 @@ jobs:
       env: ARCH=arm32_v6
     - name: "ARCH=arm32_v7 LLVM=1"
       env: ARCH=arm32_v7 LLVM=1
-    - name: "ARCH=arm64 LLVM=1"
-      env: ARCH=arm64 LLVM=1
+    - name: "ARCH=arm64 LLVM=1 LLVM_IAS=1"
+      env: ARCH=arm64 LLVM=1 LLVM_IAS=1
     - name: "ARCH=mips"
       env: ARCH=mips
     - name: "ARCH=mipsel LD=ld.lld"

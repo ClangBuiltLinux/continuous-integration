@@ -88,7 +88,7 @@ setup_variables() {
                 *) config=defconfig ;;
             esac
             make_target=Image.gz
-            timeout=5 # Bump the timeout to 5m.
+            timeout=8 # '-cpu max' with QEMU takes longer to boot, increase timeout to 8m for Travis
             export CROSS_COMPILE=aarch64-linux-gnu-
             ;;
 

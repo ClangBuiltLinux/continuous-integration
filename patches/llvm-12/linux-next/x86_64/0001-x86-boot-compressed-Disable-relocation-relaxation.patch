@@ -1,4 +1,4 @@
-From 0e97b6491c65189722a56595e4b260caa424d665 Mon Sep 17 00:00:00 2001
+From 424a8aa6018a6480ab130ef9714d7c26302b2cea Mon Sep 17 00:00:00 2001
 From: Arvind Sankar <nivedita@alum.mit.edu>
 Date: Tue, 11 Aug 2020 20:43:08 -0400
 Subject: [PATCH] x86/boot/compressed: Disable relocation relaxation
@@ -66,7 +66,7 @@ Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
  1 file changed, 2 insertions(+)
 
 diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 753d57266757..d3509c4d5091 100644
+index 3224f1d9a5cd..c7b96a472c82 100644
 --- a/arch/x86/boot/compressed/Makefile
 +++ b/arch/x86/boot/compressed/Makefile
 @@ -44,6 +44,8 @@ KBUILD_CFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
@@ -76,8 +76,8 @@ index 753d57266757..d3509c4d5091 100644
 +# Disable relocation relaxation in case the link is not PIE.
 +KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
  
- KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
- GCOV_PROFILE := n
+ # sev-es.c indirectly inludes inat-table.h which is generated during
+ # compilation and stored in $(objtree). Add the directory to the includes so
 -- 
 2.28.0
 

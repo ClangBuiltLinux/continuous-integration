@@ -1,0 +1,49 @@
+From MAILER-DAEMON Fri Sep 18 01:30:42 2020
+From: Michael Ellerman <mpe@ellerman.id.au>
+To: linuxppc-dev@ozlabs.org
+Subject: [PATCH] powerpc/process: Fix uninitialised variable error
+Date: Thu, 17 Sep 2020 12:45:09 +1000
+Message-Id: <20200917024509.3253837-1-mpe@ellerman.id.au>
+List-Id: Linux on PowerPC Developers Mail List <linuxppc-dev.lists.ozlabs.org>
+Errors-To: linuxppc-dev-bounces+linuxppc-dev=archiver.kernel.org@lists.ozlabs.org
+Sender: "Linuxppc-dev" <linuxppc-dev-bounces+linuxppc-dev=archiver.kernel.org@lists.ozlabs.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Clang, and GCC with -Wmaybe-uninitialized, can't see that val is
+unused in get_fpexec_mode():
+
+  arch/powerpc/kernel/process.c:1940:7: error: variable 'val' is used
+  uninitialized whenever 'if' condition is true
+		  if (cpu_has_feature(CPU_FTR_SPE)) {
+		      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We know that CPU_FTR_SPE will only be true iff CONFIG_SPE is also
+true, but the compiler doesn't.
+
+Avoid it by initialising val to zero.
+
+Fixes: 532ed1900d37 ("powerpc/process: Remove useless #ifdef CONFIG_SPE")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+---
+ arch/powerpc/kernel/process.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 14d5189b17d8..d421a2c7f822 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -1934,7 +1934,7 @@ int set_fpexc_mode(struct task_struct *tsk, unsigned int val)
+ 
+ int get_fpexc_mode(struct task_struct *tsk, unsigned long adr)
+ {
+-	unsigned int val;
++	unsigned int val = 0;
+ 
+ 	if (tsk->thread.fpexc_mode & PR_FP_EXC_SW_ENABLE) {
+ 		if (cpu_has_feature(CPU_FTR_SPE)) {
+-- 
+2.25.1
+

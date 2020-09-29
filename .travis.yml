@@ -135,11 +135,11 @@ jobs:
     - name: "ARCH=arm64 REPO=android-4.14-stable"
       env: ARCH=arm64 REPO=android-4.14-stable
       if: type = cron
-    - name: "ARCH=arm64 REPO=android-4.19-stable"
-      env: ARCH=arm64 REPO=android-4.19-stable
+    - name: "ARCH=arm64 LLVM=1 REPO=android-4.19-stable"
+      env: ARCH=arm64 LLVM=1 REPO=android-4.19-stable
       if: type = cron
-    - name: "ARCH=arm64 REPO=android12-5.4"
-      env: ARCH=arm64 REPO=android12-5.4
+    - name: "ARCH=arm64 LLVM=1 REPO=android12-5.4"
+      env: ARCH=arm64 LLVM=1 REPO=android12-5.4
       if: type = cron
     - name: "ARCH=arm64 LLVM=1 LLVM_IAS=1 REPO=android-mainline"
       env: ARCH=arm64 LLVM=1 LLVM_IAS=1 REPO=android-mainline
@@ -150,11 +150,11 @@ jobs:
     - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.14-stable"
       env: ARCH=x86_64 LD=ld.lld REPO=android-4.14-stable
       if: type = cron
-    - name: "ARCH=x86_64 LD=ld.lld REPO=android-4.19-stable"
-      env: ARCH=x86_64 LD=ld.lld REPO=android-4.19-stable
+    - name: "ARCH=x86_64 LLVM=1 REPO=android-4.19-stable"
+      env: ARCH=x86_64 LLVM=1 REPO=android-4.19-stable
       if: type = cron
-    - name: "ARCH=x86_64 LD=ld.lld REPO=android12-5.4"
-      env: ARCH=x86_64 LD=ld.lld REPO=android12-5.4
+    - name: "ARCH=x86_64 LLVM=1 REPO=android12-5.4"
+      env: ARCH=x86_64 LLVM=1 REPO=android12-5.4
       if: type = cron
     - name: "ARCH=x86_64 LLVM=1 LLVM_IAS=1 REPO=android-mainline"
       env: ARCH=x86_64 LLVM=1 LLVM_IAS=1 REPO=android-mainline

@@ -1,15 +1,14 @@
 diff --git a/Makefile b/Makefile
-index f21168154160..8ba4080492c9 100644
+index 37739ee53f27..bc69153041ec 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -821,8 +821,10 @@ DEBUG_CFLAGS	+= -gsplit-dwarf
- else
+@@ -826,7 +826,9 @@ else
  DEBUG_CFLAGS	+= -g
  endif
+ 
 +ifneq ($(LLVM_IAS),1)
  KBUILD_AFLAGS	+= -Wa,-gdwarf-2
- endif
 +endif
+ 
  ifdef CONFIG_DEBUG_INFO_DWARF4
  DEBUG_CFLAGS	+= -gdwarf-4
- endif

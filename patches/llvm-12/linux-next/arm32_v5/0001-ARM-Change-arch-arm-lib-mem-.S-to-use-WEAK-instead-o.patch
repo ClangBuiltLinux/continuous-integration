@@ -1,0 +1,80 @@
+From c3556d2c9b5d653e59f95e2f27bf0f38d1e6c37d Mon Sep 17 00:00:00 2001
+From: Fangrui Song <maskray@google.com>
+Date: Thu, 5 Nov 2020 10:15:42 -0800
+Subject: [PATCH] ARM: Change arch/arm/lib/mem*.S to use WEAK instead of .weak
+
+Commit d6d51a96c7d6 ("ARM: 9014/2: Replace string mem* functions for
+KASan") add .weak directives to memcpy/memmove/memset to avoid collision
+with KASAN interceptors.
+
+This does not work with LLVM's integrated assembler (the assembly snippet
+`.weak memcpy ... .globl memcpy` produces a STB_GLOBAL memcpy while GNU as
+produces a STB_WEAK memcpy). LLVM 12 (since https://reviews.llvm.org/D90108)
+will error on such an overridden symbol binding.
+
+Use the appropriate WEAK macro instead.
+
+Fixes: d6d51a96c7d6 ("ARM: 9014/2: Replace string mem* functions for KASan")
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1190
+Link: https://lore.kernel.org/r/20201105181542.854788-1-maskray@google.com
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/arm/lib/memcpy.S  | 3 +--
+ arch/arm/lib/memmove.S | 3 +--
+ arch/arm/lib/memset.S  | 3 +--
+ 3 files changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/lib/memcpy.S b/arch/arm/lib/memcpy.S
+index ad4625d16e11..e4caf48c089f 100644
+--- a/arch/arm/lib/memcpy.S
++++ b/arch/arm/lib/memcpy.S
+@@ -58,10 +58,9 @@
+ 
+ /* Prototype: void *memcpy(void *dest, const void *src, size_t n); */
+ 
+-.weak memcpy
+ ENTRY(__memcpy)
+ ENTRY(mmiocpy)
+-ENTRY(memcpy)
++WEAK(memcpy)
+ 
+ #include "copy_template.S"
+ 
+diff --git a/arch/arm/lib/memmove.S b/arch/arm/lib/memmove.S
+index fd123ea5a5a4..6fecc12a1f51 100644
+--- a/arch/arm/lib/memmove.S
++++ b/arch/arm/lib/memmove.S
+@@ -24,9 +24,8 @@
+  * occurring in the opposite direction.
+  */
+ 
+-.weak memmove
+ ENTRY(__memmove)
+-ENTRY(memmove)
++WEAK(memmove)
+ 	UNWIND(	.fnstart			)
+ 
+ 		subs	ip, r0, r1
+diff --git a/arch/arm/lib/memset.S b/arch/arm/lib/memset.S
+index 0e7ff0423f50..9817cb258c1a 100644
+--- a/arch/arm/lib/memset.S
++++ b/arch/arm/lib/memset.S
+@@ -13,10 +13,9 @@
+ 	.text
+ 	.align	5
+ 
+-.weak memset
+ ENTRY(__memset)
+ ENTRY(mmioset)
+-ENTRY(memset)
++WEAK(memset)
+ UNWIND( .fnstart         )
+ 	ands	r3, r0, #3		@ 1 unaligned?
+ 	mov	ip, r0			@ preserve r0 as return value
+-- 
+2.29.2
+

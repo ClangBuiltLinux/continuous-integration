@@ -182,7 +182,7 @@ function update_boot_utils() {
     images_url=https://github.com/ClangBuiltLinux/boot-utils
     if [[ -d boot-utils ]]; then
         cd boot-utils
-        git fetch --depth=1 ${images_url} master
+        git fetch --depth=1 ${images_url} main
         git reset --hard FETCH_HEAD
         cd ..
     else

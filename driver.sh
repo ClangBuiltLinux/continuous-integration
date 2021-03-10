@@ -200,7 +200,7 @@ check_dependencies() {
     update_boot_utils
 
     oldest_llvm_version=7
-    latest_llvm_version=$(curl -LSs https://raw.githubusercontent.com/llvm/llvm-project/master/llvm/CMakeLists.txt | grep -s -F "set(LLVM_VERSION_MAJOR" | cut -d ' ' -f 4 | sed 's/)//')
+    latest_llvm_version=$(curl -LSs https://raw.githubusercontent.com/llvm/llvm-project/main/llvm/CMakeLists.txt | grep -s -F "set(LLVM_VERSION_MAJOR" | cut -d ' ' -f 4 | sed 's/)//')
 
     for llvm_version in $(seq "${latest_llvm_version}" -1 "${oldest_llvm_version}"); do
         debian_llvm_bin=/usr/lib/llvm-${llvm_version}/bin
